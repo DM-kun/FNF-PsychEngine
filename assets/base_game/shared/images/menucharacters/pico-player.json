@@ -1,9 +1,25 @@
 {
-	"confirm_anim": "confirm",
-	"antialiasing": true,
-	"idle_anim": "idle",
-	"position": [20, 0],
-	"scale": 1,
+	"animations": [
+		{
+			"anim": "idle",
+			"name": "idle",
+			"offsets": [0, 0],
+			"loop": false,
+			"fps": 24,
+			"indices": []
+		},
+		{
+			"anim": "idle",
+			"name": "confirm",
+			"offsets": [0, 0],
+			"loop": false,
+			"fps": 24,
+			"indices": []
+		}
+	],
 	"image": "pico-player",
-	"flipX": false
+	"scale": 1,
+	"position": [20, 0],
+	"flip_x": false,
+	"no_antialiasing": false
 }

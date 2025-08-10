@@ -5,6 +5,8 @@ import flixel.util.FlxSort;
 import flixel.util.FlxDestroyUtil;
 import flixel.addons.display.FlxPieDial;
 
+import psychlua.LuaUtils;
+
 typedef CutsceneEvent = {
 	var time:Float;
 	var func:Void->Void;
@@ -12,9 +14,13 @@ typedef CutsceneEvent = {
 
 class CutsceneHandler extends FlxBasic
 {
-	public var timedEvents:Array<CutsceneEvent> = [];
-	public var skipCallback:Void->Void = null;
+	public var overallFinish:Void->Void = null;
+	public var onFinish:Void->Void = null;
+	public var onSkip:Void->Void = null;
+
 	public var onStart:Void->Void = null;
+
+	public var timedEvents:Array<CutsceneEvent> = [];
 	public var endTime:Float = 0;
 	public var objects:Array<FlxSprite> = [];
 	public var music:String = null;
@@ -23,7 +29,6 @@ class CutsceneHandler extends FlxBasic
 	var _canSkip:Bool = false;
 	public var holdingTime:Float = 0;
 	public var skipSprite:FlxPieDial;
-	public var finishCallback:Void->Void = null;
 
 	public function new(canSkip:Bool = true)
 	{
@@ -59,7 +64,7 @@ class CutsceneHandler extends FlxBasic
 	{
 		super.update(elapsed);
 
-		if(FlxG.state != PlayState.instance || !firstFrame)
+		if(LuaUtils.getTargetInstance() != PlayState.instance || !firstFrame)
 		{
 			firstFrame = true;
 			return;
@@ -87,21 +92,25 @@ class CutsceneHandler extends FlxBasic
 			if(holdingTime >= _timeToSkip)
 			{
 				trace('skipped cutscene');
-				if(skipCallback != null)
-					skipCallback();
+				if(onSkip != null) onSkip();
 			}
-			else finishCallback();
+			else if(onFinish != null) onFinish();
 
-			for (spr in objects)
+			if(overallFinish != null) overallFinish();
+
+			for(spr in objects)
 			{
 				spr.kill();
-				PlayState.instance.remove(spr);
+				if(LuaUtils.getTargetInstance() != null && LuaUtils.getTargetInstance().members.contains(spr))
+					LuaUtils.getTargetInstance().remove(spr);
 				spr.destroy();
 			}
-			
+
 			skipSprite = FlxDestroyUtil.destroy(skipSprite);
 			destroy();
-			PlayState.instance.remove(this);
+
+			if(LuaUtils.getTargetInstance() != null && LuaUtils.getTargetInstance().members.contains(this))
+				LuaUtils.getTargetInstance().remove(this);
 		}
 	}
 

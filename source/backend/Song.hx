@@ -5,8 +5,7 @@ import lime.utils.Assets;
 
 import objects.Note;
 
-typedef SwagSong =
-{
+typedef SwagSong = {
 	var song:String;
 	var notes:Array<SwagSection>;
 	var events:Array<Dynamic>;
@@ -14,26 +13,26 @@ typedef SwagSong =
 	var needsVoices:Bool;
 	var speed:Float;
 	var offset:Float;
+	var stage:String;
 
 	var player1:String;
 	var player2:String;
 	var gfVersion:String;
-	var stage:String;
-	var format:String;
 
 	@:optional var gameOverChar:String;
 	@:optional var gameOverSound:String;
 	@:optional var gameOverLoop:String;
 	@:optional var gameOverEnd:String;
-	
-	@:optional var disableNoteRGB:Bool;
+	@:optional var gameOverBPM:Float;
 
+	@:optional var disableNoteRGB:Bool;
 	@:optional var arrowSkin:String;
 	@:optional var splashSkin:String;
+
+	@:optional var format:String;
 }
 
-typedef SwagSection =
-{
+typedef SwagSection = {
 	var sectionNotes:Array<Dynamic>;
 	var sectionBeats:Float;
 	var mustHitSection:Bool;
@@ -50,18 +49,23 @@ class Song
 	public var events:Array<Dynamic>;
 	public var bpm:Float;
 	public var needsVoices:Bool = true;
-	public var arrowSkin:String;
-	public var splashSkin:String;
+	public var speed:Float = 1;
+	public var stage:String;
+
+	public var player1:String = 'bf';
+	public var player2:String = 'dad';
+	public var gfVersion:String = 'gf';
+
 	public var gameOverChar:String;
 	public var gameOverSound:String;
 	public var gameOverLoop:String;
 	public var gameOverEnd:String;
+	public var gameOverBPM:Float;
+
 	public var disableNoteRGB:Bool = false;
-	public var speed:Float = 1;
-	public var stage:String;
-	public var player1:String = 'bf';
-	public var player2:String = 'dad';
-	public var gfVersion:String = 'gf';
+	public var arrowSkin:String;
+	public var splashSkin:String;
+
 	public var format:String = 'psych_v1';
 
 	public static function convert(songJson:Dynamic) // Convert old charts to psych_v1 format
@@ -72,10 +76,10 @@ class Song
 			if(Reflect.hasField(songJson, 'player3')) Reflect.deleteField(songJson, 'player3');
 		}
 
-		if(songJson.events == null)
+		if(songJson.events == null || songJson.events.length < 1)
 		{
 			songJson.events = [];
-			for (secNum in 0...songJson.notes.length)
+			for(secNum in 0...songJson.notes.length)
 			{
 				var sec:SwagSection = songJson.notes[secNum];
 
@@ -99,16 +103,16 @@ class Song
 		var sectionsData:Array<SwagSection> = songJson.notes;
 		if(sectionsData == null) return;
 
-		for (section in sectionsData)
+		for(section in sectionsData)
 		{
 			var beats:Null<Float> = cast section.sectionBeats;
-			if (beats == null || Math.isNaN(beats))
+			if(beats == null || Math.isNaN(beats))
 			{
 				section.sectionBeats = 4;
 				if(Reflect.hasField(section, 'lengthInSteps')) Reflect.deleteField(section, 'lengthInSteps');
 			}
 
-			for (note in section.sectionNotes)
+			for(note in section.sectionNotes)
 			{
 				var gottaHitNote:Bool = (note[1] < 4) ? section.mustHitSection : !section.mustHitSection;
 				note[1] = (note[1] % 4) + (gottaHitNote ? 0 : 4);

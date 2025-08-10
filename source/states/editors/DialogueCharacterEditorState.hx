@@ -3,7 +3,7 @@ package states.editors;
 import openfl.net.FileReference;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
-import flash.net.FileFilter;
+import openfl.net.FileFilter;
 import haxe.Json;
 import lime.system.Clipboard;
 
@@ -40,8 +40,8 @@ class DialogueCharacterEditorState extends MusicBeatState implements PsychUIEven
 	var offsetIdleText:FlxText;
 	var animText:FlxText;
 
-	var camGame:FlxCamera;
-	var camHUD:FlxCamera;
+	var camGame:PsychCamera;
+	var camHUD:PsychCamera;
 
 	var mainGroup:FlxSpriteGroup;
 	var hudGroup:FlxSpriteGroup;
@@ -53,11 +53,12 @@ class DialogueCharacterEditorState extends MusicBeatState implements PsychUIEven
 	var curAnim:Int = 0;
 	var unsavedProgress:Bool = false;
 
-	override function create() {
+	override function create()
+	{
 		persistentUpdate = persistentDraw = true;
 		camGame = initPsychCamera();
 		camGame.bgColor = FlxColor.fromHSL(0, 0, 0.5);
-		camHUD = new FlxCamera();
+		camHUD = new PsychCamera();
 		camHUD.bgColor.alpha = 0;
 		FlxG.cameras.add(camHUD, false);
 		

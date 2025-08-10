@@ -32,19 +32,18 @@ class ErrorHandledShader extends FlxShader implements IErrorHandler
 	public static function crashSave(shaderName:String, error:Dynamic, onError:Dynamic) // prevent the app from dying immediately
 	{
 		if(shaderName == null) shaderName = 'unnamed';
-		var alertTitle:String = 'Error on Shader: "$shaderName"';
+		final alertTitle:String = 'Error on Shader: "$shaderName"';
 
 		trace(error);
 
 		#if !debug
 		// Save a crash log on Release builds
-		var errMsg:String = "";
-		var dateNow:String = Date.now().toString().replace(" ", "_").replace(":", "'");
+		final dateNow:String = Date.now().toString().replace(" ", "_").replace(":", "'");
 
-		if (!FileSystem.exists('./crash/'))
+		if(!FileSystem.exists('./crash/'))
 			FileSystem.createDirectory('./crash/');
 
-		var crashLogPath:String = './crash/shader_${shaderName}_${dateNow}.txt';
+		final crashLogPath:String = './crash/shader_${shaderName}_${dateNow}.txt';
 		File.saveContent(crashLogPath, error);
 		Application.current.window.alert('Error log saved at: $crashLogPath', alertTitle);
 		#else

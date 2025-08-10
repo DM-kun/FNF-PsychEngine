@@ -14,9 +14,9 @@ class DialogueBox extends FlxSpriteGroup
 	// SECOND DIALOGUE FOR THE PIXEL SHIT INSTEAD???
 	var swagDialogue:FlxTypeText;
 
-	public var finishThing:Void->Void;
-	public var nextDialogueThing:Void->Void = null;
-	public var skipDialogueThing:Void->Void = null;
+	public var onFinish:Void->Void;
+	public var onNextDialogue:Void->Void = null;
+	public var onSkipDialogue:Void->Void = null;
 
 	var portraitLeft:FlxSprite;
 	var portraitRight:FlxSprite;
@@ -179,9 +179,7 @@ class DialogueBox extends FlxSpriteGroup
 				FlxG.sound.play(Paths.sound('clickText'), 0.8);
 				swagDialogue.skip();
 				
-				if(skipDialogueThing != null) {
-					skipDialogueThing();
-				}
+				if(onSkipDialogue != null) onSkipDialogue();
 			}
 		}
 	}
@@ -209,7 +207,7 @@ class DialogueBox extends FlxSpriteGroup
 		skipText.visible = false;
 		new FlxTimer().start(1.5, function(tmr:FlxTimer)
 		{
-			finishThing();
+			onFinish();
 			kill();
 		});
 	}
@@ -248,8 +246,8 @@ class DialogueBox extends FlxSpriteGroup
 					portraitRight.animation.play('enter');
 				}
 		}
-		if(nextDialogueThing != null)
-			nextDialogueThing();
+
+		if(onNextDialogue != null) onNextDialogue();
 	}
 
 	function cleanDialog():Void

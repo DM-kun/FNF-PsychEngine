@@ -1,9 +1,6 @@
 package states;
 
-import flixel.FlxSubState;
-
 import flixel.effects.FlxFlicker;
-import lime.app.Application;
 
 class FlashingState extends MusicBeatState
 {
@@ -33,8 +30,9 @@ class FlashingState extends MusicBeatState
 		texts.add(warnText);
 
 		final keys = ["Yes", "No"];
-		for (i in 0...keys.length) {
-			final button = new FlxText(0, 0, FlxG.width, keys[i]);
+		for(i => key in keys)
+		{
+			final button = new FlxText(0, 0, FlxG.width, key);
 			button.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
 			button.y = (warnText.y + warnText.height) + 24;
 			button.x += (128 * i) - 80;
@@ -48,24 +46,32 @@ class FlashingState extends MusicBeatState
 
 	override function update(elapsed:Float)
 	{
-		if(leftState) {
+		if(leftState)
+		{
 			super.update(elapsed);
 			return;
 		}
-		var back:Bool = controls.BACK;
-		if (controls.UI_LEFT_P || controls.UI_RIGHT_P) {
+
+		if(controls.UI_LEFT_P || controls.UI_RIGHT_P)
+		{
 			FlxG.sound.play(Paths.sound("scrollMenu"), 0.7);
 			isYes = !isYes;
 			updateItems();
 		}
-		if (controls.ACCEPT || back) {
+
+		final back:Bool = controls.BACK;
+		if(controls.ACCEPT || back)
+		{
 			leftState = true;
 			FlxTransitionableState.skipNextTransIn = true;
 			FlxTransitionableState.skipNextTransOut = true;
-			if(!back) {
+
+			if(!back)
+			{
 				ClientPrefs.data.flashing = !isYes;
 				ClientPrefs.saveSettings();
 				FlxG.sound.play(Paths.sound('confirmMenu'));
+
 				final button = texts.members[isYes ? 1 : 2];
 				FlxFlicker.flicker(button, 1, 0.1, false, true, function(flk:FlxFlicker) {
 					new FlxTimer().start(0.5, function (tmr:FlxTimer) {
@@ -74,17 +80,21 @@ class FlashingState extends MusicBeatState
 						});
 					});
 				});
-			} else {
+			}
+			else
+			{
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 				FlxTween.tween(texts, {alpha: 0}, 1, {
 					onComplete: (_) -> MusicBeatState.switchState(new TitleState())
 				});
 			}
 		}
+
 		super.update(elapsed);
 	}
 
-	function updateItems() {
+	function updateItems()
+	{
 		// it's clunky but it works.
 		texts.members[1].alpha = isYes ? 1.0 : 0.6;
 		texts.members[2].alpha = isYes ? 0.6 : 1.0;

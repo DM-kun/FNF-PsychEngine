@@ -507,7 +507,7 @@ class ControlsSubState extends MusicBeatSubstate
 
 		curSelected = 0;
 		curAlt = false;
-		controllerSpr.animation.play(onKeyboardMode ? 'keyboard' : 'gamepad');
+		controllerSpr.animation.play(onKeyboardMode ? 'gamepad' : 'keyboard');
 		createTexts();
 	}
 

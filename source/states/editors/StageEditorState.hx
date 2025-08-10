@@ -20,8 +20,7 @@ import openfl.net.FileReference;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 
-import psychlua.ModchartSprite;
-import flash.net.FileFilter;
+import openfl.net.FileFilter;
 
 import states.editors.content.Prompt;
 import states.editors.content.PreloadListSubState;
@@ -36,8 +35,8 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 	var boyfriend:Character;
 	var stageJson:StageFile;
 
-	var camGame:FlxCamera;
-	public var camHUD:FlxCamera;
+	var camGame:PsychCamera;
+	public var camHUD:PsychCamera;
 
 	var UI_stagebox:PsychUIBox;
 	var UI_box:PsychUIBox;
@@ -68,7 +67,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		Paths.clearUnusedMemory();
 
 		camGame = initPsychCamera();
-		camHUD = new FlxCamera();
+		camHUD = new PsychCamera();
 		camHUD.bgColor.alpha = 0;
 		FlxG.cameras.add(camHUD, false);
 
@@ -86,7 +85,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		dad = new Character(0, 0, stageJson._editorMeta != null ? stageJson._editorMeta.dad : 'dad');
 		boyfriend = new Character(0, 0, stageJson._editorMeta != null ? stageJson._editorMeta.boyfriend : 'bf', true);
 
-		for (i in 0...4)
+		for(i in 0...4)
 		{
 			var spr:FlxSprite = new FlxSprite().makeGraphic(1, 1, FlxColor.LIME);
 			spr.alpha = 0.8;
@@ -180,7 +179,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 				spr.sprite = FlxDestroyUtil.destroy(spr.sprite);
 
 		stageSprites = [];
-		var list:Map<String, FlxSprite> = [];
+		var list:Map<String, Dynamic> = [];
 		if(stageJson.objects != null && stageJson.objects.length > 0)
 		{
 			list = StageData.addObjectsToState(stageJson.objects, gf, dad, boyfriend, null, true);
@@ -352,7 +351,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 			var spr = stageSprites[selected];
 			if(spr == null || StageData.reservedNames.contains(spr.type)) return;
 
-			var copiedSpr = new ModchartSprite();
+			var copiedSpr:PsychSprite = new PsychSprite();
 			var copiedMeta:StageEditorMetaSprite = new StageEditorMetaSprite(null, copiedSpr);
 			for (field in Reflect.fields(spr))
 			{
@@ -372,7 +371,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 								var indices:Array<Int> = v.indices;
 								if(indices != null) indices = indices.copy();
 	
-								var offs:Array<Int> = v.offsets;
+								var offs:Array<Float> = v.offsets;
 								if(offs != null) offs = offs.copy();
 
 								fld[k] = {
@@ -402,16 +401,29 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 				for (num => anim in copiedMeta.animations)
 				{
 					if(anim == null || anim.anim == null) continue;
-	
-					if(anim.indices != null && anim.indices.length > 0)
-						copiedSpr.animation.addByIndices(anim.anim, anim.name, anim.indices, '', anim.fps, anim.loop);
-					else
-						copiedSpr.animation.addByPrefix(anim.anim, anim.name, anim.fps, anim.loop);
+
+					try
+					{
+						if(anim.indices == null || anim.indices.length < 1)
+							copiedSpr.anim.addBySymbol(anim.anim, anim.name, anim.fps, anim.loop);
+						else
+							copiedSpr.anim.addBySymbolIndices(anim.anim, anim.name, anim.indices, anim.fps, anim.loop);
+
+						if(!copiedSpr.hasAnimation(anim.anim)) throw new haxe.Exception('Failed to add Animate Symbol Animation!');
+					}
+					catch(e:Dynamic)
+					{
+						if(anim.indices == null || anim.indices.length < 1)
+							copiedSpr.anim.addByPrefix(anim.anim, anim.name, anim.fps, anim.loop);
+						else
+							copiedSpr.anim.addByIndices(anim.anim, anim.name, anim.indices, '', anim.fps, anim.loop);
+					}
 	
 					if(anim.offsets != null && anim.offsets.length > 1)
 						copiedSpr.addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);
+					else copiedSpr.addOffset(anim.anim, 0, 0);
 	
-					if(copiedSpr.animation.curAnim == null || copiedMeta.firstAnimation == anim.anim)
+					if(copiedSpr.isAnimationNull() || copiedMeta.firstAnimation == anim.anim)
 						copiedSpr.playAnim(anim.anim, true);
 				}
 			}
@@ -524,7 +536,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 
 		btnY += 50;
 		var btn:PsychUIButton = new PsychUIButton(0, btnY, 'Solid Color', function() {
-			var meta:StageEditorMetaSprite = new StageEditorMetaSprite({type: 'square', scale: [200, 200], name: findUnoccupiedName()}, new ModchartSprite());
+			var meta:StageEditorMetaSprite = new StageEditorMetaSprite({type: 'square', scale: [200, 200], name: findUnoccupiedName()}, new PsychSprite());
 			meta.sprite.makeGraphic(1, 1, FlxColor.WHITE);
 			meta.sprite.scale.set(200, 200);
 			meta.sprite.updateHitbox();
@@ -1689,7 +1701,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 					_file = null;
 					return;
 				}
-				insertMeta(new StageEditorMetaSprite({type: _makeNewSprite, name: findUnoccupiedName()}, new ModchartSprite()));
+				insertMeta(new StageEditorMetaSprite({type: _makeNewSprite, name: findUnoccupiedName()}, new PsychSprite()));
 			}
 			var selected = getSelected();
 			tryLoadImage(selected, imageToLoad);
@@ -1835,7 +1847,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 
 class StageEditorMetaSprite
 {
-	public var sprite:FlxSprite;
+	public var sprite:PsychSprite;
 	public var visible(get, set):Bool;
 	function get_visible() return sprite.visible;
 	function set_visible(v:Bool) return (sprite.visible = v);
@@ -1875,7 +1887,10 @@ class StageEditorMetaSprite
 				case 'sprite':
 					sprite.loadGraphic(Paths.image(v));
 				case 'animatedSprite':
-					sprite.frames = Paths.getAtlas(v);
+					final animToFind:String = Paths.getPath('images/$v/Animation.json', TEXT);
+					if(#if MODS_ALLOWED FileSystem.exists(animToFind) || #end Assets.exists(animToFind))
+						sprite.frames = Paths.getAnimateAtlas(v);
+					else sprite.frames = Paths.getAtlas(v);
 			}
 		}
 		catch (e:Dynamic) {}
@@ -1918,7 +1933,7 @@ class StageEditorMetaSprite
 	public var firstAnimation:String;
 	public var animations:Array<AnimArray>;
 
-	public function new(data:Dynamic, spr:FlxSprite)
+	public function new(data:Dynamic, spr:PsychSprite)
 	{
 		this.sprite = spr;
 		if(data == null) return;
@@ -1999,7 +2014,7 @@ class StageEditorAnimationSubstate extends MusicBeatSubstate {
 	var animsTxtGroup:FlxTypedGroup<FlxText>;
 
 	var UI_animationbox:PsychUIBox;
-	var camHUD:FlxCamera = cast(FlxG.state, StageEditorState).camHUD;
+	var camHUD:PsychCamera = cast(FlxG.state, StageEditorState).camHUD;
 	public function new()
 	{
 		super();
@@ -2110,12 +2125,12 @@ class StageEditorAnimationSubstate extends MusicBeatSubstate {
 			}
 
 			var lastAnim:String = (target.animations[curAnim] != null) ? target.animations[curAnim].anim : '';
-			var lastOffsets:Array<Int> = null;
+			var lastOffsets:Array<Float> = null;
 			for (anim in target.animations)
 				if(animationInputText.text == anim.anim)
 				{
 					lastOffsets = anim.offsets;
-					cast (target.sprite, ModchartSprite).animOffsets.remove(animationInputText.text);
+					cast (target.sprite, PsychSprite).animOffsets.remove(animationInputText.text);
 					target.sprite.animation.remove(animationInputText.text);
 					target.animations.remove(anim);
 				}
@@ -2129,10 +2144,25 @@ class StageEditorAnimationSubstate extends MusicBeatSubstate {
 				offsets: lastOffsets
 			};
 
-			if(addedAnim.indices != null && addedAnim.indices.length > 0)
-				target.sprite.animation.addByIndices(addedAnim.anim, addedAnim.name, addedAnim.indices, '', addedAnim.fps, addedAnim.loop);
-			else
-				target.sprite.animation.addByPrefix(addedAnim.anim, addedAnim.name, addedAnim.fps, addedAnim.loop);
+			try
+			{
+				if(addedAnim.indices == null || addedAnim.indices.length < 1)
+					target.sprite.anim.addBySymbol(addedAnim.anim, addedAnim.name, addedAnim.fps, addedAnim.loop);
+				else
+					target.sprite.anim.addBySymbolIndices(addedAnim.anim, addedAnim.name, addedAnim.indices, addedAnim.fps, addedAnim.loop);
+
+				if(!target.sprite.hasAnimation(addedAnim.anim)) throw new haxe.Exception('Failed to add Animate Symbol Animation!');
+			}
+			catch(e:Dynamic)
+			{
+				if(addedAnim.indices == null || addedAnim.indices.length < 1)
+					target.sprite.anim.addByPrefix(addedAnim.anim, addedAnim.name, addedAnim.fps, addedAnim.loop);
+				else
+					target.sprite.anim.addByIndices(addedAnim.anim, addedAnim.name, addedAnim.indices, '', addedAnim.fps, addedAnim.loop);
+			}
+
+			if(addedAnim.offsets != null && addedAnim.offsets.length > 1) target.sprite.addOffset(addedAnim.anim, addedAnim.offsets[0], addedAnim.offsets[1]);
+			else target.sprite.addOffset(addedAnim.anim, 0, 0);
 
 			target.animations.push(addedAnim);
 			reloadAnimList();
@@ -2149,9 +2179,9 @@ class StageEditorAnimationSubstate extends MusicBeatSubstate {
 			{
 				if(animationInputText.text == anim.anim)
 				{
-					var targetSprite:ModchartSprite = cast (target.sprite, ModchartSprite);
+					var targetSprite:PsychSprite = cast (target.sprite, PsychSprite);
 					var resetAnim:Bool = false;
-					if(targetSprite.animation.curAnim != null && anim.anim == targetSprite.animation.curAnim.name) resetAnim = true;
+					if(!targetSprite.isAnimationNull() && anim.anim == targetSprite.getAnimationName()) resetAnim = true;
 
 					if(targetSprite.animOffsets.exists(anim.anim))
 						targetSprite.animOffsets.remove(anim.anim);
@@ -2200,10 +2230,10 @@ class StageEditorAnimationSubstate extends MusicBeatSubstate {
 		for (text in animsTxtGroup)
 			text.kill();
 
-		var spr:ModchartSprite = cast (target.sprite, ModchartSprite);
+		var spr:PsychSprite = cast (target.sprite, PsychSprite);
 		if(target.animations.length > 0)
 		{
-			if(target.firstAnimation == null || !target.sprite.animation.exists(target.firstAnimation))
+			if(target.firstAnimation == null || !target.sprite.hasAnimation(target.firstAnimation))
 				target.firstAnimation = target.animations[0].anim;
 
 			mainAnimTxt.text = 'Main Anim.: ${target.firstAnimation}';
@@ -2254,7 +2284,7 @@ class StageEditorAnimationSubstate extends MusicBeatSubstate {
 
 	function playAnim(name:String, force:Bool = false)
 	{
-		var spr:ModchartSprite = cast (target.sprite, ModchartSprite);
+		var spr:PsychSprite = cast (target.sprite, PsychSprite);
 		spr.playAnim(name, force);
 		if(!spr.animOffsets.exists(name)) spr.updateHitbox();
 	}
@@ -2298,10 +2328,10 @@ class StageEditorAnimationSubstate extends MusicBeatSubstate {
 		if(FlxG.keys.pressed.CONTROL) ctrlMult = 0.25;
 
 		// OFFSET
-		if(target.sprite.animation.curAnim != null)
+		if(!target.sprite.isAnimationNull())
 		{
-			var spr:ModchartSprite = cast (target.sprite, ModchartSprite);
-			var anim:String = spr.animation.curAnim.name;
+			var spr:PsychSprite = cast (target.sprite, PsychSprite);
+			var anim:String = spr.getAnimationName();
 			var changedOffset = false;
 			var moveKeysP = [FlxG.keys.justPressed.LEFT, FlxG.keys.justPressed.RIGHT, FlxG.keys.justPressed.UP, FlxG.keys.justPressed.DOWN];
 			var moveKeys = [FlxG.keys.pressed.LEFT, FlxG.keys.pressed.RIGHT, FlxG.keys.pressed.UP, FlxG.keys.pressed.DOWN];
@@ -2312,7 +2342,7 @@ class StageEditorAnimationSubstate extends MusicBeatSubstate {
 					spr.offset.x += ((moveKeysP[0] ? 1 : 0) - (moveKeysP[1] ? 1 : 0)) * shiftMultBig;
 					spr.offset.y += ((moveKeysP[2] ? 1 : 0) - (moveKeysP[3] ? 1 : 0)) * shiftMultBig;
 				}
-				else spr.offset.x = spr.offset.y = 0;
+				else spr.offset.set(0, 0);
 				changedOffset = true;
 			}
 	
@@ -2329,7 +2359,7 @@ class StageEditorAnimationSubstate extends MusicBeatSubstate {
 							spr.offset.x += ((moveKeys[0] ? 1 : 0) - (moveKeys[1] ? 1 : 0)) * shiftMultBig;
 							spr.offset.y += ((moveKeys[2] ? 1 : 0) - (moveKeys[3] ? 1 : 0)) * shiftMultBig;
 						}
-						else spr.offset.x = spr.offset.y = 0;
+						else spr.offset.set(0, 0);
 						holdingArrowsElapsed -= (1/60);
 						changedOffset = true;
 					}

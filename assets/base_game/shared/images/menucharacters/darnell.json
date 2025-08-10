@@ -1,9 +1,17 @@
 {
-	"idle_anim": "idle",
+	"animations": [
+		{
+			"anim": "idle",
+			"name": "idle",
+			"offsets": [0, 0],
+			"loop": false,
+			"fps": 24,
+			"indices": []
+		}
+	],
 	"image": "darnell",
-	"position": [-20, -90],
-	"flipX": false,
-	"antialiasing": true,
 	"scale": 1,
-	"confirm_anim": "idle"
+	"position": [-20, -90],
+	"flip_x": false,
+	"no_antialiasing": false
 }

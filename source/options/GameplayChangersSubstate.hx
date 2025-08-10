@@ -341,10 +341,10 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		FlxG.sound.play(Paths.sound('scrollMenu'));
 	}
 
-	function reloadCheckboxes() {
-		for (checkbox in checkboxGroup) {
-			checkbox.daValue = (optionsArray[checkbox.ID].getValue() == true);
-		}
+	function reloadCheckboxes()
+	{
+		for(checkbox in checkboxGroup)
+			checkbox.checked = (optionsArray[checkbox.ID].getValue() == true);
 	}
 }
 

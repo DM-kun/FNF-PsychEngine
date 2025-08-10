@@ -30,9 +30,10 @@ class DialogueBoxPsych extends FlxSpriteGroup
 	var dialogue:TypedAlphabet;
 	var dialogueList:DialogueFile = null;
 
-	public var finishThing:Void->Void;
-	public var nextDialogueThing:Void->Void = null;
-	public var skipDialogueThing:Void->Void = null;
+	public var onFinish:Void->Void;
+	public var onNextDialogue:Void->Void = null;
+	public var onSkipDialogue:Void->Void = null;
+
 	var bgFade:FlxSprite = null;
 	var box:FlxSprite;
 	var textToType:String = '';
@@ -171,9 +172,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 				if(!daText.finishedText && !back)
 				{
 					daText.finishText();
-					if(skipDialogueThing != null) {
-						skipDialogueThing();
-					}
+					if(onSkipDialogue != null) onSkipDialogue();
 				}
 				else if(back || currentText >= dialogueList.dialogue.length)
 				{
@@ -307,7 +306,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 						leChar.destroy();
 					}
 				}
-				finishThing();
+				onFinish();
 				kill();
 			}
 		}
@@ -378,9 +377,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 		}
 		currentText++;
 
-		if(nextDialogueThing != null) {
-			nextDialogueThing();
-		}
+		if(onNextDialogue != null) onNextDialogue();
 	}
 
 	inline public static function parseDialogue(path:String):DialogueFile {

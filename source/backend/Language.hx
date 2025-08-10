@@ -56,16 +56,14 @@ class Language
 
 	inline public static function getPhrase(key:String, ?defaultPhrase:String, values:Array<Dynamic> = null):String
 	{
+		var str:String = defaultPhrase;
 		#if TRANSLATIONS_ALLOWED
 		//trace(formatKey(key));
-		var str:String = phrases.get(formatKey(key));
-		if(str == null) str = defaultPhrase;
-		#else
-		var str:String = defaultPhrase;
+		if(phrases.get(formatKey(key)) != null)
+			str = phrases.get(formatKey(key));
 		#end
 
-		if(str == null)
-			str = key;
+		if(str == null) str = key;
 		
 		if(values != null)
 			for (num => value in values)
@@ -93,7 +91,8 @@ class Language
 	#end
 
 	#if LUA_ALLOWED
-	public static function addLuaCallbacks(lua:State) {
+	public static function addLuaCallbacks(lua:State)
+	{
 		Lua_helper.add_callback(lua, "getTranslationPhrase", function(key:String, ?defaultPhrase:String, ?values:Array<Dynamic> = null) {
 			return getPhrase(key, defaultPhrase, values);
 		});

@@ -446,7 +446,7 @@ class NotesColorSubState extends MusicBeatSubstate
 			{
 				if (holdingOnObj == colorGradient)
 				{
-					var newBrightness = 1 - FlxMath.bound((pointerY() - colorGradient.y) / colorGradient.height, 0, 1);
+					final newBrightness = 1 - FlxMath.bound((pointerY() - colorGradient.y) / colorGradient.height, 0, 1);
 					_storedColor.alpha = 1;
 					if(_storedColor.brightness == 0) //prevent bug
 						setShaderColor(FlxColor.fromRGBFloat(newBrightness, newBrightness, newBrightness));
@@ -456,10 +456,10 @@ class NotesColorSubState extends MusicBeatSubstate
 				}
 				else if (holdingOnObj == colorWheel)
 				{
-					var center:FlxPoint = new FlxPoint(colorWheel.x + colorWheel.width/2, colorWheel.y + colorWheel.height/2);
-					var mouse:FlxPoint = pointerFlxPoint();
-					var hue:Float = FlxMath.wrap(FlxMath.wrap(Std.int(mouse.degreesTo(center)), 0, 360) - 90, 0, 360);
-					var sat:Float = FlxMath.bound(mouse.dist(center) / colorWheel.width*2, 0, 1);
+					final center:FlxPoint = FlxPoint.get(colorWheel.x + colorWheel.width/2, colorWheel.y + colorWheel.height/2);
+					final mouse:FlxPoint = pointerFlxPoint();
+					final hue:Float = FlxMath.wrap(FlxMath.wrap(Std.int(mouse.degreesTo(center)), 0, 360) - 90, 0, 360);
+					final sat:Float = FlxMath.bound(mouse.dist(center) / colorWheel.width*2, 0, 1);
 					//trace('$hue, $sat');
 					if(sat != 0) setShaderColor(FlxColor.fromHSB(hue, sat, _storedColor.brightness));
 					else setShaderColor(FlxColor.fromRGBFloat(_storedColor.brightness, _storedColor.brightness, _storedColor.brightness));
@@ -478,12 +478,9 @@ class NotesColorSubState extends MusicBeatSubstate
 													ClientPrefs.defaultData.arrowRGBPixel[curSelectedNote][i];
 					switch(i)
 					{
-						case 0:
-							getShader().r = strumRGB.r = color;
-						case 1:
-							getShader().g = strumRGB.g = color;
-						case 2:
-							getShader().b = strumRGB.b = color;
+						case 0: getShader().r = strumRGB.r = color;
+						case 1: getShader().g = strumRGB.g = color;
+						case 2: getShader().b = strumRGB.b = color;
 					}
 					dataArray[curSelectedNote][i] = color;
 				}
@@ -533,24 +530,19 @@ class NotesColorSubState extends MusicBeatSubstate
 		hexTypeVisibleTimer = 0;
 	}
 
-	function changeSelectionMode(change:Int = 0) {
-		curSelectedMode += change;
-		if (curSelectedMode < 0)
-			curSelectedMode = 2;
-		if (curSelectedMode >= 3)
-			curSelectedMode = 0;
+	function changeSelectionMode(change:Int = 0)
+	{
+		curSelectedMode = FlxMath.wrap(curSelectedMode + change, 0, 2);
 
 		modeBG.visible = true;
 		notesBG.visible = false;
 		updateNotes();
 		FlxG.sound.play(Paths.sound('scrollMenu'));
 	}
-	function changeSelectionNote(change:Int = 0) {
-		curSelectedNote += change;
-		if (curSelectedNote < 0)
-			curSelectedNote = dataArray.length-1;
-		if (curSelectedNote >= dataArray.length)
-			curSelectedNote = 0;
+
+	function changeSelectionNote(change:Int = 0)
+	{
+		curSelectedNote = FlxMath.wrap(curSelectedNote + change, 0, dataArray.length-1);
 		
 		modeBG.visible = false;
 		notesBG.visible = true;

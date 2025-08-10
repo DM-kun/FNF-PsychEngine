@@ -2,7 +2,7 @@ package states.editors.content;
 
 import haxe.io.Path;
 import flixel.util.FlxDestroyUtil;
-import flash.net.FileFilter;
+import openfl.net.FileFilter;
 
 import backend.StageData;
 import backend.ui.PsychUIButton;

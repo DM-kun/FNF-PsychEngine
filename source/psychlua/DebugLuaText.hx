@@ -3,7 +3,8 @@ package psychlua;
 class DebugLuaText extends FlxText
 {
 	public var disableTime:Float = 6;
-	public function new() {
+	public function new()
+	{
 		super(10, 10, FlxG.width - 20, '', 16);
 
 		setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
@@ -11,8 +12,10 @@ class DebugLuaText extends FlxText
 		borderSize = 1;
 	}
 
-	override function update(elapsed:Float) {
+	override function update(elapsed:Float)
+	{
 		super.update(elapsed);
+
 		disableTime -= elapsed;
 		if(disableTime < 0) disableTime = 0;
 		if(disableTime < 1) alpha = disableTime;

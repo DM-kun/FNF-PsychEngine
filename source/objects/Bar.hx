@@ -1,12 +1,14 @@
 package objects;
 
 import flixel.math.FlxRect;
+import flixel.util.FlxDestroyUtil;
 
 class Bar extends FlxSpriteGroup
 {
 	public var leftBar:FlxSprite;
 	public var rightBar:FlxSprite;
 	public var bg:FlxSprite;
+
 	public var valueFunction:Void->Float = null;
 	public var percent(default, set):Float = 0;
 	public var bounds:Dynamic = {min: 0, max: 1};
@@ -16,36 +18,50 @@ class Bar extends FlxSpriteGroup
 	// you might need to change this if you want to use a custom bar
 	public var barWidth(default, set):Int = 1;
 	public var barHeight(default, set):Int = 1;
-	public var barOffset:FlxPoint = new FlxPoint(3, 3);
+	public var barOffset:FlxPoint = FlxPoint.get(3, 3);
 
-	public function new(x:Float, y:Float, image:String = 'healthBar', valueFunction:Void->Float = null, boundX:Float = 0, boundY:Float = 1)
+	public function new(x:Float, y:Float, bgImg:String = 'healthBar', barImg:String = null, valueFunction:Void->Float = null, boundX:Float = 0, boundY:Float = 1)
 	{
 		super(x, y);
-		
+
 		this.valueFunction = valueFunction;
 		setBounds(boundX, boundY);
+
+		antialiasing = ClientPrefs.data.antialiasing;
 		
-		bg = new FlxSprite().loadGraphic(Paths.image(image));
+		bg = new FlxSprite().loadGraphic(Paths.image(bgImg));
 		bg.antialiasing = ClientPrefs.data.antialiasing;
-		barWidth = Std.int(bg.width - 6);
-		barHeight = Std.int(bg.height - 6);
+		bg.updateHitbox();
+
+		barWidth = Std.int(bg.width - barOffset.x * 2);
+		barHeight = Std.int(bg.height - barOffset.y * 2);
 
 		leftBar = new FlxSprite().makeGraphic(Std.int(bg.width), Std.int(bg.height), FlxColor.WHITE);
-		//leftBar.color = FlxColor.WHITE;
-		leftBar.antialiasing = antialiasing = ClientPrefs.data.antialiasing;
-
 		rightBar = new FlxSprite().makeGraphic(Std.int(bg.width), Std.int(bg.height), FlxColor.WHITE);
+
+		if(barImg != null && barImg.length > 0)
+		{
+			leftBar.loadGraphic(Paths.image(barImg));
+			leftBar.updateHitbox();
+			rightBar.loadGraphic(Paths.image(barImg));
+			rightBar.updateHitbox();
+		}
+
+		//leftBar.color = FlxColor.WHITE;
 		rightBar.color = FlxColor.BLACK;
-		rightBar.antialiasing = ClientPrefs.data.antialiasing;
+
+		leftBar.antialiasing = rightBar.antialiasing = ClientPrefs.data.antialiasing;
 
 		add(leftBar);
 		add(rightBar);
 		add(bg);
+
 		regenerateClips();
 	}
 
 	public var enabled:Bool = true;
-	override function update(elapsed:Float) {
+	override function update(elapsed:Float)
+	{
 		if(!enabled)
 		{
 			super.update(elapsed);
@@ -54,11 +70,18 @@ class Bar extends FlxSpriteGroup
 
 		if(valueFunction != null)
 		{
-			var value:Null<Float> = FlxMath.remapToRange(FlxMath.bound(valueFunction(), bounds.min, bounds.max), bounds.min, bounds.max, 0, 100);
+			final value:Null<Float> = FlxMath.remapToRange(FlxMath.bound(valueFunction(), bounds.min, bounds.max), bounds.min, bounds.max, 0, 100);
 			percent = (value != null ? value : 0);
 		}
 		else percent = 0;
+
 		super.update(elapsed);
+	}
+
+	override public function destroy()
+	{
+		barOffset = FlxDestroyUtil.put(barOffset);
+		super.destroy();
 	}
 	
 	public function setBounds(min:Float, max:Float)
@@ -69,10 +92,8 @@ class Bar extends FlxSpriteGroup
 
 	public function setColors(left:FlxColor = null, right:FlxColor = null)
 	{
-		if (left != null)
-			leftBar.color = left;
-		if (right != null)
-			rightBar.color = right;
+		if(left != null) leftBar.color = left;
+		if(right != null) rightBar.color = right;
 	}
 
 	public function updateBar()
@@ -82,9 +103,7 @@ class Bar extends FlxSpriteGroup
 		leftBar.setPosition(bg.x, bg.y);
 		rightBar.setPosition(bg.x, bg.y);
 
-		var leftSize:Float = 0;
-		if(leftToRight) leftSize = FlxMath.lerp(0, barWidth, percent / 100);
-		else leftSize = FlxMath.lerp(0, barWidth, 1 - percent / 100);
+		final leftSize:Float = FlxMath.lerp(0, barWidth, (leftToRight ? percent / 100 : 1 - percent / 100));
 
 		leftBar.clipRect.width = leftSize;
 		leftBar.clipRect.height = barHeight;
@@ -122,8 +141,7 @@ class Bar extends FlxSpriteGroup
 
 	private function set_percent(value:Float)
 	{
-		var doUpdate:Bool = false;
-		if(value != percent) doUpdate = true;
+		final doUpdate:Bool = (value != percent);
 		percent = value;
 
 		if(doUpdate) updateBar();

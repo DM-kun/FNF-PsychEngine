@@ -1,7 +1,6 @@
 package substates;
 
 import backend.WeekData;
-import backend.Highscore;
 import backend.Song;
 
 import flixel.util.FlxStringUtil;
@@ -146,10 +145,9 @@ class PauseSubState extends MusicBeatSubstate
 	
 	function getPauseSong()
 	{
-		var formattedSongName:String = (songName != null ? Paths.formatToSongPath(songName) : '');
-		var formattedPauseMusic:String = Paths.formatToSongPath(ClientPrefs.data.pauseMusic);
+		final formattedSongName:String = (songName != null ? Paths.formatToSongPath(songName) : '');
+		final formattedPauseMusic:String = Paths.formatToSongPath(ClientPrefs.data.pauseMusic);
 		if(formattedSongName == 'none' || (formattedSongName != 'none' && formattedPauseMusic == 'none')) return null;
-
 		return (formattedSongName != '') ? formattedSongName : formattedPauseMusic;
 	}
 
@@ -178,14 +176,8 @@ class PauseSubState extends MusicBeatSubstate
 		}
 
 		updateSkipTextStuff();
-		if (controls.UI_UP_P)
-		{
-			changeSelection(-1);
-		}
-		if (controls.UI_DOWN_P)
-		{
-			changeSelection(1);
-		}
+		if(controls.UI_UP_P) changeSelection(-1);
+		if(controls.UI_DOWN_P) changeSelection(1);
 
 		var daSelected:String = menuItems[curSelected];
 		switch (daSelected)
@@ -207,10 +199,7 @@ class PauseSubState extends MusicBeatSubstate
 				if(controls.UI_LEFT || controls.UI_RIGHT)
 				{
 					holdTime += elapsed;
-					if(holdTime > 0.5)
-					{
-						curTime += 45000 * elapsed * (controls.UI_LEFT ? -1 : 1);
-					}
+					if(holdTime > 0.5) curTime += 45000 * elapsed * (controls.UI_LEFT ? -1 : 1);
 
 					if(curTime >= FlxG.sound.music.length) curTime -= FlxG.sound.music.length;
 					else if(curTime < 0) curTime += FlxG.sound.music.length;
@@ -273,7 +262,7 @@ class PauseSubState extends MusicBeatSubstate
 					PlayState.changedDifficulty = true;
 					practiceText.visible = PlayState.instance.practiceMode;
 				case "Restart Song":
-					restartSong();
+					restartSong(true);
 				case "Leave Charting Mode":
 					restartSong();
 					PlayState.chartingMode = false;
@@ -306,6 +295,7 @@ class PauseSubState extends MusicBeatSubstate
 				case 'Options':
 					PlayState.instance.paused = true; // For lua
 					PlayState.instance.vocals.volume = 0;
+					PlayState.instance.opponentVocals.volume = 0;
 					PlayState.instance.canResync = false;
 					MusicBeatState.switchState(new OptionsState());
 					if(ClientPrefs.data.pauseMusic != 'None')
@@ -350,8 +340,13 @@ class PauseSubState extends MusicBeatSubstate
 	public static function restartSong(noTrans:Bool = false)
 	{
 		PlayState.instance.paused = true; // For lua
+
 		FlxG.sound.music.volume = 0;
 		PlayState.instance.vocals.volume = 0;
+		PlayState.instance.opponentVocals.volume = 0;
+
+		@:privateAccess
+		PlayState.prevCamFollow = PlayState.instance.camFollow;
 
 		if(noTrans)
 		{

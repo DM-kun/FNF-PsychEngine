@@ -1,23 +1,19 @@
 package states;
 
-import lime.app.Future;
-import sys.thread.FixedThreadPool;
 import haxe.Json;
+import lime.app.Future;
 import lime.utils.Assets;
+import flixel.FlxState;
+import flixel.system.FlxAssets;
 import openfl.display.BitmapData;
 import openfl.utils.AssetType;
 import openfl.utils.Assets as OpenFlAssets;
-import flixel.graphics.FlxGraphic;
-import flixel.system.FlxAssets;
-import flixel.FlxState;
-
-import flash.media.Sound;
+import openfl.media.Sound;
 
 import backend.Song;
 import backend.StageData;
-import objects.Character;
 
-import sys.thread.Thread;
+import sys.thread.FixedThreadPool;
 import sys.thread.Mutex;
 
 import objects.Note;
@@ -109,6 +105,7 @@ class LoadingState extends MusicBeatState
 		if(Mods.currentModDirectory != null && Mods.currentModDirectory.trim().length > 0)
 		{
 			var scriptPath:String = 'mods/${Mods.currentModDirectory}/data/LoadingScreen.hx'; //mods/My-Mod/data/LoadingScreen.hx
+			if(!FileSystem.exists(scriptPath)) scriptPath = 'mods/data/LoadingScreen.hx';
 			if(FileSystem.exists(scriptPath))
 			{
 				try
@@ -235,12 +232,9 @@ class LoadingState extends MusicBeatState
 		var dots:String = '';
 		switch(Math.floor(timePassed % 1 * 3))
 		{
-			case 0:
-				dots = '.';
-			case 1:
-				dots = '..';
-			case 2:
-				dots = '...';
+			case 0: dots = '.';
+			case 1: dots = '..';
+			case 2: dots = '...';
 		}
 		loadingText.text = Language.getPhrase('now_loading', 'Now Loading{1}', [dots]);
 
@@ -410,11 +404,9 @@ class LoadingState extends MusicBeatState
 	static var dontPreloadDefaultVoices:Bool = false;
 	static function _startPool()
 	{
-		#if MULTITHREADED_LOADING
-		// Due to the Main thread and Discord thread, we decrease it by 2.
-		var threadCount:Int = Std.int(Math.max(1, getCPUThreadsCount() - #if DISCORD_ALLOWED 2 #else 1 #end));
-		#else
 		var threadCount:Int = 1;
+		#if MULTITHREADED_LOADING // Due to the Main thread and Discord thread, we decrease it by 2.
+		threadCount = Std.int(Math.max(1, getCPUThreadsCount() - #if DISCORD_ALLOWED 2 #else 1 #end));
 		#end
 		threadPool = new FixedThreadPool(threadCount);
 	}
@@ -510,8 +502,7 @@ class LoadingState extends MusicBeatState
 			}
 			catch(e:Dynamic) {}
 			return true;
-		}, isIntrusive)
-		.then((_) -> new Future<Bool>(() -> {
+		}, isIntrusive).then((_) -> new Future<Bool>(() -> {
 			if (song.stage == null || song.stage.length < 1)
 				song.stage = StageData.vanillaSongStage(folder);
 
@@ -564,12 +555,12 @@ class LoadingState extends MusicBeatState
 			preloadCharacter(player1, prefixVocals);
 			if (!dontPreloadDefaultVoices && prefixVocals != null)
 			{
-				if(Paths.fileExists('$prefixVocals-Player.${Paths.SOUND_EXT}', SOUND, false, 'songs') && Paths.fileExists('$prefixVocals-Opponent.${Paths.SOUND_EXT}', SOUND, false, 'songs'))
+				if(Paths.fileExists('$prefixVocals-Player.${Paths.SOUND_EXT}', SOUND, 'songs', false) && Paths.fileExists('$prefixVocals-Opponent.${Paths.SOUND_EXT}', SOUND, 'songs', false))
 				{
 					songsToPrepare.push('$prefixVocals-Player');
 					songsToPrepare.push('$prefixVocals-Opponent');
 				}
-				else if(Paths.fileExists('$prefixVocals.${Paths.SOUND_EXT}', SOUND, false, 'songs'))
+				else if(Paths.fileExists('$prefixVocals.${Paths.SOUND_EXT}', SOUND, 'songs', false))
 					songsToPrepare.push(prefixVocals);
 			}
 
@@ -597,8 +588,7 @@ class LoadingState extends MusicBeatState
 				initialThreadCompleted = true;
 			}
 			return true;
-		}, isIntrusive))
-		.onError((err:Dynamic) -> {
+		}, isIntrusive)).onError((err:Dynamic) -> {
 			trace('ERROR! while preparing song: $err');
 		});
 	}
@@ -641,14 +631,13 @@ class LoadingState extends MusicBeatState
 		var i:Int = 0;
 		while(i < arr.length)
 		{
-
 			var member:String = arr[i];
 			var myKey = '$prefix/$member$ext';
 			if(parentFolder == 'songs') myKey = '$member$ext';
 
 			//trace('attempting on $prefix: $myKey');
 			var doTrace:Bool = false;
-			if(member.endsWith('/') || (!Paths.fileExists(myKey, type, false, parentFolder) && (doTrace = true)))
+			if(member.endsWith('/') || (!Paths.fileExists(myKey, type, parentFolder, true) && (doTrace = true)))
 			{
 				arr.remove(member);
 				if(doTrace) trace('Removed invalid $prefix: $member');
@@ -721,11 +710,10 @@ class LoadingState extends MusicBeatState
 			var isAnimateAtlas:Bool = false;
 			var img:String = character.image;
 			img = img.trim();
-			#if flxanimate
-			var animToFind:String = Paths.getPath('images/$img/Animation.json', TEXT);
+
+			final animToFind:String = Paths.getPath('images/$img/Animation.json', TEXT);
 			if (#if MODS_ALLOWED FileSystem.exists(animToFind) || #end Assets.exists(animToFind))
 				isAnimateAtlas = true;
-			#end
 
 			if(!isAnimateAtlas)
 			{
@@ -735,7 +723,6 @@ class LoadingState extends MusicBeatState
 					imagesToPrepare.push(file.trim());
 				}
 			}
-			#if flxanimate
 			else
 			{
 				for (i in 0...10)
@@ -751,8 +738,7 @@ class LoadingState extends MusicBeatState
 					}
 				}
 			}
-			#end
-	
+
 			if (prefixVocals != null && character.vocals_file != null && character.vocals_file.length > 0)
 			{
 				songsToPrepare.push(prefixVocals + "-" + character.vocals_file);
@@ -797,12 +783,13 @@ class LoadingState extends MusicBeatState
 	// thread safe sound loader
 	static function preloadGraphic(key:String):Null<BitmapData>
 	{
-		try {
+		try
+		{
 			var requestKey:String = 'images/$key';
 			#if TRANSLATIONS_ALLOWED requestKey = Language.getFileTranslation(requestKey); #end
 			if(requestKey.lastIndexOf('.') < 0) requestKey += '.png';
 
-			if (!Paths.currentTrackedAssets.exists(requestKey))
+			if(!Paths.currentTrackedAssets.exists(requestKey))
 			{
 				var file:String = Paths.getPath(requestKey, IMAGE);
 				if (#if sys FileSystem.exists(file) || #end OpenFlAssets.exists(file, IMAGE))
@@ -833,13 +820,10 @@ class LoadingState extends MusicBeatState
 	}
 	
 	#if cpp
-	@:functionCode('
-		return std::thread::hardware_concurrency();
-    	')
-	@:noCompletion
-    	public static function getCPUThreadsCount():Int
-    	{
-        	return -1;
-    	}
-    	#end
+	@:functionCode('return std::thread::hardware_concurrency();')
+	@:noCompletion public static function getCPUThreadsCount():Int
+	{
+		return -1;
+	}
+	#end
 }

@@ -3,7 +3,7 @@ package states.editors.content;
 import openfl.net.FileReference;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
-import flash.net.FileFilter;
+import openfl.net.FileFilter;
 
 import haxe.Exception;
 import sys.io.File;
@@ -34,10 +34,7 @@ class FileDialogHandler extends FlxBasic
 
 	public function save(?fileName:String = '', ?dataToSave:String = '', ?onComplete:Void->Void, ?onCancel:Void->Void, ?onError:Void->Void)
 	{
-		if(!completed)
-		{
-			throw new Exception('You must finish previous operation before starting a new one.');
-		}
+		if(!completed) throw new Exception('You must finish previous operation before starting a new one.');
 
 		this._dialogMode = SAVE;
 		_startUp(onComplete, onCancel, onError);
@@ -50,10 +47,7 @@ class FileDialogHandler extends FlxBasic
 
 	public function open(?defaultName:String = null, ?title:String = null, ?filter:Array<FileFilter> = null, ?onComplete:Void->Void, ?onCancel:Void->Void, ?onError:Void->Void)
 	{
-		if(!completed)
-		{
-			throw new Exception('You must finish previous operation before starting a new one.');
-		}
+		if(!completed) throw new Exception('You must finish previous operation before starting a new one.');
 
 		this._dialogMode = OPEN;
 		_startUp(onComplete, onCancel, onError);
@@ -70,10 +64,7 @@ class FileDialogHandler extends FlxBasic
 
 	public function openDirectory(?title:String = null, ?onComplete:Void->Void, ?onCancel:Void->Void, ?onError:Void->Void)
 	{
-		if(!completed)
-		{
-			throw new Exception('You must finish previous operation before starting a new one.');
-		}
+		if(!completed) throw new Exception('You must finish previous operation before starting a new one.');
 
 		this._dialogMode = OPEN_DIRECTORY;
 		_startUp(onComplete, onCancel, onError);

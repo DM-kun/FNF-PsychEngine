@@ -19,11 +19,11 @@ class SpraycanAtlasSprite extends FlxSpriteGroup
 		super();
 
 		canAtlas = new FlxAnimate(x, y);
-		Paths.loadAnimateAtlas(canAtlas, 'spraycanAtlas');
-		canAtlas.anim.addBySymbolIndices('Can Start', 'Can with Labels', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18], 24, false);
-		canAtlas.anim.addBySymbolIndices('Hit Pico', 'Can with Labels', [19, 20, 21, 22, 23, 24, 25], false);
-		canAtlas.anim.addBySymbolIndices('Can Shot', 'Can with Labels', [26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42], 24, false);
-		canAtlas.anim.onComplete.add(finishCanAnimation);
+		canAtlas.frames = Paths.getAnimateAtlas('spraycanAtlas');
+		canAtlas.anim.addBySymbolIndices('Can Start', 'Can with Labels', [for(i in 0...19) i], 24, false);
+		canAtlas.anim.addBySymbolIndices('Hit Pico', 'Can with Labels', [for(i in 19...26) i], false);
+		canAtlas.anim.addBySymbolIndices('Can Shot', 'Can with Labels', [for(i in 26...43) i], 24, false);
+		canAtlas.anim.onFinish.add(finishCanAnimation);
 		canAtlas.visible = canAtlas.active = false;
 		canAtlas.antialiasing = ClientPrefs.data.antialiasing;
 		add(canAtlas);
@@ -31,16 +31,16 @@ class SpraycanAtlasSprite extends FlxSpriteGroup
 		explosion = new FlxSprite(x - 25, y - 450);
 		explosion.frames = Paths.getSparrowAtlas('spraypaintExplosionEZ');
 		explosion.animation.addByPrefix('idle', 'explosion round 1 short0', 24, false);
-		explosion.animation.finishCallback = (name:String) -> explosion.visible = explosion.active = false;
+		explosion.animation.onFinish.add((name:String) -> explosion.visible = explosion.active = false);
 		explosion.visible = explosion.active = false;
 		explosion.antialiasing = ClientPrefs.data.antialiasing;
 		add(explosion);
 	}
 
 	public var cutscene:Bool = false;
-	public function finishCanAnimation()
+	public function finishCanAnimation(name:String)
 	{
-		switch(playingAnim)
+		switch(name)
 		{
 			case 'Can Start':
 				playHitPico();
@@ -62,27 +62,20 @@ class SpraycanAtlasSprite extends FlxSpriteGroup
 
 	public function playCanStart():Void
 	{
-		playAnimation('Can Start');
+		canAtlas.anim.play('Can Start', true);
 		canAtlas.visible = canAtlas.active = true;
 		currentState = ARCING;
 	}
 
 	public function playCanShot():Void
 	{
-		playAnimation('Can Shot');
+		canAtlas.anim.play('Can Shot', true);
 		currentState = SHOT;
 	}
 
 	public function playHitPico():Void
 	{
-		playAnimation('Hit Pico');
+		canAtlas.anim.play('Hit Pico', true);
 		currentState = IMPACTED;
-	}
-
-	var playingAnim:String;
-	public function playAnimation(name:String)
-	{
-		canAtlas.anim.play(name, true);
-		playingAnim = name;
 	}
 }

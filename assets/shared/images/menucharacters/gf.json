@@ -1,12 +1,25 @@
 {
-	
-	"image": "Menu_GF",
-	"position": [
-		0,
-		-25
+	"animations": [
+		{
+			"anim": "danceLeft",
+			"name": "M GF Idle",
+			"offsets": [0, 0],
+			"loop": false,
+			"fps": 24,
+			"indices": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14]
+		},
+		{
+			"anim": "danceRight",
+			"name": "M GF Idle",
+			"offsets": [0, 0],
+			"loop": false,
+			"fps": 24,
+			"indices": [15,16,17,18,19,20,21,22,23,24,25,26,27,28,29]
+		}
 	],
+	"image": "Menu_GF",
 	"scale": 1,
-	"idle_anim": "M GF Idle",
-	"confirm_anim": "M GF Idle",
-	"antialiasing": true
+	"position": [0, -25],
+	"flip_x": false,
+	"no_antialiasing": false
 }

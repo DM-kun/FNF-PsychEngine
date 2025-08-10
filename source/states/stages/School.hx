@@ -130,9 +130,9 @@ class School extends BaseStage
 		doof = new DialogueBox(false, CoolUtil.coolTextFile(file));
 		doof.cameras = [camHUD];
 		doof.scrollFactor.set();
-		doof.finishThing = startCountdown;
-		doof.nextDialogueThing = PlayState.instance.startNextDialogue;
-		doof.skipDialogueThing = PlayState.instance.skipDialogue;
+		doof.onFinish = startCountdown;
+		doof.onNextDialogue = PlayState.instance.startNextDialogue;
+		doof.onSkipDialogue = PlayState.instance.skipDialogue;
 	}
 	
 	function schoolIntro():Void

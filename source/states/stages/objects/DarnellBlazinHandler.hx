@@ -195,16 +195,13 @@ class DarnellBlazinHandler
 
 	public function noteMissPress(direction:Int)
 	{
-		if (willMissBeLethal())
-			playPunchLowAnim(); // Darnell alternates a punch so that Pico dies.
+		if(willMissBeLethal()) playPunchLowAnim(); // Darnell alternates a punch so that Pico dies.
 		else
 		{
 			// Pico wildly throws punches but Darnell alternates between dodges and blocks.
-			var shouldDodge = FlxG.random.bool(50); // 50/50.
-			if (shouldDodge)
-				playDodgeAnim();
-			else
-				playBlockAnim();
+			final shouldDodge:Bool = FlxG.random.bool(50); // 50/50.
+			if(shouldDodge) playDodgeAnim();
+			else playBlockAnim();
 		}
 	}
 	

@@ -3,10 +3,11 @@ package objects;
 #if ACHIEVEMENTS_ALLOWED
 import openfl.events.Event;
 import openfl.geom.Matrix;
-import flash.display.BitmapData;
+import openfl.display.BitmapData;
 import openfl.Lib;
 
-class AchievementPopup extends openfl.display.Sprite {
+class AchievementPopup extends openfl.display.Sprite
+{
 	public var onFinish:Void->Void = null;
 	var alphaTween:FlxTween;
 	var lastScale:Float = 1;
@@ -152,10 +153,9 @@ class AchievementPopup extends openfl.display.Sprite {
 		Achievements._popups.remove(this);
 		//trace('destroyed achievement, new count: ' + Achievements._popups.length);
 
-		if (FlxG.game.contains(this))
-		{
+		if(FlxG.game.contains(this))
 			FlxG.game.removeChild(this);
-		}
+
 		FlxG.stage.removeEventListener(Event.RESIZE, onResize);
 		removeEventListener(Event.ENTER_FRAME, update);
 		deleteClonedBitmaps();
@@ -163,7 +163,7 @@ class AchievementPopup extends openfl.display.Sprite {
 
 	function deleteClonedBitmaps()
 	{
-		for (clonedBitmap in bitmaps)
+		for(clonedBitmap in bitmaps)
 		{
 			if(clonedBitmap != null)
 			{

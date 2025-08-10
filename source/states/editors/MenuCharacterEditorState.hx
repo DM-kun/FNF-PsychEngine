@@ -3,8 +3,7 @@ package states.editors;
 import openfl.net.FileReference;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
-import flash.net.FileFilter;
-import haxe.Json;
+import openfl.net.FileFilter;
 
 import objects.MenuCharacter;
 
@@ -19,18 +18,33 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 	var defaultCharacters:Array<String> = ['dad', 'bf', 'gf'];
 	var unsavedProgress:Bool = false;
 
-	override function create() {
-		characterFile =
-		{
-			image: 'Menu_Dad',
+	public function new(?characters:Array<String> = null)
+	{
+		super();
+
+		if(characters != null) defaultCharacters = characters;
+	}
+
+	override function create()
+	{
+		characterFile = {
+			animations: [
+				{
+					anim: "idle",
+					name: "M Dad Idle",
+					offsets: [0, 0],
+					loop: false,
+					fps: 24,
+					indices: []
+				}
+			],
+			image: "Menu_Dad",
 			scale: 1,
 			position: [0, 0],
-			idle_anim: 'M Dad Idle',
-			confirm_anim: 'M Dad Idle',
-			flipX: false,
-			antialiasing: true
+			flip_x: false,
+			no_antialiasing: false
 		};
-		
+
 		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("Menu Character Editor", "Editting: " + characterFile.image);
@@ -75,7 +89,6 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 		addTypeUI();
 		add(UI_typebox);
 
-		
 		UI_mainbox = new PsychUIBox(FlxG.width - 340, FlxG.height - 265, 240, 215, ['Character']);
 		UI_mainbox.scrollFactor.set();
 		addCharacterUI();
@@ -100,7 +113,7 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 	function addTypeUI() {
 		var tab_group = UI_typebox.getTab('Character Type').menu;
 
-		characterTypeRadio = new PsychUIRadioGroup(10, 20, ['Opponent', 'Boyfriend', 'Girlfriend'], 40);
+		characterTypeRadio = new PsychUIRadioGroup(10, 20, ['Opponent', 'Player', 'Girlfriend'], 40);
 		characterTypeRadio.checked = 0;
 		characterTypeRadio.onClick = updateCharacters;
 		tab_group.add(characterTypeRadio);
@@ -112,7 +125,8 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 	var scaleStepper:PsychUINumericStepper;
 	var flipXCheckbox:PsychUICheckBox;
 	var antialiasingCheckbox:PsychUICheckBox;
-	function addCharacterUI() {
+	function addCharacterUI()
+	{
 		var tab_group = UI_mainbox.getTab('Character').menu;
 		
 		imageInputText = new PsychUIInputText(10, 20, 80, characterFile.image, 8);
@@ -123,7 +137,7 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 		flipXCheckbox.onClick = function()
 		{
 			grpWeekCharacters.members[characterTypeRadio.checked].flipX = flipXCheckbox.checked;
-			characterFile.flipX = flipXCheckbox.checked;
+			characterFile.flip_x = flipXCheckbox.checked;
 		};
 
 		antialiasingCheckbox = new PsychUICheckBox(10, flipXCheckbox.y + 30, "Antialiasing", 100);
@@ -131,7 +145,7 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 		antialiasingCheckbox.onClick = function()
 		{
 			grpWeekCharacters.members[characterTypeRadio.checked].antialiasing = antialiasingCheckbox.checked;
-			characterFile.antialiasing = antialiasingCheckbox.checked;
+			characterFile.no_antialiasing = !antialiasingCheckbox.checked;
 		};
 
 		var reloadImageButton:PsychUIButton = new PsychUIButton(140, confirmInputText.y + 30, "Reload Char", function() {
@@ -154,11 +168,12 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 		tab_group.add(scaleStepper);
 	}
 
-	function updateCharacters() {
+	function updateCharacters()
+	{
 		for (i in 0...3) {
 			var char:MenuCharacter = grpWeekCharacters.members[i];
 			char.alpha = 0.2;
-			char.character = '';
+			char.curCharacter = '';
 			char.changeCharacter(defaultCharacters[i]);
 		}
 		reloadSelectedCharacter();
@@ -169,13 +184,13 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 
 		char.alpha = 1;
 		char.frames = Paths.getSparrowAtlas('menucharacters/' + characterFile.image);
-		char.animation.addByPrefix('idle', characterFile.idle_anim, 24);
-		if(characterTypeRadio.checked == 1) char.animation.addByPrefix('confirm', characterFile.confirm_anim, 24, false);
-		char.flipX = (characterFile.flipX == true);
+		char.anim.addByPrefix('idle', characterFile.idle_anim, 24);
+		if(characterTypeRadio.checked == 1) char.anim.addByPrefix('confirm', characterFile.confirm_anim, 24, false);
+		char.flipX = (characterFile.flip_x == true);
 
 		char.scale.set(characterFile.scale, characterFile.scale);
 		char.updateHitbox();
-		char.animation.play('idle');
+		char.playAnim('idle');
 		updateOffset();
 		
 		#if DISCORD_ALLOWED
@@ -248,8 +263,8 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 		else ClientPrefs.toggleVolumeKeys(false);
 
 		var char:MenuCharacter = grpWeekCharacters.members[1];
-		if(char.animation.curAnim != null && char.animation.curAnim.name == 'confirm' && char.animation.curAnim.finished)
-			char.animation.play('idle', true);
+		if(!char.isAnimationNull() && char.getAnimationName() == 'confirm' && char.isAnimationFinished())
+			char.playAnim('idle', true);
 
 		super.update(elapsed);
 	}
@@ -282,13 +297,15 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 		@:privateAccess
 		if(_file.__path != null) fullPath = _file.__path;
 
-		if(fullPath != null) {
-			var rawJson:String = File.getContent(fullPath);
-			if(rawJson != null) {
-				var loadedChar:MenuCharacterFile = cast Json.parse(rawJson);
+		if(fullPath != null)
+		{
+			final rawJson:String = File.getContent(fullPath);
+			if(rawJson != null)
+			{
+				var loadedChar:MenuCharacterFile = cast haxe.Json.parse(rawJson);
 				if(loadedChar.idle_anim != null && loadedChar.confirm_anim != null) //Make sure it's really a character
 				{
-					var cutName:String = _file.name.substr(0, _file.name.length - 5);
+					final cutName:String = _file.name.substr(0, _file.name.length - 5);
 					trace("Successfully loaded file: " + cutName);
 					characterFile = loadedChar;
 					reloadSelectedCharacter();

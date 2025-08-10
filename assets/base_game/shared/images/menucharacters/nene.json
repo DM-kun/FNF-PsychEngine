@@ -1,12 +1,25 @@
 {
-	"confirm_anim": "idle",
-	"antialiasing": true,
-	"idle_anim": "idle",
-	"position": [
-		-30,
-		-10
+	"animations": [
+		{
+			"anim": "danceLeft",
+			"name": "idle",
+			"offsets": [0, 0],
+			"loop": false,
+			"fps": 24,
+			"indices": [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+		},
+		{
+			"anim": "danceRight",
+			"name": "idle",
+			"offsets": [0, 0],
+			"loop": false,
+			"fps": 24,
+			"indices": [16,17,18,19,20,21,22,23,24,25,26,27,28,29,30]
+		}
 	],
-	"scale": 1,
 	"image": "nene",
-	"flipX": false
+	"scale": 1,
+	"position": [-30, -10],
+	"flip_x": false,
+	"no_antialiasing": false
 }

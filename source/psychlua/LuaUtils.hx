@@ -121,9 +121,9 @@ class LuaUtils
 	public static function getModSetting(saveTag:String, ?modName:String = null)
 	{
 		#if MODS_ALLOWED
-		if(FlxG.save.data.modSettings == null) FlxG.save.data.modSettings = new Map<String, Dynamic>();
+		if(Main.save.data.modSettings == null) Main.save.data.modSettings = new Map<String, Dynamic>();
 
-		var settings:Map<String, Dynamic> = FlxG.save.data.modSettings.get(modName);
+		var settings:Map<String, Dynamic> = Main.save.data.modSettings.get(modName);
 		var path:String = Paths.mods('$modName/data/settings.json');
 		if(FileSystem.exists(path))
 		{
@@ -155,7 +155,7 @@ class LuaUtils
 							}
 						}
 					}
-					FlxG.save.data.modSettings.set(modName, settings);
+					Main.save.data.modSettings.set(modName, settings);
 				}
 				catch(e:Dynamic)
 				{
@@ -170,8 +170,8 @@ class LuaUtils
 		}
 		else
 		{
-			FlxG.save.data.modSettings.remove(modName);
-			#if (LUA_ALLOWED || HSCRIPT_ALLOWED)
+			Main.save.data.modSettings.remove(modName);
+			#if SCRIPTS_ALLOWED
 			PlayState.instance.addTextToDebug('getModSetting: $path could not be found!', FlxColor.RED);
 			#else
 			FlxG.log.warn('getModSetting: $path could not be found!');
@@ -180,7 +180,7 @@ class LuaUtils
 		}
 
 		if(settings.exists(saveTag)) return settings.get(saveTag);
-		#if (LUA_ALLOWED || HSCRIPT_ALLOWED)
+		#if SCRIPTS_ALLOWED
 		PlayState.instance.addTextToDebug('getModSetting: "$saveTag" could not be found inside $modName\'s settings!', FlxColor.RED);
 		#else
 		FlxG.log.warn('getModSetting: "$saveTag" could not be found inside $modName\'s settings!');
@@ -264,21 +264,22 @@ class LuaUtils
 		}
 		return false;
 	}
-	public static function isLuaSupported(value:Any):Bool {
+
+	public static function isLuaSupported(value:Any):Bool
+	{
 		return (value == null || isOfTypes(value, [Bool, Int, Float, String, Array]) || Type.typeof(value) == ValueType.TObject);
 	}
 	
 	public static function getTargetInstance()
 	{
-		if(PlayState.instance != null) return PlayState.instance.isDead ? GameOverSubstate.instance : PlayState.instance;
-		return MusicBeatState.getState();
+		return MusicBeatState.getSubState() != null ? MusicBeatState.getSubState() : MusicBeatState.getState();
 	}
 
 	public static inline function getLowestCharacterGroup():FlxSpriteGroup
 	{
-		var stageData:StageFile = StageData.getStageFile(PlayState.SONG.stage);
-		var group:FlxSpriteGroup = (stageData.hide_girlfriend ? PlayState.instance.boyfriendGroup : PlayState.instance.gfGroup);
+		final stageData:StageFile = StageData.getStageFile(PlayState.SONG.stage);
 
+		var group:FlxSpriteGroup = stageData.hide_girlfriend ? PlayState.instance.boyfriendGroup : PlayState.instance.gfGroup;
 		var pos:Int = PlayState.instance.members.indexOf(group);
 
 		var newPos:Int = PlayState.instance.members.indexOf(PlayState.instance.boyfriendGroup);
@@ -302,8 +303,7 @@ class LuaUtils
 		var obj:FlxSprite = cast LuaUtils.getObjectDirectly(obj);
 		if(obj != null && obj.animation != null)
 		{
-			if(indices == null)
-				indices = [0];
+			if(indices == null) indices = [0];
 			else if(Std.isOfType(indices, String))
 			{
 				var strIndices:Array<String> = cast (indices, String).trim().split(',');
@@ -332,16 +332,19 @@ class LuaUtils
 	{
 		switch(spriteType.toLowerCase().replace(' ', ''))
 		{
-			//case "texture" | "textureatlas" | "tex":
+			//case 'texture' | 'textureatlas' | 'tex':
 				//spr.frames = AtlasFrameMaker.construct(image);
 
-			//case "texture_noaa" | "textureatlas_noaa" | "tex_noaa":
+			//case 'texture_noaa' | 'textureatlas_noaa' | 'tex_noaa':
 				//spr.frames = AtlasFrameMaker.construct(image, null, true);
+
+			case 'animate', 'animateatlas':
+				spr.frames = Paths.getAnimateAtlas(image);
 
 			case 'aseprite', 'ase', 'json', 'jsoni8':
 				spr.frames = Paths.getAsepriteAtlas(image);
 
-			case "packer", 'packeratlas', 'pac':
+			case 'packer', 'packeratlas', 'pac':
 				spr.frames = Paths.getPackerAtlas(image);
 
 			case 'sparrow', 'sparrowatlas', 'sparrowv2':
@@ -352,18 +355,19 @@ class LuaUtils
 		}
 	}
 
-	public static function destroyObject(tag:String) {
+	public static function destroyObject(tag:String)
+	{
 		var variables = MusicBeatState.getVariables();
 		var obj:FlxSprite = variables.get(tag);
-		if(obj == null || obj.destroy == null)
-			return;
+		if(obj == null || obj.destroy == null) return;
 
 		LuaUtils.getTargetInstance().remove(obj, true);
 		obj.destroy();
 		variables.remove(tag);
 	}
 
-	public static function cancelTween(tag:String) {
+	public static function cancelTween(tag:String)
+	{
 		if(!tag.startsWith('tween_')) tag = 'tween_' + LuaUtils.formatVariable(tag);
 		var variables = MusicBeatState.getVariables();
 		var twn:FlxTween = variables.get(tag);
@@ -375,7 +379,8 @@ class LuaUtils
 		}
 	}
 
-	public static function cancelTimer(tag:String) {
+	public static function cancelTimer(tag:String)
+	{
 		if(!tag.startsWith('timer_')) tag = 'timer_' + LuaUtils.formatVariable(tag);
 		var variables = MusicBeatState.getVariables();
 		var tmr:FlxTimer = variables.get(tag);
@@ -390,7 +395,8 @@ class LuaUtils
 	public static function formatVariable(tag:String)
 		return tag.trim().replace(' ', '_').replace('.', '');
 
-	public static function tweenPrepare(tag:String, vars:String) {
+	public static function tweenPrepare(tag:String, vars:String)
+	{
 		if(tag != null) cancelTween(tag);
 		var variables:Array<String> = vars.split('.');
 		var sexyProp:Dynamic = LuaUtils.getObjectDirectly(variables[0]);
@@ -422,7 +428,8 @@ class LuaUtils
 	}
 
 	//buncho string stuffs
-	public static function getTweenTypeByString(?type:String = '') {
+	public static function getTweenTypeByString(?type:String = '')
+	{
 		switch(type.toLowerCase().trim())
 		{
 			case 'backward': return FlxTweenType.BACKWARD;
@@ -433,8 +440,10 @@ class LuaUtils
 		return FlxTweenType.ONESHOT;
 	}
 
-	public static function getTweenEaseByString(?ease:String = '') {
-		switch(ease.toLowerCase().trim()) {
+	public static function getTweenEaseByString(?ease:String = '')
+	{
+		switch(ease.toLowerCase().trim())
+		{
 			case 'backin': return FlxEase.backIn;
 			case 'backinout': return FlxEase.backInOut;
 			case 'backout': return FlxEase.backOut;
@@ -475,8 +484,10 @@ class LuaUtils
 		return FlxEase.linear;
 	}
 
-	public static function blendModeFromString(blend:String):BlendMode {
-		switch(blend.toLowerCase().trim()) {
+	public static function blendModeFromString(blend:String):BlendMode
+	{
+		switch(blend.toLowerCase().trim())
+		{
 			case 'add': return ADD;
 			case 'alpha': return ALPHA;
 			case 'darken': return DARKEN;
@@ -495,7 +506,8 @@ class LuaUtils
 		return NORMAL;
 	}
 	
-	public static function typeToString(type:Int):String {
+	public static function typeToString(type:Int):String
+	{
 		#if LUA_ALLOWED
 		switch(type) {
 			case Lua.LUA_TBOOLEAN: return "boolean";
@@ -509,14 +521,16 @@ class LuaUtils
 		return "unknown";
 	}
 
-	public static function cameraFromString(cam:String):FlxCamera {
-		switch(cam.toLowerCase()) {
+	public static function cameraFromString(cam:String):FlxCamera
+	{
+		switch(cam.toLowerCase())
+		{
 			case 'camgame' | 'game': return PlayState.instance.camGame;
 			case 'camhud' | 'hud': return PlayState.instance.camHUD;
 			case 'camother' | 'other': return PlayState.instance.camOther;
 		}
 		var camera:FlxCamera = MusicBeatState.getVariables().get(cam);
-		if (camera == null || !Std.isOfType(camera, FlxCamera)) camera = PlayState.instance.camGame;
+		if(camera == null || !Std.isOfType(camera, FlxCamera)) camera = FlxG.camera;
 		return camera;
 	}
 }

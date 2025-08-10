@@ -3,98 +3,163 @@ package objects;
 import openfl.utils.Assets;
 import haxe.Json;
 
+import objects.Character;
+
 typedef MenuCharacterFile = {
+	var animations:Array<Character.AnimArray>;
+
 	var image:String;
 	var scale:Float;
-	var position:Array<Int>;
-	var idle_anim:String;
-	var confirm_anim:String;
-	var flipX:Bool;
-	var antialiasing:Null<Bool>;
+	var position:Array<Float>;
+	var flip_x:Bool;
+	var no_antialiasing:Bool;
 }
 
-class MenuCharacter extends FlxSprite
+class MenuCharacter extends PsychSprite
 {
-	public var character:String;
-	public var hasConfirmAnimation:Bool = false;
-	private static var DEFAULT_CHARACTER:String = 'bf';
+	public var curCharacter:String = null;
+	public var curPosition:Int = 0;
 
-	public function new(x:Float, character:String = 'bf')
+	public var hasConfirmAnimation:Bool = false;
+	public var loopDance:Bool = false;
+	public var danceIdle:Bool = false; //Character use "danceLeft" and "danceRight" instead of "idle"
+
+	public var positionArray:Array<Float> = [0, 0];
+
+	public var missingCharacter:Bool = false;
+	public var missingText:FlxText;
+
+	public function new(x:Float, ?character:String = 'bf', ?position:Int = 0)
 	{
 		super(x);
 
 		changeCharacter(character);
 	}
 
-	public function changeCharacter(?character:String = 'bf') {
+	public function changeCharacter(?character:String = 'bf', ?position:Int = 0)
+	{
 		if(character == null) character = '';
-		if(character == this.character) return;
+		if(character == curCharacter) return;
 
-		this.character = character;
-		visible = true;
+		animOffsets.clear();
+		curCharacter = character;
+		curPosition = position;
 
-		var dontPlayAnim:Bool = false;
+		final characterPath:String = 'images/menucharacters/$character.json';
+		var path:String = Paths.getPath(characterPath, TEXT);
+		if(!Paths.fileExists(characterPath))
+		{
+			path = Paths.getSharedPath('images/menucharacters/' + Character.DEFAULT_CHARACTER + '.json'); //If a character couldn't be found, change him to BF just to prevent a crash
+			missingCharacter = true;
+			missingText = new FlxText(0, 0, 300, 'ERROR:\n$character.json', 16);
+			missingText.alignment = CENTER;
+		}
+
+		try
+		{
+			#if MODS_ALLOWED
+			loadCharacterFile(Json.parse(File.getContent(path)));
+			#else
+			loadCharacterFile(Json.parse(Assets.getText(path)));
+			#end
+		}
+		catch(e:Dynamic)
+		{
+			trace('Error loading character file of "$character": $e');
+		}
+
+		visible = (character != '');
+		hasConfirmAnimation = hasAnimation('confirm');
+		recalculateDanceIdle();
+		dance();
+	}
+
+	public function loadCharacterFile(json:Dynamic)
+	{
 		scale.set(1, 1);
 		updateHitbox();
-		
-		color = FlxColor.WHITE;
-		alpha = 1;
 
-		hasConfirmAnimation = false;
-		switch(character) {
-			case '':
-				visible = false;
-				dontPlayAnim = true;
-			default:
-				var characterPath:String = 'images/menucharacters/' + character + '.json';
+		final imageFile:String = json.image;
+		final imageSheets:Array<String> = [for(img in imageFile.split(',')) 'menucharacters/$img'];
+		/*final animJson:String = 'images/' + json.image + '/Animation.json';
+		if(Paths.fileExists(animJson)) frames = Paths.getAnimateAtlas(json.image);
+		else*/ frames = Paths.getMultiAtlas(imageSheets);
 
-				var path:String = Paths.getPath(characterPath, TEXT);
-				#if MODS_ALLOWED
-				if (!FileSystem.exists(path))
-				#else
-				if (!Assets.exists(path))
-				#end
+		if(json.scale != 1)
+		{
+			scale.set(json.scale, json.scale);
+			updateHitbox();
+		}
+
+		positionArray = json.position;
+		flipX = (json.flip_x == true);
+		antialiasing = ClientPrefs.data.antialiasing ? (json.no_antialiasing == false) : false;
+
+		final animArray:Array<Character.AnimArray> = json.animations;
+		if(animArray != null && animArray.length > 0)
+			for(fAnim in animArray)
+			{
+				if(fAnim.anim == null || fAnim.name == null) continue;
+
+				final animAnim:String = fAnim.anim;
+				final animName:String = fAnim.name;
+				final animIndices:Array<Int> = fAnim.indices;
+				final animFps:Int = fAnim.fps;
+				final animLoop:Bool = (fAnim.loop == true);
+				final animOffs:Array<Float> = fAnim.offsets;
+
+				try // is there any better way to do this???
 				{
-					path = Paths.getSharedPath('characters/' + DEFAULT_CHARACTER + '.json'); //If a character couldn't be found, change him to BF just to prevent a crash
-					color = FlxColor.BLACK;
-					alpha = 0.6;
-				}
+					if(animIndices != null && animIndices.length > 0)
+						anim.addBySymbolIndices(animAnim, animName, animIndices, animFps, animLoop);
+					else
+						anim.addBySymbol(animAnim, animName, animFps, animLoop);
 
-				var charFile:MenuCharacterFile = null;
-				try
-				{
-					#if MODS_ALLOWED
-					charFile = Json.parse(File.getContent(path));
-					#else
-					charFile = Json.parse(Assets.getText(path));
-					#end
+					if(!hasAnimation(animAnim)) throw new haxe.Exception('Failed to add Animate Symbol Animation!');
 				}
 				catch(e:Dynamic)
 				{
-					trace('Error loading menu character file of "$character": $e');
+					if(animIndices != null && animIndices.length > 0)
+						anim.addByIndices(animAnim, animName, animIndices, "", animFps, animLoop);
+					else
+						anim.addByPrefix(animAnim, animName, animFps, animLoop);
 				}
 
-				frames = Paths.getSparrowAtlas('menucharacters/' + charFile.image);
-				animation.addByPrefix('idle', charFile.idle_anim, 24);
+				if(animOffs != null && animOffs.length > 1) addOffset(animAnim, animOffs[0], animOffs[1]);
+				else addOffset(animAnim, 0, 0);
+			}
+	}
 
-				var confirmAnim:String = charFile.confirm_anim;
-				if(confirmAnim != null && confirmAnim.length > 0 && confirmAnim != charFile.idle_anim)
-				{
-					animation.addByPrefix('confirm', confirmAnim, 24, false);
-					if (animation.getByName('confirm') != null) //check for invalid animation
-						hasConfirmAnimation = true;
-				}
-				flipX = (charFile.flipX == true);
+	public var danced:Bool = false;
+	public function dance()
+	{
+		if(loopDance) return;
 
-				if(charFile.scale != 1)
-				{
-					scale.set(charFile.scale, charFile.scale);
-					updateHitbox();
-				}
-				offset.set(charFile.position[0], charFile.position[1]);
-				animation.play('idle');
-
-				antialiasing = (charFile.antialiasing != false && ClientPrefs.data.antialiasing);
+		if(danceIdle)
+		{
+			danced = !danced;
+			playAnim(danced ? 'danceRight' : 'danceLeft');
 		}
+		else if(hasAnimation('idle'))
+			playAnim('idle');
+	}
+
+	public var danceEveryNumBeats:Int = 2;
+	private var settingCharacterUp:Bool = true;
+	public function recalculateDanceIdle()
+	{
+		final lastDanceIdle:Bool = danceIdle;
+		danceIdle = (hasAnimation('danceLeft') && hasAnimation('danceRight'));
+
+		if(settingCharacterUp) danceEveryNumBeats = (danceIdle ? 1 : 2);
+		else if(lastDanceIdle != danceIdle)
+		{
+			var calc:Float = danceEveryNumBeats;
+			if(danceIdle) calc /= 2;
+			else calc *= 2;
+
+			danceEveryNumBeats = Math.round(Math.max(calc, 1));
+		}
+		settingCharacterUp = false;
 	}
 }

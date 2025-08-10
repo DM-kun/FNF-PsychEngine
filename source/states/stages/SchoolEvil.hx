@@ -71,11 +71,11 @@ class SchoolEvil extends BaseStage
 					bgGhouls.updateHitbox();
 					bgGhouls.visible = false;
 					bgGhouls.antialiasing = false;
-					bgGhouls.animation.finishCallback = function(name:String)
+					bgGhouls.animation.onFinish.add(function(name:String)
 					{
 						if(name == 'BG freaks glitch instance')
 							bgGhouls.visible = false;
-					}
+					});
 					addBehindGF(bgGhouls);
 				}
 		}
@@ -107,9 +107,9 @@ class SchoolEvil extends BaseStage
 		doof = new DialogueBox(false, CoolUtil.coolTextFile(file));
 		doof.cameras = [camHUD];
 		doof.scrollFactor.set();
-		doof.finishThing = startCountdown;
-		doof.nextDialogueThing = PlayState.instance.startNextDialogue;
-		doof.skipDialogueThing = PlayState.instance.skipDialogue;
+		doof.onFinish = startCountdown;
+		doof.onNextDialogue = PlayState.instance.startNextDialogue;
+		doof.onSkipDialogue = PlayState.instance.skipDialogue;
 	}
 	
 	function schoolIntro():Void

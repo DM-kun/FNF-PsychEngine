@@ -190,12 +190,12 @@ class PhillyStreets extends BaseStage
 
 		if(gf != null)
 		{
-			gf.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int)
+			gf.anim.onFrameChange.add(function(name:String, frameNumber:Int, frameIndex:Int)
 			{
 				switch(currentNeneState)
 				{
 					case STATE_PRE_RAISE:
-						if (name == 'danceLeft' && frameNumber >= 14)
+						if(name == 'danceLeft' && frameNumber >= 14)
 						{
 							animationFinished = true;
 							transitionState();
@@ -203,7 +203,7 @@ class PhillyStreets extends BaseStage
 					default:
 						// Ignore.
 				}
-			}
+			});
 		}
 	}
 
@@ -215,7 +215,7 @@ class PhillyStreets extends BaseStage
 		{
 			#if VIDEOS_ALLOWED
 			game.startVideo(videoName);
-			game.videoCutscene.finishCallback = game.videoCutscene.onSkip = function()
+			game.videoCutscene.overallFinish = function()
 			{
 				videoEnded = true;
 				game.videoCutscene = null;
@@ -267,24 +267,24 @@ class PhillyStreets extends BaseStage
 		FlxG.sound.list.add(neneLaugh);
 
 		camHUD.alpha = 0;
-		gf.animation.finishCallback = function(name:String)
+		gf.anim.onFinish.add(function(name:String)
 		{
 			switch(name)
 			{
 				case 'danceLeft', 'danceRight':
 					gf.dance();
 			}
-		}
+		});
 		gf.dance();
 			
-		dad.animation.finishCallback = function(name:String)
+		dad.anim.onFinish.add(function(name:String)
 		{
 			switch(name)
 			{
 				case 'idle':
 					dad.dance();
 			}
-		}
+		});
 		dad.dance();
 
 		final cutsceneDelay = 2.0;
@@ -341,7 +341,7 @@ class PhillyStreets extends BaseStage
 		// darnell laughs
 		cutsceneHandler.timer(cutsceneDelay + 5.9, function()
 		{
-			dad.animation.finishCallback = null;
+			dad.anim.onFinish.removeAll();
 			dad.playAnim('laughCutscene', true);
 			darnellLaugh.play(true);
 		});
@@ -349,13 +349,13 @@ class PhillyStreets extends BaseStage
 		// nene spits and laughs
 		cutsceneHandler.timer(cutsceneDelay + 6.2, function()
 		{
-			gf.animation.finishCallback = null;
+			gf.anim.onFinish.removeAll();
 			gf.playAnim('laughCutscene', true);
 			neneLaugh.play(true);
 		});
 
 		// cutscene ended, camera returns to normal, cutscene flags set and countdown starts.
-		cutsceneHandler.finishCallback = function()
+		cutsceneHandler.onFinish = function()
 		{
 			cutsceneMusic.stop(); // stop the music!!!!!!
 
@@ -368,15 +368,15 @@ class PhillyStreets extends BaseStage
 			camHUD.alpha = 1;
 			startCountdown();
 		};
-		cutsceneHandler.skipCallback = function()
+		cutsceneHandler.onSkip = function()
 		{
-			cutsceneHandler.finishCallback();
+			cutsceneHandler.onFinish();
 
 			dad.dance();
 			gf.dance();
 			boyfriend.dance();
-			dad.animation.finishCallback = null;
-			gf.animation.finishCallback = null;
+			dad.anim.onFinish.removeAll();
+			gf.anim.onFinish.removeAll();
 			
 			game.moveCameraSection();
 			game.cameraSpeed = 1;
@@ -395,13 +395,13 @@ class PhillyStreets extends BaseStage
 		else
 			abot.lookLeft();
 
-		if(finishInstantly) abot.eyes.anim.curFrame = abot.eyes.anim.length - 1;
+		if(finishInstantly) abot.eyes.anim.curAnim.curFrame = abot.eyes.anim.curAnim.numFrames - 1;
 	}
 
 	override function startSong()
 	{
 		abot.snd = FlxG.sound.music;
-		gf.animation.finishCallback = onNeneAnimationFinished;
+		gf.anim.onFinish.add(onNeneAnimationFinished);
 	}
 	
 	function onNeneAnimationFinished(name:String)
@@ -515,7 +515,7 @@ class PhillyStreets extends BaseStage
 				rainShaderEndIntensity = 0.4;
 		}
 		rainShader.intensity = rainShaderStartIntensity;
-		FlxG.camera.setFilters([new ShaderFilter(rainShader)]);
+		FlxG.camera.filters = [new ShaderFilter(rainShader)];
 	}
 	
 	var currentNeneState:NeneState = STATE_DEFAULT;
@@ -796,7 +796,7 @@ class PhillyStreets extends BaseStage
 			{
 				case 50, 100:
 					var animToPlay:String = 'combo${game.combo}';
-					if(gf.animation.exists(animToPlay))
+					if(gf.anim.exists(animToPlay))
 					{
 						gf.playAnim(animToPlay);
 						gf.specialAnim = true;
@@ -812,19 +812,19 @@ class PhillyStreets extends BaseStage
 				boyfriend.specialAnim = true;
 				gunPrepSnd.play();
 
-				boyfriend.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int)
+				boyfriend.anim.onFrameChange.add(function(name:String, frameNumber:Int, frameIndex:Int)
 				{
 					switch(name)
 					{
 						case 'cock':
 							if(frameNumber == 3)
 							{
-								boyfriend.animation.callback = null;
+								boyfriend.anim.onFrameChange.removeAll();
 								createCasing();
 							}
-						default: boyfriend.animation.callback = null;
+						default: boyfriend.anim.onFrameChange.removeAll();
 					}
-				}
+				});
 
 				game.notes.forEachAlive(function(note:Note)
 				{
@@ -857,7 +857,7 @@ class PhillyStreets extends BaseStage
 		casing.animation.addByPrefix('idle', 'Bullet0', 24, true);
 		casing.animation.play('pop', true);
 		
-		casing.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int)
+		casing.animation.onFrameChange.add(function(name:String, frameNumber:Int, frameIndex:Int)
 		{
 			if (name == 'pop' && frameNumber == 40)
 			{
@@ -879,9 +879,9 @@ class PhillyStreets extends BaseStage
 				casing.angularDrag = (casing.drag.x / casing.velocity.x) * 100;
 		
 				casing.animation.play('idle');
-				casing.animation.callback = null; // Save performance.
+				casing.animation.onFrameChange.removeAll(); // Save performance.
 			}
-		};
+		});
 		casingGroup.add(casing);
 	}
 
@@ -941,7 +941,7 @@ class PhillyStreets extends BaseStage
 				}
 				picoFlicker = null;
 
-				boyfriend.animation.finishCallback = function(name:String)
+				boyfriend.anim.onFinish.add(function(name:String)
 				{
 					if (name == 'shootMISS' && game.health > 0.0 && !game.practiceMode && game.gameOverTimer == null)
 					{
@@ -965,8 +965,8 @@ class PhillyStreets extends BaseStage
 						}, 30);
 						//trace('test');
 					}
-					boyfriend.animation.finishCallback = null;
-				}
+					boyfriend.anim.onFinish.removeAll();
+				});
 				
 				game.health -= 0.4;
 				if(game.health <= 0.0 && !game.practiceMode)

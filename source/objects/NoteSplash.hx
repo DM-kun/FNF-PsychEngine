@@ -63,7 +63,7 @@ class NoteSplash extends FlxSprite
 		config = null;
 		maxAnims = 0;
 
-		if(splash == null)
+		if(splash == null || splash.length < 1)
 		{
 			splash = defaultNoteSplash + getSplashSkinPostfix();
 			if (PlayState.SONG != null && PlayState.SONG.splashSkin != null && PlayState.SONG.splashSkin.length > 0) splash = PlayState.SONG.splashSkin;
@@ -71,24 +71,24 @@ class NoteSplash extends FlxSprite
 
 		texture = splash;
 		frames = Paths.getSparrowAtlas(texture);
-		if (frames == null)
+		if(frames == null)
 		{
 			texture = defaultNoteSplash + getSplashSkinPostfix();
 			frames = Paths.getSparrowAtlas(texture);
-			if (frames == null)
+			if(frames == null)
 			{
 				texture = defaultNoteSplash;
 				frames = Paths.getSparrowAtlas(texture);
 			}
 		}
 
-		var path:String = 'images/$texture';
-		if (configs.exists(path))
+		final path:String = 'images/$texture';
+		if(configs.exists(path))
 		{
 			this.config = configs.get(path);
 			for (anim in this.config.animations)
 			{
-				if (anim.noteData % 4 == 0)
+				if (anim.noteData % Note.colArray.length == 0)
 					maxAnims++;
 			}
 			return;
@@ -110,7 +110,7 @@ class NoteSplash extends FlxSprite
 				{
 					var anim:NoteSplashAnim = Reflect.field(config.animations, i);
 					tempConfig.animations.set(i, anim);
-					if (anim.noteData % 4 == 0)
+					if (anim.noteData % Note.colArray.length == 0)
 						maxAnims++;
 				}
 
@@ -125,7 +125,7 @@ class NoteSplash extends FlxSprite
 		var anim:String = 'note splash';
 		var fps:Array<Null<Int>> = [22, 26];
 		var offsets:Array<Array<Float>> = [[0, 0]];
-		if (Paths.fileExists('$path.txt', TEXT)) // Backwards compatibility with 0.7 splash txts
+		if(Paths.fileExists('$path.txt', TEXT)) // Backwards compatibility with 0.7 splash txts
 		{
 			var configFile:Array<String> = CoolUtil.listFromString(Paths.getTextFromFile('$path.txt'));
 			if (configFile.length > 0)
@@ -190,33 +190,31 @@ class NoteSplash extends FlxSprite
 
 	public function spawnSplashNote(?x:Float = 0, ?y:Float = 0, ?noteData:Int = 0, ?note:Note, ?randomize:Bool = true)
 	{
-		if (note != null && note.noteSplashData.disabled)
-			return;
+		if(note != null && note.noteSplashData.disabled) return;
 
 		aliveTime = 0;
 
-		if (!inEditor)
+		if(!inEditor)
 		{
 			var loadedTexture:String = defaultNoteSplash + getSplashSkinPostfix();
-			if (note != null && note.noteSplashData.texture != null) loadedTexture = note.noteSplashData.texture;
-			else if (PlayState.SONG != null && PlayState.SONG.splashSkin != null && PlayState.SONG.splashSkin.length > 0) loadedTexture = PlayState.SONG.splashSkin;
+			if(note != null && note.noteSplashData.texture != null) loadedTexture = note.noteSplashData.texture;
+			else if(PlayState.SONG != null && PlayState.SONG.splashSkin != null && PlayState.SONG.splashSkin.length > 0) loadedTexture = PlayState.SONG.splashSkin;
 
-			if (texture != loadedTexture) loadSplash(loadedTexture);
+			if(texture != loadedTexture) loadSplash(loadedTexture);
 		}
 
 		setPosition(x, y);
 
-		if (babyArrow != null)
+		if(babyArrow != null)
 			setPosition(babyArrow.x - Note.swagWidth * 0.95, babyArrow.y - Note.swagWidth); // To prevent it from being misplaced for one game tick
 
-		if (note != null)
-			noteData = note.noteData;
+		if(note != null) noteData = note.noteData;
 
-		if (randomize && maxAnims > 1)
+		if(randomize && maxAnims > 1)
 			noteData = noteData % Note.colArray.length + (FlxG.random.int(0, maxAnims - 1) * Note.colArray.length);
 
 		this.noteData = noteData;
-		var anim:String = playDefaultAnim();
+		final anim:String = playDefaultAnim();
 
 		var tempShader:RGBPalette = null;
 		if (config.allowRGB)
@@ -226,24 +224,24 @@ class NoteSplash extends FlxSprite
 			{
 				tempShader = new RGBPalette();
 				// If Note RGB is enabled:
-				if ((note == null || !note.noteSplashData.useGlobalShader) || inEditor)
+				if((note == null || !note.noteSplashData.useGlobalShader) || inEditor)
 				{
-					var colors = config.rgb;
-					if (colors != null)
+					final colors = config.rgb;
+					if(colors != null)
 					{
-						for (i in 0...colors.length)
+						for(i in 0...colors.length)
 						{
-							if (i > 2) break;
+							if(i > 2) break;
 
 							var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[noteData % Note.colArray.length];
-							if (PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[noteData % Note.colArray.length];
+							if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[noteData % Note.colArray.length];
 
-							var rgb = colors[i];
-							if (rgb == null)
+							final rgb = colors[i];
+							if(rgb == null)
 							{
-								if (i == 0) tempShader.r = arr[0];
-								else if (i == 1) tempShader.g = arr[1];
-								else if (i == 2) tempShader.b = arr[2];
+								if(i == 0) tempShader.r = arr[0];
+								else if(i == 1) tempShader.g = arr[1];
+								else if(i == 2) tempShader.b = arr[2];
 								continue;
 							}
 
@@ -251,66 +249,73 @@ class NoteSplash extends FlxSprite
 							var g:Null<Int> = rgb.g;
 							var b:Null<Int> = rgb.b;
 
-							if (r == null || Math.isNaN(r) || r < 0) r = arr[0];
-							if (g == null || Math.isNaN(g) || g < 0) g = arr[1];
-							if (b == null || Math.isNaN(b) || b < 0) b = arr[2];
+							if(r == null || Math.isNaN(r) || r < 0) r = arr[0];
+							if(g == null || Math.isNaN(g) || g < 0) g = arr[1];
+							if(b == null || Math.isNaN(b) || b < 0) b = arr[2];
 
-							var color:FlxColor = FlxColor.fromRGB(r, g, b);
-							if (i == 0) tempShader.r = color;
-							else if (i == 1) tempShader.g = color;
-							else if (i == 2) tempShader.b = color;
+							final color:FlxColor = FlxColor.fromRGB(r, g, b);
+							if(i == 0) tempShader.r = color;
+							else if(i == 1) tempShader.g = color;
+							else if(i == 2) tempShader.b = color;
 						}
 					}
-					else tempShader.copyValues(Note.globalRgbShaders[noteData % Note.colArray.length]);
-
-					if (note != null)
+					else 
 					{
-						if (note.noteSplashData.r != -1) tempShader.r = note.noteSplashData.r;
-						if (note.noteSplashData.g != -1) tempShader.g = note.noteSplashData.g;
-						if (note.noteSplashData.b != -1) tempShader.b = note.noteSplashData.b;
+						if(note != null) tempShader.copyValues(note.rgbShader.parent);
+						else tempShader.copyValues(Note.globalRgbShaders[noteData % Note.colArray.length]);
+					}
+
+					if(note != null)
+					{
+						if(note.noteSplashData.r != -1) tempShader.r = note.noteSplashData.r;
+						if(note.noteSplashData.g != -1) tempShader.g = note.noteSplashData.g;
+						if(note.noteSplashData.b != -1) tempShader.b = note.noteSplashData.b;
 					}
 				}
 				else tempShader.copyValues(Note.globalRgbShaders[noteData % Note.colArray.length]);
 			}
 		}
 		rgbShader.copyValues(tempShader);
-		if (!config.allowPixel) rgbShader.pixelAmount = 1;
-		else if (PlayState.isPixelStage) rgbShader.pixelAmount = 6;
+		if(!config.allowPixel) rgbShader.pixelAmount = 1;
+		else if(PlayState.isPixelStage) rgbShader.pixelAmount = 6;
 
 		offset.set(10, 10);
-		var conf:NoteSplashAnim = config.animations.get(anim);
+		final conf:NoteSplashAnim = config.animations.get(anim);
 		var offsets:Array<Float> = [0, 0];
-		if (conf != null) offsets = conf.offsets;
-		if (offsets != null)
+		if(conf != null) offsets = conf.offsets;
+		if(offsets != null)
 		{
 			offset.x += offsets[0];
 			offset.y += offsets[1];
 		}
 
-		animation.finishCallback = function(name:String) {
+		animation.onFinish.add(function(name:String)
+		{
 			kill();
 			spawned = false;
-		}
+		});
 
 		alpha = ClientPrefs.data.splashAlpha;
-		if (note != null) alpha = note.noteSplashData.a;
-
 		antialiasing = ClientPrefs.data.antialiasing;
-		if (note != null) antialiasing = note.noteSplashData.antialiasing;
-		if (PlayState.isPixelStage && config.allowPixel) antialiasing = false;
+		if(note != null)
+		{
+			alpha = note.noteSplashData.a;
+			antialiasing = (note.noteSplashData.antialiasing && ClientPrefs.data.antialiasing);
+		}
+		if(PlayState.isPixelStage && config.allowPixel) antialiasing = false;
 
 		var minFps:Int = 22;
 		var maxFps:Int = 26;
-		if (conf != null)
+		if(conf != null)
 		{
 			minFps = conf.fps[0];
-			if (minFps < 0) minFps = 0;
+			if(minFps < 0) minFps = 0;
 
 			maxFps = conf.fps[1];
-			if (maxFps < 0) maxFps = 0;
+			if(maxFps < 0) maxFps = 0;
 		}
 
-		if (animation.curAnim != null)
+		if(animation.curAnim != null)
 			animation.curAnim.frameRate = FlxG.random.int(minFps, maxFps);
 
 		spawned = true;
@@ -318,10 +323,9 @@ class NoteSplash extends FlxSprite
 	
 	public function playDefaultAnim()
 	{
-		var anim:String = noteDataMap.get(noteData);
-		if (anim != null && animation.exists(anim))
+		final anim:String = noteDataMap.get(noteData);
+		if(anim != null && animation.exists(anim))
 			animation.play(anim, true);
-
 		return anim;
 	}
 
@@ -330,7 +334,6 @@ class NoteSplash extends FlxSprite
 		var animFrames = [];
 		@:privateAccess
 		animation.findByPrefix(animFrames, anim); // adds valid frames to animFrames
-
 		return animFrames.length > 0;
 	}
 
@@ -350,11 +353,8 @@ class NoteSplash extends FlxSprite
 
 		if (babyArrow != null)
 		{
-			if (copyX)
-				x = babyArrow.x - Note.swagWidth * 0.95;
-
-			if (copyY)
-				y = babyArrow.y - Note.swagWidth;
+			if(copyX) x = babyArrow.x - Note.swagWidth * 0.95;
+			if(copyY) y = babyArrow.y - Note.swagWidth;
 		}
 		super.update(elapsed);
 	}
@@ -415,7 +415,7 @@ class NoteSplash extends FlxSprite
 
 	function set_maxAnims(value:Int)
 	{
-		if (value > 0)
+		if(value > 0)
 			noteData = Std.int(FlxMath.wrap(noteData, 0, (value * Note.colArray.length) - 1));
 		else
 			noteData = 0;
@@ -488,27 +488,36 @@ class PixelSplashShader extends FlxShader
 		uniform float mult;
 		uniform vec2 uBlocksize;
 
+		vec4 applyColorTransform(vec4 color) {
+		    if (color.a == 0.) {
+		        return vec4(0.);
+		    }
+		    if (!hasTransform) {
+		        return color;
+		    }
+		    if (!hasColorTransform) {
+		        return color * openfl_Alphav;
+		    }
+
+		    color = vec4(color.rgb / color.a, color.a);
+		    color = clamp(openfl_ColorOffsetv + color * openfl_ColorMultiplierv, 0., 1.);
+
+		    if (color.a > 0.) {
+		        return vec4(color.rgb * color.a * openfl_Alphav, color.a * openfl_Alphav);
+		    }
+		    return vec4(0.);
+		}
+
 		vec4 flixel_texture2DCustom(sampler2D bitmap, vec2 coord) {
 			vec2 blocks = openfl_TextureSize / uBlocksize;
-			vec4 color = flixel_texture2D(bitmap, floor(coord * blocks) / blocks);
-			if (!hasTransform) {
+			vec4 color = texture2D(bitmap, floor(coord * blocks) / blocks);
+			if (color.a == 0.0) {
 				return color;
 			}
 
-			if (color.a == 0.0 || mult == 0.0) {
-				return color * openfl_Alphav;
-			}
-
-			vec4 newColor = color;
-			newColor.rgb = min(color.r * r + color.g * g + color.b * b, vec3(1.0));
-			newColor.a = color.a;
-
-			color = mix(color, newColor, mult);
-
-			if (color.a > 0.0) {
-				return vec4(color.rgb, color.a);
-			}
-			return vec4(0.0, 0.0, 0.0, 0.0);
+			vec3 rgbMix = mix(color.rgb, vec3(color.r * r + color.g * g + color.b * b), mult);
+			color.rgb = min(rgbMix, color.a);
+			return applyColorTransform(color);
 		}')
 
 	@:glFragmentSource('

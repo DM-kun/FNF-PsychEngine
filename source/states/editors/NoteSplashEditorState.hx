@@ -77,7 +77,7 @@ class NoteSplashEditorState extends MusicBeatState
         tipText.setPosition(properUI.x - properUI.width + 15, UI.y);
         add(tipText);
 
-        for (i in 0...4)
+        for(i in 0...4)
         {
             var babyArrow:StrumNote = new StrumNote(-273, 50, i % 4, 1);
             babyArrow.playerPosition();

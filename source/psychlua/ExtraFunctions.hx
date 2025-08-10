@@ -151,12 +151,9 @@ class ExtraFunctions
 		Lua_helper.add_callback(lua, "checkFileExists", function(filename:String, ?absolute:Bool = false) {
 			#if MODS_ALLOWED
 			if(absolute) return FileSystem.exists(filename);
-
 			return FileSystem.exists(Paths.getPath(filename, TEXT));
-
 			#else
 			if(absolute) return Assets.exists(filename, TEXT);
-
 			return Assets.exists(Paths.getPath(filename, TEXT));
 			#end
 		});
@@ -192,7 +189,7 @@ class ExtraFunctions
 			return false;
 		});
 		Lua_helper.add_callback(lua, "getTextFromFile", function(path:String, ?ignoreModFolders:Bool = false) {
-			return Paths.getTextFromFile(path, ignoreModFolders);
+			return Paths.getTextFromFile(path, !ignoreModFolders);
 		});
 		Lua_helper.add_callback(lua, "directoryFileList", function(folder:String) {
 			var list:Array<String> = [];

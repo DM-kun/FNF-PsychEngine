@@ -11,8 +11,8 @@ import flixel.input.keyboard.FlxKey;
 import lime.utils.Assets;
 import lime.media.AudioBuffer;
 
-import flash.media.Sound;
-import flash.geom.Rectangle;
+import openfl.media.Sound;
+import openfl.geom.Rectangle;
 
 import haxe.Json;
 import haxe.Exception;
@@ -25,7 +25,6 @@ import states.editors.content.*;
 
 import backend.Song;
 import backend.StageData;
-import backend.Highscore;
 import backend.Difficulty;
 
 import objects.Character;
@@ -141,7 +140,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	var infoBoxPosition:FlxPoint = FlxPoint.get(1000, 360);
 	var upperBox:PsychUIBox;
 	
-	var camUI:FlxCamera;
+	var camUI:PsychCamera;
 
 	var prevGridBg:ChartingGridSprite;
 	var gridBg:ChartingGridSprite;
@@ -233,7 +232,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		opponentVocals.looped = true;
 
 		initPsychCamera();
-		camUI = new FlxCamera();
+		camUI = new PsychCamera();
 		camUI.bgColor.alpha = 0;
 		FlxG.cameras.add(camUI, false);
 
@@ -2312,7 +2311,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			var icon:HealthIcon = icons[i];
 			//trace('changing iconP${icon.ID}');
 			var iconName:String = Reflect.field(characterData, 'iconP${icon.ID}');
-			icon.changeIcon(iconName);
+			icon.char = iconName;
 		}
 
 		if(icons.length > 1)
@@ -2322,10 +2321,10 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			var mustHitSection:Bool = (curSecData != null && curSecData.mustHitSection == true);
 			if (isGfSection)
 			{
-				if (mustHitSection)
-					iconP1.changeIcon('gf');
+				if(mustHitSection)
+					iconP1.char = 'gf';
 				else
-					iconP2.changeIcon('gf');
+					iconP2.char = 'gf';
 			}
 
 			if(mustHitSection)

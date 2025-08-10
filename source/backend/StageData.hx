@@ -1,15 +1,17 @@
 package backend;
 
 import openfl.utils.Assets;
-import haxe.Json;
+
 import backend.Song;
-import psychlua.ModchartSprite;
+import psychlua.LuaUtils;
 
 typedef StageFile = {
 	var directory:String;
 	var defaultZoom:Float;
-	@:optional var isPixelStage:Null<Bool>;
 	var stageUI:String;
+	@:optional var isPixelStage:Null<Bool>;
+	@:optional var introSprites:Array<String>;
+	@:optional var introSounds:Array<String>;
 
 	var boyfriend:Array<Dynamic>;
 	var girlfriend:Array<Dynamic>;
@@ -35,13 +37,16 @@ enum abstract LoadFilters(Int) from Int from UInt to Int to UInt
 	var FREEPLAY:Int = (1 << 3);
 }
 
-class StageData {
+class StageData
+{
 	public static function dummy():StageFile
 	{
 		return {
 			directory: "",
 			defaultZoom: 0.9,
 			stageUI: "normal",
+			introSprites: [null, "ready", "set", "go"],
+			introSounds: ["intro3", "intro2", "intro1", "introGo"],
 
 			boyfriend: [770, 100],
 			girlfriend: [400, 130],
@@ -62,23 +67,22 @@ class StageData {
 	}
 
 	public static var forceNextDirectory:String = null;
-	public static function loadDirectory(SONG:SwagSong) {
+	public static function loadDirectory(SONG:SwagSong)
+	{
 		var stage:String = '';
-		if(SONG.stage != null)
-			stage = SONG.stage;
-		else if(Song.loadedSongName != null)
-			stage = vanillaSongStage(Paths.formatToSongPath(Song.loadedSongName));
-		else
-			stage = 'stage';
+		if(SONG.stage != null) stage = SONG.stage;
+		else if(Song.loadedSongName != null) stage = vanillaSongStage(Paths.formatToSongPath(Song.loadedSongName));
+		else stage = 'stage';
 
 		var stageFile:StageFile = getStageFile(stage);
 		forceNextDirectory = (stageFile != null) ? stageFile.directory : ''; //preventing crashes
 	}
 
-	public static function getStageFile(stage:String):StageFile {
+	public static function getStageFile(stage:String):StageFile
+	{
 		try
 		{
-			var path:String = Paths.getPath('stages/' + stage + '.json', TEXT, null, true);
+			final path:String = Paths.getPath('stages/$stage.json', TEXT, null, true);
 			#if MODS_ALLOWED
 			if(FileSystem.exists(path))
 				return cast tjson.TJSON.parse(File.getContent(path));
@@ -92,11 +96,11 @@ class StageData {
 
 	public static function vanillaSongStage(songName):String
 	{
-		switch (songName)
+		switch(songName)
 		{
 			case 'spookeez' | 'south' | 'monster':
 				return 'spooky';
-			case 'pico' | 'blammed' | 'philly' | 'philly-nice':
+			case 'pico' | 'blammed' | 'philly-nice':
 				return 'philly';
 			case 'milf' | 'satin-panties' | 'high':
 				return 'limo';
@@ -110,17 +114,21 @@ class StageData {
 				return 'schoolEvil';
 			case 'ugh' | 'guns' | 'stress':
 				return 'tank';
+			case 'darnell' | 'lit-up' | '2hot':
+				return 'phillyStreets';
+			case 'blazin':
+				return 'phillyBlazin';
 		}
 		return 'stage';
 	}
 
 	public static var reservedNames:Array<String> = ['gf', 'gfGroup', 'dad', 'dadGroup', 'boyfriend', 'boyfriendGroup']; //blocks these names from being used on stage editor's name input text
-	public static function addObjectsToState(objectList:Array<Dynamic>, gf:FlxSprite, dad:FlxSprite, boyfriend:FlxSprite, ?group:Dynamic = null, ?ignoreFilters:Bool = false)
+	public static function addObjectsToState(objectList:Array<Dynamic>, gf:Dynamic, dad:Dynamic, boyfriend:Dynamic, ?group:Dynamic = null, ?ignoreFilters:Bool = false)
 	{
-		var addedObjects:Map<String, FlxSprite> = [];
-		for (num => data in objectList)
+		var addedObjects:Map<String, Dynamic> = [];
+		for(num => data in objectList)
 		{
-			if (addedObjects.exists(data)) continue;
+			if(addedObjects.exists(data)) continue;
 
 			switch(data.type)
 			{
@@ -128,54 +136,69 @@ class StageData {
 					if(gf != null)
 					{
 						gf.ID = num; 
-						if (group != null) group.add(gf);
+						if(group != null) group.add(gf);
 						addedObjects.set('gf', gf);
 					}
 				case 'dad', 'dadGroup':
 					if(dad != null)
 					{
 						dad.ID = num;
-						if (group != null) group.add(dad);
+						if(group != null) group.add(dad);
 						addedObjects.set('dad', dad);
 					}
 				case 'boyfriend', 'boyfriendGroup':
 					if(boyfriend != null)
 					{
 						boyfriend.ID = num;
-						if (group != null) group.add(boyfriend);
+						if(group != null) group.add(boyfriend);
 						addedObjects.set('boyfriend', boyfriend);
 					}
 
 				case 'square', 'sprite', 'animatedSprite':
 					if(!ignoreFilters && !validateVisibility(data.filters)) continue;
 
-					var spr:ModchartSprite = new ModchartSprite(data.x, data.y);
+					var spr:PsychSprite = new PsychSprite(data.x, data.y);
 					spr.ID = num;
 					if(data.type != 'square')
 					{
-						if(data.type == 'sprite')
-							spr.loadGraphic(Paths.image(data.image));
+						if(data.type == 'sprite') spr.loadGraphic(Paths.image(data.image));
 						else
-							spr.frames = Paths.getAtlas(data.image);
-						
+						{
+							final animJson:String = 'images/' + data.image + '/Animation.json';
+							if(Paths.fileExists(animJson)) spr.frames = Paths.getAnimateAtlas(data.image);
+							else spr.frames = Paths.getAtlas(data.image);
+						}
+
 						if(data.type == 'animatedSprite' && data.animations != null)
 						{
 							var anims:Array<objects.Character.AnimArray> = cast data.animations;
-							for (key => anim in anims)
+							for(anim in anims)
 							{
-								if(anim.indices == null || anim.indices.length < 1)
-									spr.animation.addByPrefix(anim.anim, anim.name, anim.fps, anim.loop);
-								else
-									spr.animation.addByIndices(anim.anim, anim.name, anim.indices, '', anim.fps, anim.loop);
-	
-								if(anim.offsets != null)
-									spr.addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);
-	
-								if(spr.animation.curAnim == null || data.firstAnimation == anim.anim)
+								try
+								{
+									if(anim.indices == null || anim.indices.length < 1)
+										spr.anim.addBySymbol(anim.anim, anim.name, anim.fps, anim.loop);
+									else
+										spr.anim.addBySymbolIndices(anim.anim, anim.name, anim.indices, anim.fps, anim.loop);
+
+									if(!spr.hasAnimation(anim.anim)) throw new haxe.Exception('Failed to add Animate Symbol Animation!');
+								}
+								catch(e:Dynamic)
+								{
+									if(anim.indices == null || anim.indices.length < 1)
+										spr.anim.addByPrefix(anim.anim, anim.name, anim.fps, anim.loop);
+									else
+										spr.anim.addByIndices(anim.anim, anim.name, anim.indices, '', anim.fps, anim.loop);
+								}
+		
+								if(anim.offsets != null) spr.addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);
+								else spr.addOffset(anim.anim, 0, 0);
+		
+								if(spr.isAnimationNull() || data.firstAnimation == anim.anim)
 									spr.playAnim(anim.anim, true);
 							}
 						}
-						for (varName in ['antialiasing', 'flipX', 'flipY'])
+						for(varName in ['antialiasing', 'flipX', 'flipY'])
 						{
 							var dat:Dynamic = Reflect.getProperty(data, varName);
 							if(dat != null) Reflect.setProperty(spr, varName, dat);
@@ -195,14 +218,15 @@ class StageData {
 					}
 					spr.scrollFactor.set(data.scroll[0], data.scroll[1]);
 					spr.color = CoolUtil.colorFromString(data.color);
-					
-					for (varName in ['alpha', 'angle'])
+					spr.blend = LuaUtils.blendModeFromString(data.blend);
+
+					for(varName in ['alpha', 'angle'])
 					{
 						var dat:Dynamic = Reflect.getProperty(data, varName);
 						if(dat != null) Reflect.setProperty(spr, varName, dat);
 					}
 
-					if (group != null) group.add(spr);
+					if(group != null) group.add(spr);
 					addedObjects.set(data.name, spr);
 
 				default:
@@ -216,10 +240,11 @@ class StageData {
 
 	public static function validateVisibility(filters:LoadFilters)
 	{
-		if((filters & STORY_MODE) == STORY_MODE)
+		if((filters & STORY_MODE) == STORY_MODE) {
 			if(!PlayState.isStoryMode) return false;
-		else if((filters & FREEPLAY) == FREEPLAY)
+		} else if((filters & FREEPLAY) == FREEPLAY) {
 			if(PlayState.isStoryMode) return false;
+		}
 
 		return ((ClientPrefs.data.lowQuality && (filters & LOW_QUALITY) == LOW_QUALITY) ||
 			(!ClientPrefs.data.lowQuality && (filters & HIGH_QUALITY) == HIGH_QUALITY));

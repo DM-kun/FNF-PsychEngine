@@ -29,6 +29,7 @@ class MasterEditorMenu extends MusicBeatState
 	override function create()
 	{
 		FlxG.camera.bgColor = FlxColor.BLACK;
+
 		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("Editors Main Menu", null);
@@ -61,50 +62,38 @@ class MasterEditorMenu extends MusicBeatState
 		directoryTxt.scrollFactor.set();
 		add(directoryTxt);
 		
-		for (folder in Mods.getModDirectories())
+		for(folder in Mods.getModDirectories())
 		{
 			directories.push(folder);
 		}
 
-		var found:Int = directories.indexOf(Mods.currentModDirectory);
+		final found:Int = directories.indexOf(Mods.currentModDirectory);
 		if(found > -1) curDirectory = found;
 		changeDirectory();
 		#end
 		changeSelection();
 
 		FlxG.mouse.visible = false;
+
 		super.create();
 	}
 
 	override function update(elapsed:Float)
 	{
-		if (controls.UI_UP_P)
-		{
-			changeSelection(-1);
-		}
-		if (controls.UI_DOWN_P)
-		{
-			changeSelection(1);
-		}
+		if(controls.UI_UP_P) changeSelection(-1);
+		if(controls.UI_DOWN_P) changeSelection(1);
+
 		#if MODS_ALLOWED
-		if(controls.UI_LEFT_P)
-		{
-			changeDirectory(-1);
-		}
-		if(controls.UI_RIGHT_P)
-		{
-			changeDirectory(1);
-		}
+		if(controls.UI_LEFT_P) changeDirectory(-1);
+		if(controls.UI_RIGHT_P) changeDirectory(1);
 		#end
 
-		if (controls.BACK)
-		{
-			MusicBeatState.switchState(new MainMenuState());
-		}
+		if(controls.BACK) MusicBeatState.switchState(new MainMenuState());
 
-		if (controls.ACCEPT)
+		if(controls.ACCEPT)
 		{
-			switch(options[curSelected]) {
+			switch(options[curSelected])
+			{
 				case 'Chart Editor'://felt it would be cool maybe
 					LoadingState.loadAndSwitchState(new ChartingState(), false);
 				case 'Character Editor':
@@ -114,7 +103,7 @@ class MasterEditorMenu extends MusicBeatState
 				case 'Week Editor':
 					MusicBeatState.switchState(new WeekEditorState());
 				case 'Menu Character Editor':
-					MusicBeatState.switchState(new MenuCharacterEditorState());
+					//MusicBeatState.switchState(new MenuCharacterEditorState());
 				case 'Dialogue Editor':
 					LoadingState.loadAndSwitchState(new DialogueEditorState(), false);
 				case 'Dialogue Portrait Editor':
@@ -123,16 +112,14 @@ class MasterEditorMenu extends MusicBeatState
 					MusicBeatState.switchState(new NoteSplashEditorState());
 			}
 			FlxG.sound.music.volume = 0;
-			FreeplayState.destroyFreeplayVocals();
 		}
 		
-		for (num => item in grpTexts.members)
+		for(num => item in grpTexts.members)
 		{
 			item.targetY = num - curSelected;
-			item.alpha = 0.6;
-			if (item.targetY == 0)
-				item.alpha = 1;
+			item.alpha = (item.targetY == 0) ? 1 : 0.6;
 		}
+
 		super.update(elapsed);
 	}
 
@@ -147,12 +134,7 @@ class MasterEditorMenu extends MusicBeatState
 	{
 		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 
-		curDirectory += change;
-
-		if(curDirectory < 0)
-			curDirectory = directories.length - 1;
-		if(curDirectory >= directories.length)
-			curDirectory = 0;
+		curDirectory = FlxMath.wrap(curDirectory + change, 0, directories.length - 1);
 	
 		WeekData.setDirectoryFromWeek();
 		if(directories[curDirectory] == null || directories[curDirectory].length < 1)

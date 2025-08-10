@@ -5,7 +5,6 @@ import backend.WeekData;
 import objects.Character;
 import flixel.FlxObject;
 import flixel.FlxSubState;
-import flixel.math.FlxPoint;
 
 import states.StoryMenuState;
 import states.FreeplayState;
@@ -78,7 +77,7 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		camFollow = new FlxObject(0, 0, 1, 1);
 		camFollow.setPosition(boyfriend.getGraphicMidpoint().x + boyfriend.cameraPosition[0], boyfriend.getGraphicMidpoint().y + boyfriend.cameraPosition[1]);
-		FlxG.camera.focusOn(new FlxPoint(FlxG.camera.scroll.x + (FlxG.camera.width / 2), FlxG.camera.scroll.y + (FlxG.camera.height / 2)));
+		FlxG.camera.focusOn(FlxPoint.get(FlxG.camera.scroll.x + (FlxG.camera.width / 2), FlxG.camera.scroll.y + (FlxG.camera.height / 2)));
 		FlxG.camera.follow(camFollow, LOCKON, 0.01);
 		add(camFollow);
 		
@@ -97,7 +96,7 @@ class GameOverSubstate extends MusicBeatSubstate
 			overlay.visible = false;
 			add(overlay);
 
-			boyfriend.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int)
+			boyfriend.anim.onFrameChange.add(function(name:String, frameNumber:Int, frameIndex:Int)
 			{
 				switch(name)
 				{
@@ -106,12 +105,12 @@ class GameOverSubstate extends MusicBeatSubstate
 						{
 							overlay.visible = true;
 							overlay.animation.play('deathLoop');
-							boyfriend.animation.callback = null;
+							boyfriend.anim.onFrameChange.removeAll();
 						}
 					default:
-						boyfriend.animation.callback = null;
+						boyfriend.anim.onFrameChange.removeAll();
 				}
-			}
+			});
 
 			if(PlayState.instance.gf != null && PlayState.instance.gf.curCharacter == 'nene')
 			{
@@ -119,11 +118,11 @@ class GameOverSubstate extends MusicBeatSubstate
 				neneKnife.frames = Paths.getSparrowAtlas('NeneKnifeToss');
 				neneKnife.animation.addByPrefix('anim', 'knife toss', 24, false);
 				neneKnife.antialiasing = ClientPrefs.data.antialiasing;
-				neneKnife.animation.finishCallback = function(_)
+				neneKnife.animation.onFinish.add(function(name:String)
 				{
 					remove(neneKnife);
 					neneKnife.destroy();
-				}
+				});
 				insert(0, neneKnife);
 				neneKnife.animation.play('anim', true);
 			}
@@ -152,11 +151,8 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		if(!isEnding)
 		{
-			if (controls.ACCEPT)
-			{
-				endBullshit();
-			}
-			else if (controls.BACK)
+			if(controls.ACCEPT) endBullshit();
+			else if(controls.BACK)
 			{
 				#if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
 				FlxG.camera.visible = false;

@@ -1,9 +1,9 @@
 package shaders;
 
 import flixel.system.FlxAssets.FlxShader;
-import objects.Note;
 
-class RGBPalette {
+class RGBPalette
+{
 	public var shader(default, null):RGBPaletteShader = new RGBPaletteShader();
 	public var r(default, set):FlxColor;
 	public var g(default, set):FlxColor;
@@ -12,9 +12,9 @@ class RGBPalette {
 
 	public function copyValues(tempShader:RGBPalette)
 	{
-		if (tempShader != null)
+		if(tempShader != null)
 		{
-			for (i in 0...3)
+			for(i in 0...3)
 			{
 				shader.r.value[i] = tempShader.shader.r.value[i];
 				shader.g.value[i] = tempShader.shader.g.value[i];
@@ -25,25 +25,26 @@ class RGBPalette {
 		else shader.mult.value[0] = 0.0;
 	}
 
-	private function set_r(color:FlxColor) {
+	private function set_r(color:FlxColor)
+	{
 		r = color;
 		shader.r.value = [color.redFloat, color.greenFloat, color.blueFloat];
 		return color;
 	}
-
-	private function set_g(color:FlxColor) {
+	private function set_g(color:FlxColor)
+	{
 		g = color;
 		shader.g.value = [color.redFloat, color.greenFloat, color.blueFloat];
 		return color;
 	}
-
-	private function set_b(color:FlxColor) {
+	private function set_b(color:FlxColor)
+	{
 		b = color;
 		shader.b.value = [color.redFloat, color.greenFloat, color.blueFloat];
 		return color;
 	}
-	
-	private function set_mult(value:Float) {
+	private function set_mult(value:Float)
+	{
 		mult = FlxMath.bound(value, 0, 1);
 		shader.mult.value = [mult];
 		return mult;
@@ -85,6 +86,18 @@ class RGBShaderReference
 			mult = parent.mult;
 		}
 	}
+
+	/*public function copyValues(tempShader:RGBPalette)
+	{
+		if(tempShader != null)
+		{
+			r = parent.r = tempShader.r;
+			g = parent.g = tempShader.g;
+			b = parent.b = tempShader.b;
+			mult = parent.mult = tempShader.mult;
+		}
+		else enabled = false;
+	}*/
 	
 	private function set_r(value:FlxColor)
 	{
@@ -112,8 +125,8 @@ class RGBShaderReference
 		return (enabled = value);
 	}
 
-	public var allowNew = true;
-	private function cloneOriginal()
+	public var allowNew:Bool = true;
+	public function cloneOriginal()
 	{
 		if(allowNew)
 		{
@@ -140,22 +153,35 @@ class RGBPaletteShader extends FlxShader {
 		uniform vec3 b;
 		uniform float mult;
 
+		vec4 applyColorTransform(vec4 color) {
+		    if (color.a == 0.) {
+		        return vec4(0.);
+		    }
+		    if (!hasTransform) {
+		        return color;
+		    }
+		    if (!hasColorTransform) {
+		        return color * openfl_Alphav;
+		    }
+
+		    color = vec4(color.rgb / color.a, color.a);
+		    color = clamp(openfl_ColorOffsetv + color * openfl_ColorMultiplierv, 0., 1.);
+
+		    if (color.a > 0.) {
+		        return vec4(color.rgb * color.a * openfl_Alphav, color.a * openfl_Alphav);
+		    }
+		    return vec4(0.);
+		}
+
 		vec4 flixel_texture2DCustom(sampler2D bitmap, vec2 coord) {
-			vec4 color = flixel_texture2D(bitmap, coord);
-			if (!hasTransform || color.a == 0.0 || mult == 0.0) {
+			vec4 color = texture2D(bitmap, coord);
+			if (color.a == 0.0) {
 				return color;
 			}
 
-			vec4 newColor = color;
-			newColor.rgb = min(color.r * r + color.g * g + color.b * b, vec3(1.0));
-			newColor.a = color.a;
-			
-			color = mix(color, newColor, mult);
-			
-			if(color.a > 0.0) {
-				return vec4(color.rgb, color.a);
-			}
-			return vec4(0.0, 0.0, 0.0, 0.0);
+			vec3 rgbMix = mix(color.rgb, vec3(color.r * r + color.g * g + color.b * b), mult);
+			color.rgb = min(rgbMix, color.a);
+			return applyColorTransform(color);
 		}')
 
 	@:glFragmentSource('

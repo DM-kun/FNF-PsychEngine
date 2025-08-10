@@ -35,9 +35,8 @@ class TypedAlphabet extends Alphabet
 			{
 				showCharacterUpTo(_curLetter + 1);
 				if(!playedSound && sound != '' && (delay > 0.025 || _curLetter % 2 == 0))
-				{
 					FlxG.sound.play(Paths.sound(sound), volume);
-				}
+
 				playedSound = true;
 
 				_curLetter++;
@@ -57,10 +56,8 @@ class TypedAlphabet extends Alphabet
 
 	public function showCharacterUpTo(upTo:Int)
 	{
-		var start:Int = _curLetter;
-		if(start < 0) start = 0;
-
-		for (i in start...(upTo+1))
+		final start:Int = (_curLetter < 0) ? 0 : _curLetter;
+		for(i in start...(upTo + 1))
 		{
 			if(letters[i] != null) letters[i].visible = true;
 			//trace('test, showing: $i');
@@ -72,7 +69,7 @@ class TypedAlphabet extends Alphabet
 		_curLetter = -1;
 		finishedText = false;
 		_timeToUpdate = 0;
-		for (letter in letters)
+		for(letter in letters)
 		{
 			letter.visible = false;
 		}

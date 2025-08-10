@@ -5,14 +5,14 @@ import flixel.util.FlxDestroyUtil;
 // Exit confirmation prompt used on all editors, for convenience
 class ExitConfirmationPrompt extends Prompt
 {
-	public function new(?finishCallback:Void->Void)
+	public function new(?onFinish:Void->Void)
 	{
 		super('There\'s unsaved progress,\nare you sure you want to exit?', function()
 		{
 			FlxG.mouse.visible = false;
 			MusicBeatState.switchState(new states.editors.MasterEditorMenu());
 			FlxG.sound.playMusic(Paths.music('freakyMenu'));
-			if(finishCallback != null) finishCallback();
+			if(onFinish != null) onFinish();
 		}, 'Exit');
 	}
 }

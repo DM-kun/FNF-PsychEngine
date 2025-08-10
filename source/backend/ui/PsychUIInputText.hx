@@ -1,9 +1,7 @@
 package backend.ui;
 
-import flixel.FlxObject;
 import flixel.input.keyboard.FlxKey;
-import flixel.util.FlxDestroyUtil;
-import flash.events.KeyboardEvent;
+import openfl.events.KeyboardEvent;
 import lime.system.Clipboard;
 
 enum abstract AccentCode(Int) from Int from UInt to Int to UInt
@@ -729,7 +727,7 @@ class PsychUIInputText extends FlxSpriteGroup
 				case CUSTOM_FILTER:
 					pattern = customFilterPattern;
 				default:
-					throw new flash.errors.Error("FlxInputText: Unknown filterMode (" + filterMode + ")");
+					throw new openfl.errors.Error("FlxInputText: Unknown filterMode (" + filterMode + ")");
 			}
 			text = pattern.replace(text, "");
 		}

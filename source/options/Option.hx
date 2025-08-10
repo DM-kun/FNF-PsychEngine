@@ -5,7 +5,8 @@ typedef Keybind = {
 	gamepad:String
 }
 
-enum OptionType {
+enum OptionType
+{
 	// Bool will use checkboxes
 	// Everything else will use a text
 	BOOL;
@@ -80,9 +81,7 @@ class Option
 
 		try
 		{
-			if(getValue() == null)
-				setValue(defaultValue);
-	
+			if(getValue() == null) setValue(defaultValue);
 			switch(type)
 			{
 				case STRING:
@@ -90,6 +89,7 @@ class Option
 					if(num > -1) curOption = num;
 
 				default:
+					//nothing
 			}
 		}
 		catch(e) {}
@@ -98,13 +98,12 @@ class Option
 	public function change()
 	{
 		//nothing lol
-		if(onChange != null)
-			onChange();
+		if(onChange != null) onChange();
 	}
 
 	dynamic public function getValue():Dynamic
 	{
-		var value = Reflect.getProperty(ClientPrefs.data, variable);
+		final value:Dynamic = Reflect.getProperty(ClientPrefs.data, variable);
 		if(type == KEYBIND) return !Controls.instance.controllerMode ? value.keyboard : value.gamepad;
 		return value;
 	}
@@ -113,12 +112,13 @@ class Option
 	{
 		if(type == KEYBIND)
 		{
-			var keys = Reflect.getProperty(ClientPrefs.data, variable);
+			var keys:Dynamic = Reflect.getProperty(ClientPrefs.data, variable);
 			if(!Controls.instance.controllerMode) keys.keyboard = value;
 			else keys.gamepad = value;
 			return value;
 		}
-		return Reflect.setProperty(ClientPrefs.data, variable, value);
+		Reflect.setProperty(ClientPrefs.data, variable, value);
+		return value;
 	}
 
 	var _name:String = null;

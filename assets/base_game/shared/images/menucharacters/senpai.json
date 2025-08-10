@@ -1,10 +1,17 @@
 {
-	"idle_anim": "M Senpai Idle",
-	"image": "Menu_Senpai",
-	"position": [
-		60,
-		-70
+	"animations": [
+		{
+			"anim": "idle",
+			"name": "M Senpai Idle",
+			"offsets": [0, 0],
+			"loop": false,
+			"fps": 24,
+			"indices": []
+		}
 	],
+	"image": "Menu_Senpai",
 	"scale": 1,
-	"antialiasing": true
+	"position": [60, -70],
+	"flip_x": false,
+	"no_antialiasing": false
 }

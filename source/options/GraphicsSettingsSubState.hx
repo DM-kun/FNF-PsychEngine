@@ -15,7 +15,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		boyfriend.setGraphicSize(Std.int(boyfriend.width * 0.75));
 		boyfriend.updateHitbox();
 		boyfriend.dance();
-		boyfriend.animation.finishCallback = function (name:String) boyfriend.dance();
+		boyfriend.anim.onFinish.add(function(name:String) boyfriend.dance());
 		boyfriend.visible = false;
 
 		//I'd suggest using "Low Quality" as an example for making your own option since it is the simplest here
@@ -53,8 +53,8 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		final refreshRate:Int = FlxG.stage.application.window.displayMode.refreshRate;
-		option.minValue = 60;
-		option.maxValue = 240;
+		option.minValue = 30;
+		option.maxValue = 360;
 		option.defaultValue = Std.int(FlxMath.bound(refreshRate, option.minValue, option.maxValue));
 		option.displayFormat = '%v FPS';
 		option.onChange = onChangeFramerate;
@@ -66,12 +66,13 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 
 	function onChangeAntiAliasing()
 	{
-		for (sprite in members)
+		FlxG.game.stage.quality = ClientPrefs.data.antialiasing ? BEST : LOW;
+		// FlxSprite.defaultAntialiasing = ClientPrefs.data.antialiasing;
+		for(sprite in members)
 		{
 			var sprite:FlxSprite = cast sprite;
-			if(sprite != null && (sprite is FlxSprite) && !(sprite is FlxText)) {
+			if(sprite != null && (sprite is FlxSprite) && !(sprite is FlxText))
 				sprite.antialiasing = ClientPrefs.data.antialiasing;
-			}
 		}
 	}
 

@@ -7,8 +7,7 @@ import flixel.math.FlxMath;
 import flixel.util.FlxSort;
 
 // Chart
-typedef VSliceChart =
-{
+typedef VSliceChart = {
 	var scrollSpeed:Dynamic;	// Map<String, Float>
 	var events:Array<VSliceEvent>;
 	var notes:Dynamic;			// Map<String, Array<VSliceNote>>
@@ -16,24 +15,21 @@ typedef VSliceChart =
 	var version:String;
 }
 
-typedef VSliceNote =
-{
+typedef VSliceNote = {
 	var t:Float;					// Strum time
 	var d:Int;						// Note data
 	@:optional var l:Null<Float>;	// Sustain Length
 	@:optional var k:String;		// Note type
 }
 
-typedef VSliceEvent =
-{
+typedef VSliceEvent = {
 	var t:Float;	//Strum time
 	var e:String;	//Event name
 	var v:Dynamic;	//Values
 }
 
 // Metadata
-typedef VSliceMetadata = 
-{
+typedef VSliceMetadata = {
 	var songName:String;
 	var artist:String;
 	var charter:String;
@@ -45,23 +41,20 @@ typedef VSliceMetadata =
 	var version:String;
 }
 
-typedef VSlicePlayData =
-{
+typedef VSlicePlayData = {
 	var difficulties:Array<String>;
 	var characters:VSliceCharacters;
 	var noteStyle:String;
 	var stage:String;
 }
 
-typedef VSliceCharacters =
-{
+typedef VSliceCharacters = {
 	var player:String;
 	var girlfriend:String;
 	var opponent:String;
 }
 
-typedef VSliceTimeChange =
-{
+typedef VSliceTimeChange = {
 	var t:Float;
 	var bpm:Float;
 }
@@ -72,14 +65,12 @@ typedef PsychEventChart = {
 }
 
 // Package
-typedef VSlicePackage =
-{
+typedef VSlicePackage = {
 	var chart:VSliceChart;
 	var metadata:VSliceMetadata;
 }
 
-typedef PsychPackage =
-{
+typedef PsychPackage = {
 	var difficulties:Map<String, SwagSong>;
 	var events:PsychEventChart;
 }

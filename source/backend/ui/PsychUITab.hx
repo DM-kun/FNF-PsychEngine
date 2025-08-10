@@ -1,7 +1,6 @@
 package backend.ui;
 
 import flixel.util.FlxDestroyUtil;
-import flixel.math.FlxPoint;
 
 class PsychUITab extends FlxSprite
 {

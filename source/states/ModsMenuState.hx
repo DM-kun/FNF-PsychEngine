@@ -5,7 +5,7 @@ import backend.Mods;
 
 import flixel.FlxBasic;
 import flixel.graphics.FlxGraphic;
-import flash.geom.Rectangle;
+import openfl.geom.Rectangle;
 import haxe.Json;
 
 import flixel.util.FlxSpriteUtil;
@@ -299,7 +299,7 @@ class ModsMenuState extends MusicBeatState
 	
 	var nextAttempt:Float = 1;
 	var holdingMod:Bool = false;
-	var mouseOffsets:FlxPoint = new FlxPoint();
+	var mouseOffsets:FlxPoint = FlxPoint.get();
 	var holdingElapsed:Float = 0;
 	var gottaClickAgain:Bool = false;
 
@@ -318,11 +318,6 @@ class ModsMenuState extends MusicBeatState
 				TitleState.initialized = false;
 				TitleState.closedState = false;
 				FlxG.sound.music.fadeOut(0.3);
-				if(FreeplayState.vocals != null)
-				{
-					FreeplayState.vocals.fadeOut(0.3);
-					FreeplayState.vocals = null;
-				}
 				FlxG.camera.fade(FlxColor.BLACK, 0.5, false, FlxG.resetGame, false);
 			}
 			else MusicBeatState.switchState(new MainMenuState());

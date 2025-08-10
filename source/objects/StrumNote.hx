@@ -10,32 +10,48 @@ class StrumNote extends FlxSprite
 	public var rgbShader:RGBShaderReference;
 	public var resetAnim:Float = 0;
 	private var noteData:Int = 0;
-	public var direction:Float = 90;
 	public var downScroll:Bool = false;
 	public var sustainReduce:Bool = true;
 	private var player:Int;
-	
+
+	// https://github.com/ShadowMario/FNF-PsychEngine/pull/14987
+	private var _dirSin:Float;
+	private var _dirCos:Float;
+	public var direction(default, set):Float;
+	private function set_direction(_fDir:Float):Float
+	{
+		_dirSin = Math.sin(_fDir * 0.01745329251);
+		_dirCos = Math.cos(_fDir * 0.01745329251);
+		return direction = _fDir;
+	}
+
 	public var texture(default, set):String = null;
-	private function set_texture(value:String):String {
-		if(texture != value) {
-			texture = value;
-			reloadNote();
-		}
-		return value;
+	private function set_texture(value:String):String
+	{
+		if(texture != value) reloadNote();
+		return texture = value;
 	}
 
 	public var useRGBShader:Bool = true;
-	public function new(x:Float, y:Float, leData:Int, player:Int) {
+	public function new(x:Float, y:Float, noteData:Int, player:Int)
+	{
+		super(x, y);
+
 		animation = new PsychAnimationController(this);
 
-		rgbShader = new RGBShaderReference(this, Note.initializeGlobalRGBShader(leData));
+		direction = 90;
+		antialiasing = ClientPrefs.data.antialiasing;
+
+		this.player = player;
+		this.noteData = noteData;
+		this.ID = noteData;
+
+		rgbShader = new RGBShaderReference(this, Note.initializeGlobalRGBShader(noteData));
 		rgbShader.enabled = false;
 		if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) useRGBShader = false;
 		
-		var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[leData];
-		if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[leData];
-		
-		if(leData <= arr.length)
+		final arr:Array<FlxColor> = PlayState.isPixelStage ? ClientPrefs.data.arrowRGBPixel[noteData] : ClientPrefs.data.arrowRGB[noteData];
+		if(noteData <= arr.length)
 		{
 			@:bypassAccessor
 			{
@@ -45,100 +61,115 @@ class StrumNote extends FlxSprite
 			}
 		}
 
-		noteData = leData;
-		this.player = player;
-		this.noteData = leData;
-		this.ID = noteData;
-		super(x, y);
-
-		var skin:String = null;
-		if(PlayState.SONG != null && PlayState.SONG.arrowSkin != null && PlayState.SONG.arrowSkin.length > 1) skin = PlayState.SONG.arrowSkin;
-		else skin = Note.defaultNoteSkin;
-
-		var customSkin:String = skin + Note.getNoteSkinPostfix();
-		if(Paths.fileExists('images/$customSkin.png', IMAGE)) skin = customSkin;
-
-		texture = skin; //Load texture and anims
+		texture = '';
 		scrollFactor.set();
 		playAnim('static');
 	}
 
-	public function reloadNote()
+	static var _lastValidChecked:String; //optimization
+	public function reloadNote(texture:String = '', postfix:String = '')
 	{
-		var lastAnim:String = null;
-		if(animation.curAnim != null) lastAnim = animation.curAnim.name;
+		if(texture == null) texture = '';
+		if(postfix == null) postfix = '';
+
+		var skin:String = texture + postfix;
+		if(texture.length < 1)
+		{
+			skin = PlayState.SONG != null ? PlayState.SONG.arrowSkin : null;
+			if(skin == null || skin.length < 1) skin = Note.defaultNoteSkin + postfix;
+		}
+		else rgbShader.enabled = false;
+
+		var animName:String = null;
+		if(animation.curAnim != null)
+			animName = animation.curAnim.name;
+
+		var skinPixel:String = skin;
+		var skinPostfix:String = Note.getNoteSkinPostfix();
+		var customSkin:String = skin + skinPostfix;
+		var path:String = PlayState.isPixelStage ? 'pixelUI/' : '';
+		if(customSkin == _lastValidChecked || Paths.fileExists('images/' + path + customSkin + '.png', IMAGE))
+		{
+			skin = customSkin;
+			_lastValidChecked = customSkin;
+		}
+		else skinPostfix = '';
 
 		if(PlayState.isPixelStage)
 		{
-			loadGraphic(Paths.image('pixelUI/' + texture));
+			loadGraphic(Paths.image('pixelUI/' + skinPixel + skinPostfix));
 			width = width / 4;
 			height = height / 5;
-			loadGraphic(Paths.image('pixelUI/' + texture), true, Math.floor(width), Math.floor(height));
-
+			loadGraphic(Paths.image('pixelUI/' + skinPixel + skinPostfix), true, Math.floor(width), Math.floor(height));
+			loadPixelNoteAnims();
 			antialiasing = false;
-			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
-
-			animation.add('green', [6]);
-			animation.add('red', [7]);
-			animation.add('blue', [5]);
-			animation.add('purple', [4]);
-			switch (Math.abs(noteData) % 4)
-			{
-				case 0:
-					animation.add('static', [0]);
-					animation.add('pressed', [4, 8], 12, false);
-					animation.add('confirm', [12, 16], 24, false);
-				case 1:
-					animation.add('static', [1]);
-					animation.add('pressed', [5, 9], 12, false);
-					animation.add('confirm', [13, 17], 24, false);
-				case 2:
-					animation.add('static', [2]);
-					animation.add('pressed', [6, 10], 12, false);
-					animation.add('confirm', [14, 18], 12, false);
-				case 3:
-					animation.add('static', [3]);
-					animation.add('pressed', [7, 11], 12, false);
-					animation.add('confirm', [15, 19], 24, false);
-			}
 		}
 		else
 		{
-			frames = Paths.getSparrowAtlas(texture);
-			animation.addByPrefix('green', 'arrowUP');
-			animation.addByPrefix('blue', 'arrowDOWN');
-			animation.addByPrefix('purple', 'arrowLEFT');
-			animation.addByPrefix('red', 'arrowRIGHT');
-
-			antialiasing = ClientPrefs.data.antialiasing;
-			setGraphicSize(Std.int(width * 0.7));
-
-			switch (Math.abs(noteData) % 4)
-			{
-				case 0:
-					animation.addByPrefix('static', 'arrowLEFT');
-					animation.addByPrefix('pressed', 'left press', 24, false);
-					animation.addByPrefix('confirm', 'left confirm', 24, false);
-				case 1:
-					animation.addByPrefix('static', 'arrowDOWN');
-					animation.addByPrefix('pressed', 'down press', 24, false);
-					animation.addByPrefix('confirm', 'down confirm', 24, false);
-				case 2:
-					animation.addByPrefix('static', 'arrowUP');
-					animation.addByPrefix('pressed', 'up press', 24, false);
-					animation.addByPrefix('confirm', 'up confirm', 24, false);
-				case 3:
-					animation.addByPrefix('static', 'arrowRIGHT');
-					animation.addByPrefix('pressed', 'right press', 24, false);
-					animation.addByPrefix('confirm', 'right confirm', 24, false);
-			}
+			frames = Paths.getSparrowAtlas(skin);
+			loadNoteAnims();
 		}
 		updateHitbox();
 
-		if(lastAnim != null)
+		if(animName != null) playAnim(animName, true);
+	}
+
+	function loadNoteAnims()
+	{
+		animation.addByPrefix('purple', 'arrowLEFT');
+		animation.addByPrefix('blue', 'arrowDOWN');
+		animation.addByPrefix('green', 'arrowUP');
+		animation.addByPrefix('red', 'arrowRIGHT');
+		switch(Math.abs(noteData) % 4)
 		{
-			playAnim(lastAnim, true);
+			case 0:
+				animation.addByPrefix('static', 'arrowLEFT');
+				animation.addByPrefix('pressed', 'left press', 24, false);
+				animation.addByPrefix('confirm', 'left confirm', 24, false);
+			case 1:
+				animation.addByPrefix('static', 'arrowDOWN');
+				animation.addByPrefix('pressed', 'down press', 24, false);
+				animation.addByPrefix('confirm', 'down confirm', 24, false);
+			case 2:
+				animation.addByPrefix('static', 'arrowUP');
+				animation.addByPrefix('pressed', 'up press', 24, false);
+				animation.addByPrefix('confirm', 'up confirm', 24, false);
+			case 3:
+				animation.addByPrefix('static', 'arrowRIGHT');
+				animation.addByPrefix('pressed', 'right press', 24, false);
+				animation.addByPrefix('confirm', 'right confirm', 24, false);
 		}
+		setGraphicSize(Std.int(width * 0.7));
+		updateHitbox();
+	}
+
+	function loadPixelNoteAnims()
+	{
+		animation.add('purple', [4]);
+		animation.add('blue', [5]);
+		animation.add('green', [6]);
+		animation.add('red', [7]);
+		switch(Math.abs(noteData) % 4)
+		{
+			case 0:
+				animation.add('static', [0]);
+				animation.add('pressed', [4, 8], 12, false);
+				animation.add('confirm', [12, 16], 12, false);
+			case 1:
+				animation.add('static', [1]);
+				animation.add('pressed', [5, 9], 12, false);
+				animation.add('confirm', [13, 17], 12, false);
+			case 2:
+				animation.add('static', [2]);
+				animation.add('pressed', [6, 10], 12, false);
+				animation.add('confirm', [14, 18], 12, false);
+			case 3:
+				animation.add('static', [3]);
+				animation.add('pressed', [7, 11], 12, false);
+				animation.add('confirm', [15, 19], 12, false);
+		}
+		setGraphicSize(Std.int(width * PlayState.daPixelZoom));
+		updateHitbox();
 	}
 
 	public function playerPosition()
@@ -148,24 +179,41 @@ class StrumNote extends FlxSprite
 		x += ((FlxG.width / 2) * player);
 	}
 
-	override function update(elapsed:Float) {
-		if(resetAnim > 0) {
+	override function update(elapsed:Float)
+	{
+		if(resetAnim > 0)
+		{
 			resetAnim -= elapsed;
-			if(resetAnim <= 0) {
+			if(resetAnim <= 0)
+			{
 				playAnim('static');
 				resetAnim = 0;
 			}
 		}
+
 		super.update(elapsed);
 	}
 
-	public function playAnim(anim:String, ?force:Bool = false) {
+	public function playAnim(anim:String, ?force:Bool = false, ?note:Note = null)
+	{
 		animation.play(anim, force);
 		if(animation.curAnim != null)
 		{
 			centerOffsets();
 			centerOrigin();
 		}
-		if(useRGBShader) rgbShader.enabled = (animation.curAnim != null && animation.curAnim.name != 'static');
+
+		if(useRGBShader)
+		{
+			rgbShader.enabled = (animation.curAnim != null && animation.curAnim.name != 'static');
+			/*if(note != null) rgbShader.copyValues(note.rgbShader.parent);
+			else rgbShader.copyValues(Note.globalRgbShaders[noteData % Note.colArray.length]);*/
+		}
+	}
+
+	override public function destroy()
+	{
+		super.destroy();
+		_lastValidChecked = '';
 	}
 }

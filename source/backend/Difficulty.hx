@@ -18,8 +18,8 @@ class Difficulty
 		var filePostfix:String = list[num];
 		if(filePostfix != null && Paths.formatToSongPath(filePostfix) != Paths.formatToSongPath(defaultDifficulty))
 			filePostfix = '-' + filePostfix;
-		else
-			filePostfix = '';
+		else filePostfix = '';
+
 		return Paths.formatToSongPath(filePostfix);
 	}
 
@@ -27,7 +27,7 @@ class Difficulty
 	{
 		if(week == null) week = WeekData.getCurrentWeek();
 
-		var diffStr:String = week.difficulties;
+		final diffStr:String = week.difficulties;
 		if(diffStr != null && diffStr.length > 0)
 		{
 			var diffs:Array<String> = diffStr.trim().split(',');
@@ -66,7 +66,5 @@ class Difficulty
 	}
 
 	inline public static function getDefault():String
-	{
 		return defaultDifficulty;
-	}
 }

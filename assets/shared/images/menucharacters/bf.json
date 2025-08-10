@@ -1,12 +1,25 @@
 {
-	
-	"image": "Menu_BF",
-	"position": [
-		15,
-		-40
+	"animations": [
+		{
+			"anim": "idle",
+			"name": "M BF Idle",
+			"offsets": [0, 0],
+			"loop": false,
+			"fps": 24,
+			"indices": []
+		},
+		{
+			"anim": "confirm",
+			"name": "M bf HEY",
+			"offsets": [0, 0],
+			"loop": false,
+			"fps": 24,
+			"indices": []
+		}
 	],
+	"image": "Menu_BF",
 	"scale": 1,
-	"idle_anim": "M BF Idle",
-	"confirm_anim": "M bf HEY",
-	"antialiasing": true
+	"position": [15, -40],
+	"flip_x": false,
+	"no_antialiasing": false
 }

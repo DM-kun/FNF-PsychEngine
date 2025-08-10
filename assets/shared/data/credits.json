@@ -1,0 +1,167 @@
+[
+	{
+		"header": "Psych Engine Team",
+		"credits": [
+			{
+				"name": "Shadow Mario",
+				"icon": "shadowmario",
+				"description": "Main Programmer and Head of Psych Engine",
+				"link": "https://ko-fi.com/shadowmario",
+				"color": "444444"
+			},
+			{
+				"name": "Riveren",
+				"icon": "riveren",
+				"description": "Main Artist/Animator of Psych Engine",
+				"link": "https://x.com/riverennn",
+				"color": "14967B"
+			}
+		]
+	},
+	{
+		"header": "Former Engine Members",
+		"credits": [
+			{
+				"name": "bb-panzu",
+				"icon": "bb",
+				"description": "Ex-Programmer of Psych Engine",
+				"link": "https://x.com/bbsub3",
+				"color": "3E813A"
+			}
+		]
+	},
+	{
+		"header": "Engine Contributors",
+		"credits": [
+			{
+				"name": "crowplexus",
+				"icon": "crowplexus",
+				"description": "Linux Support, HScript Iris, Input System v3, and Other PRs",
+				"link": "https://twitter.com/IamMorwen",
+				"color": "CFCFCF"
+			},
+			{
+				"name": "Kamizeta",
+				"icon": "kamizeta",
+				"description": "Creator of Pessy, Psych Engine's mascot.",
+				"link": "https://www.instagram.com/cewweey/",
+				"color": "D21C11"
+			},
+			{
+				"name": "MaxNeton",
+				"icon": "maxneton",
+				"description": "Loading Screen Easter Egg Artist/Animator.",
+				"link": "https://bsky.app/profile/maxneton.bsky.social",
+				"color": "3C2E4E"
+			},
+			{
+				"name": "Keoiki",
+				"icon": "keoiki",
+				"description": "Note Splash Animations and Latin Alphabet",
+				"link": "https://x.com/Keoiki_",
+				"color": "D2D2D2"
+			},
+			{
+				"name": "SqirraRNG",
+				"icon": "sqirra",
+				"description": "Crash Handler and Base code for\nChart Editor's Waveform",
+				"link": "https://x.com/gedehari",
+				"color": "E1843A"
+			},
+			{
+				"name": "EliteMasterEric",
+				"icon": "mastereric",
+				"description": "Runtime Shaders support and Other PRs",
+				"link": "https://x.com/EliteMasterEric",
+				"color": "FFBD40"
+			},
+			{
+				"name": "MAJigsaw77",
+				"icon": "majigsaw",
+				"description": ".MP4 Video Loader Library (hxvlc)",
+				"link": "https://x.com/MAJigsaw77",
+				"color": "5F5F5F"
+			},
+			{
+				"name": "iFlicky",
+				"icon": "flicky",
+				"description": "Composer of Psync and Tea Time\nAnd some sound effects",
+				"link": "https://x.com/flicky_i",
+				"color": "9E29CF"
+			},
+			{
+				"name": "KadeDev",
+				"icon": "kade",
+				"description": "Fixed some issues on Chart Editor and Other PRs",
+				"link": "https://x.com/kade0912",
+				"color": "64A250"
+			},
+			{
+				"name": "superpowers04",
+				"icon": "superpowers04",
+				"description": "LUA JIT Fork",
+				"link": "https://x.com/superpowers04",
+				"color": "B957ED"
+			},
+			{
+				"name": "CheemsAndFriends",
+				"icon": "cheems",
+				"description": "Creator of FlxAnimate",
+				"link": "https://x.com/CheemsnFriendos",
+				"color": "E1E1E1"
+			},
+			{
+				"name": "MaybeMaru",
+				"icon": "maru",
+				"description": "Creator of flixel-animate",
+				"link": "https://x.com/maybemaru_",
+				"color": "BCFFAD"
+			}
+		]
+	},
+	{
+		"header": "Funkin' Crew",
+		"credits": [
+			{
+				"name": "ninjamuffin99",
+				"icon": "ninjamuffin99",
+				"description": "Programmer of Friday Night Funkin'",
+				"link": "https://x.com/ninja_muffin99",
+				"color": "CF2D2D"
+			},
+			{
+				"name": "PhantomArcade",
+				"icon": "phantomarcade",
+				"description": "Animator of Friday Night Funkin'",
+				"link": "https://x.com/PhantomArcade3K",
+				"color": "FADC45"
+			},
+			{
+				"name": "evilsk8r",
+				"icon": "evilsk8r",
+				"description": "Artist of Friday Night Funkin'",
+				"link": "https://x.com/evilsk8r",
+				"color": "5ABD4B"
+			},
+			{
+				"name": "kawaisprite",
+				"icon": "kawaisprite",
+				"description": "Composer of Friday Night Funkin'",
+				"link": "https://x.com/kawaisprite",
+				"color": "378FC7"
+			}
+		]
+	},
+	{
+		"header": "Psych Engine Discord",
+		"credits": [
+			{
+				"name": "Join the Psych Ward!",
+				"icon": "discord",
+				"description": "",
+				"link": "https://discord.gg/2ka77eMXDv",
+				"color": "5165F6"
+			}
+		]
+	}
+]

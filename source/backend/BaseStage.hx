@@ -3,10 +3,9 @@ package backend;
 import flixel.FlxBasic;
 import flixel.FlxObject;
 import flixel.FlxSubState;
-import flixel.group.FlxGroup;
 
-import objects.Note;
 import objects.Character;
+import objects.Note;
 
 enum Countdown
 {
@@ -34,15 +33,16 @@ class BaseStage extends FlxBasic
 	public var boyfriend(get, never):Character;
 	public var dad(get, never):Character;
 	public var gf(get, never):Character;
+
 	public var boyfriendGroup(get, never):FlxSpriteGroup;
 	public var dadGroup(get, never):FlxSpriteGroup;
 	public var gfGroup(get, never):FlxSpriteGroup;
 
 	public var unspawnNotes(get, never):Array<Note>;
 	
-	public var camGame(get, never):FlxCamera;
-	public var camHUD(get, never):FlxCamera;
-	public var camOther(get, never):FlxCamera;
+	public var camGame(get, never):PsychCamera;
+	public var camHUD(get, never):PsychCamera;
+	public var camOther(get, never):PsychCamera;
 
 	public var defaultCamZoom(get, set):Float;
 	public var camFollow(get, never):FlxObject;
@@ -68,6 +68,7 @@ class BaseStage extends FlxBasic
 	//public function update(elapsed:Float) {}
 	public function countdownTick(count:Countdown, num:Int) {}
 	public function startSong() {}
+	public function onPause() {}
 
 	// FNF steps, beats and sections
 	public var curBeat:Int = 0;
@@ -102,6 +103,7 @@ class BaseStage extends FlxBasic
 	public function addBehindGF(obj:FlxBasic) return insert(members.indexOf(game.gfGroup), obj);
 	public function addBehindBF(obj:FlxBasic) return insert(members.indexOf(game.boyfriendGroup), obj);
 	public function addBehindDad(obj:FlxBasic) return insert(members.indexOf(game.dadGroup), obj);
+
 	public function setDefaultGF(name:String) //Fix for the Chart Editor on Base Game stages
 	{
 		var gfVersion:String = PlayState.SONG.gfVersion;
@@ -129,9 +131,12 @@ class BaseStage extends FlxBasic
 
 	// overrides
 	function startCountdown() if(onPlayState) return PlayState.instance.startCountdown(); else return false;
-	function endSong() if(onPlayState)return PlayState.instance.endSong(); else return false;
+	function endSong() if(onPlayState) return PlayState.instance.endSong(); else return false;
+
 	function moveCameraSection() if(onPlayState) PlayState.instance.moveCameraSection();
 	function moveCamera(isDad:Bool) if(onPlayState) PlayState.instance.moveCamera(isDad);
+	function moveCameraToGirlfriend() if(onPlayState) PlayState.instance.moveCameraToGirlfriend();
+
 	inline private function get_paused() return game.paused;
 	inline private function get_songName() return game.songName;
 	inline private function get_isStoryMode() return PlayState.isStoryMode;
@@ -166,9 +171,9 @@ class BaseStage extends FlxBasic
 		return cast game.unspawnNotes;
 	}
 	
-	inline private function get_camGame():FlxCamera return game.camGame;
-	inline private function get_camHUD():FlxCamera return game.camHUD;
-	inline private function get_camOther():FlxCamera return game.camOther;
+	inline private function get_camGame():PsychCamera return game.camGame;
+	inline private function get_camHUD():PsychCamera return game.camHUD;
+	inline private function get_camOther():PsychCamera return game.camOther;
 
 	inline private function get_defaultCamZoom():Float return game.defaultCamZoom;
 	inline private function set_defaultCamZoom(value:Float):Float

@@ -1,12 +1,17 @@
 {
-	
-	"image": "Menu_Dad",
-	"position": [
-		0,
-		0
+	"animations": [
+		{
+			"anim": "idle",
+			"name": "M Dad Idle",
+			"offsets": [0, 0],
+			"loop": false,
+			"fps": 24,
+			"indices": []
+		}
 	],
+	"image": "Menu_Dad",
 	"scale": 1,
-	"idle_anim": "M Dad Idle",
-	"confirm_anim": "M Dad Idle",
-	"antialiasing": true
+	"position": [0, 0],
+	"flip_x": false,
+	"no_antialiasing": false
 }

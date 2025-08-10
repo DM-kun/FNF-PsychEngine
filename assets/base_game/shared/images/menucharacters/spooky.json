@@ -1,10 +1,25 @@
 {
-	"idle_anim": "M Spooky Kids Idle",
-	"image": "Menu_Spooky_Kids",
-	"position": [
-		0,
-		-80
+	"animations": [
+		{
+			"anim": "danceLeft",
+			"name": "M Spooky Kids Idle",
+			"offsets": [0, 0],
+			"loop": false,
+			"fps": 24,
+			"indices": [0,1,2,3,4,5,6,7]
+		},
+		{
+			"anim": "danceRight",
+			"name": "M Spooky Kids Idle",
+			"offsets": [0, 0],
+			"loop": false,
+			"fps": 24,
+			"indices": [8,9,10,11,12,13,14,15]
+		}
 	],
+	"image": "Menu_Spooky_Kids",
 	"scale": 1,
-	"antialiasing": true
+	"position": [0, -80],
+	"flip_x": false,
+	"no_antialiasing": false
 }

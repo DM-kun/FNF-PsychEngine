@@ -4,7 +4,6 @@ import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 
 import states.MainMenuState;
-import states.TitleState;
 
 class OutdatedSubState extends MusicBeatSubstate
 {

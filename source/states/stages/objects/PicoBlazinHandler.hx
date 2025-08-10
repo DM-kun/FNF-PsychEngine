@@ -184,10 +184,8 @@ class PicoBlazinHandler
 	
 	public function noteMissPress(direction:Int)
 	{
-		if (willMissBeLethal())
-			playHitLowAnim(); // Darnell throws a punch so that Pico dies.
-		else 
-			playPunchHighAnim(); // Pico wildly throws punches but Darnell dodges.
+		if(willMissBeLethal()) playHitLowAnim(); // Darnell throws a punch so that Pico dies.
+		else playPunchHighAnim(); // Pico wildly throws punches but Darnell dodges.
 	}
 
 	function movePicoToBack()

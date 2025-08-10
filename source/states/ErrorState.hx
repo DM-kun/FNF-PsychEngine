@@ -2,15 +2,15 @@ package states;
 
 class ErrorState extends MusicBeatState
 {
-	public var acceptCallback:Void->Void;
-	public var backCallback:Void->Void;
 	public var errorMsg:String;
+	public var onAccept:Void->Void;
+	public var onReturn:Void->Void;
 
-	public function new(error:String, accept:Void->Void = null, back:Void->Void = null)
+	public function new(errorMsg:String, onAccept:Void->Void = null, onReturn:Void->Void = null)
 	{
-		this.errorMsg = error;
-		this.acceptCallback = accept;
-		this.backCallback = back;
+		this.errorMsg = errorMsg;
+		this.onAccept = onAccept;
+		this.onReturn = onReturn;
 
 		super();
 	}
@@ -19,7 +19,7 @@ class ErrorState extends MusicBeatState
 	public var errorText:FlxText;
 	override function create()
 	{
-		var bg = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
+		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		bg.color = FlxColor.GRAY;
 		bg.antialiasing = ClientPrefs.data.antialiasing;
 		add(bg);
@@ -31,6 +31,7 @@ class ErrorState extends MusicBeatState
 		errorText.borderSize = 2;
 		errorText.screenCenter();
 		add(errorText);
+
 		super.create();
 	}
 
@@ -39,10 +40,8 @@ class ErrorState extends MusicBeatState
 		errorSine += 180 * elapsed;
 		errorText.alpha = 1 - Math.sin((Math.PI * errorSine) / 180);
 
-		if(controls.ACCEPT && acceptCallback != null)
-			acceptCallback();
-		else if(controls.BACK && backCallback != null)
-			backCallback();
+		if(controls.ACCEPT && onAccept != null) onAccept();
+		else if(controls.BACK && onReturn != null) onReturn();
 
 		super.update(elapsed);
 	}
