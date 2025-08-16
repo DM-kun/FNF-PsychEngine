@@ -5,7 +5,6 @@ import android.content.Context;
 #end
 
 import debug.FPSCounter;
-// import debug.ScriptTraceDisplay;
 
 import flixel.FlxGame;
 import flixel.util.FlxSave;
@@ -52,10 +51,7 @@ class Main extends Sprite
 		startFullscreen: false // if the game should start at fullscreen mode
 	};
 
-	public static var save:FlxSave;
-
 	public static var fpsVar:FPSCounter;
-	//public static var traceVar:ScriptTraceDisplay;
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
 
@@ -79,12 +75,8 @@ class Main extends Sprite
 
 		#if VIDEOS_ALLOWED hxvlc.util.Handle.init(#if (hxvlc >= "1.8.0")  ['--no-lua'] #end); #end
 
-		// Default Save (for scores and progress)
 		FlxG.save.bind('funkin', CoolUtil.getSavePath());
-
-		// Psych Save (for options and other stuff)
-		save = new FlxSave();
-		save.bind('options', CoolUtil.getSavePath());
+		ClientPrefs.createSettings();
 
 		Controls.instance = new Controls();
 		ClientPrefs.loadDefaultKeys();
@@ -131,13 +123,10 @@ class Main extends Sprite
 		// @:privateAccess funkin._customSoundTray = backend.CustomSoundTray;
 		addChild(funkin);
 
-		//traceVar = new ScriptTraceDisplay();
-		//addChild(traceVar);
-
 		#if !mobile
 		fpsVar = new FPSCounter(10, 3, 0xFFFFFF);
 		addChild(fpsVar);
-		if(fpsVar != null) fpsVar.visible = ClientPrefs.data.showFPS;
+		fpsVar.visible = ClientPrefs.data.showFPS;
 
 		Lib.current.stage.align = "tl";
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
@@ -153,7 +142,7 @@ class Main extends Sprite
 		#end
 
 		// shader coords fix
-		FlxG.signals.gameResized.add(function (w, h)
+		FlxG.signals.gameResized.add(function(w, h)
 		{
 			if(FlxG.cameras != null)
 			{
@@ -191,12 +180,12 @@ class Main extends Sprite
 
 		path = "./crash/" + "PsychEngine_" + dateNow + ".txt";
 
-		for (stackItem in callStack)
+		for(stackItem in callStack)
 		{
-			switch (stackItem)
+			switch(stackItem)
 			{
 				case FilePos(s, file, line, column):
-					errMsg += file + " (line " + line + ")\n";
+					errMsg += file + ":" + line + "\n";
 				default:
 					Sys.println(stackItem);
 			}
@@ -205,7 +194,7 @@ class Main extends Sprite
 		errMsg += "\nUncaught Error: " + e.error;
 		#if officialBuild
 		errMsg += "\nPlease report this error to the GitHub page:";
-		errMsg += "\nhttps://github.com/DMMaster636/FNF-PsychEngine";
+		errMsg += "\nhttps://github.com/DM-kun/FNF-PsychEngine";
 		#end
 		errMsg += "\n\n> Crash Handler written by: sqirra-rng";
 
@@ -218,7 +207,7 @@ class Main extends Sprite
 		Sys.println("Crash dump saved in " + Path.normalize(path));
 
 		Application.current.window.alert(errMsg, "Error!");
-		backend.Native.exitGame(1);
+		backend.Native.exitGameError();
 		//FlxG.resetGame();
 	}
 	#end

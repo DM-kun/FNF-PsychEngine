@@ -798,7 +798,7 @@ class ModItem extends FlxSpriteGroup
 	// options
 	public var name:String = 'Unknown Mod';
 	public var desc:String = 'No description provided.';
-	public var iconFps:Int = 10;
+	public var iconFps:Float = 10;
 	public var bgColor:FlxColor = 0xFF665AFF;
 	public var pack:Dynamic = null;
 	public var folder:String = 'unknownMod';

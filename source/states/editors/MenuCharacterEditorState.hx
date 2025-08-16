@@ -83,7 +83,8 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 
 	var UI_typebox:PsychUIBox;
 	var UI_mainbox:PsychUIBox;
-	function addEditorBox() {
+	function addEditorBox()
+	{
 		UI_typebox = new PsychUIBox(100, FlxG.height - 230, 120, 180, ['Character Type']);
 		UI_typebox.scrollFactor.set();
 		addTypeUI();
@@ -110,7 +111,8 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 	}
 
 	var characterTypeRadio:PsychUIRadioGroup;
-	function addTypeUI() {
+	function addTypeUI()
+	{
 		var tab_group = UI_typebox.getTab('Character Type').menu;
 
 		characterTypeRadio = new PsychUIRadioGroup(10, 20, ['Opponent', 'Player', 'Girlfriend'], 40);
@@ -179,13 +181,15 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 		reloadSelectedCharacter();
 	}
 	
-	function reloadSelectedCharacter() {
+	function reloadSelectedCharacter()
+	{
 		var char:MenuCharacter = grpWeekCharacters.members[characterTypeRadio.checked];
+		final imageFile:String = 'menucharacters/' + characterFile.image;
 
 		char.alpha = 1;
-		char.frames = Paths.getSparrowAtlas('menucharacters/' + characterFile.image);
-		char.anim.addByPrefix('idle', characterFile.idle_anim, 24);
-		if(characterTypeRadio.checked == 1) char.anim.addByPrefix('confirm', characterFile.confirm_anim, 24, false);
+		char.frames = Paths.getMultiAtlas(imageFile.split(','));
+		char.addAnim('idle', characterFile.idle_anim, null, 24);
+		if(characterTypeRadio.checked == 1) char.addAnim('confirm', characterFile.confirm_anim, null, 24, false);
 		char.flipX = (characterFile.flip_x == true);
 
 		char.scale.set(characterFile.scale, characterFile.scale);

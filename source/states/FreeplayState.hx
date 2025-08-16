@@ -88,10 +88,7 @@ class FreeplayState extends MusicBeatState
 				if(song[3] != null && song[3] == true && (!StoryMenuState.weekCompleted.exists(leWeek.fileName) && !StoryMenuState.weekCompleted.get(leWeek.fileName)))
 					continue;
 
-				var colors:Array<Int> = song[2];
-				if(colors == null || colors.length < 3)
-					colors = [146, 113, 253];
-
+				final colors:Array<Int> = (song[2] == null || song[2].length < 3) ? [146, 113, 253] : song[2];
 				addSong(song[0], num, song[1], FlxColor.fromRGB(colors[0], colors[1], colors[2]));
 			}
 		}

@@ -77,7 +77,6 @@ class Controls
 	{
 		var result:Bool = (FlxG.keys.anyJustPressed(keyboardBinds[key]) == true);
 		if(result) controllerMode = false;
-
 		return result || _myGamepadJustPressed(gamepadBinds[key]) == true;
 	}
 
@@ -85,16 +84,14 @@ class Controls
 	{
 		var result:Bool = (FlxG.keys.anyPressed(keyboardBinds[key]) == true);
 		if(result) controllerMode = false;
-
-		return (result || (_myGamepadPressed(gamepadBinds[key]) == true));
+		return result || _myGamepadPressed(gamepadBinds[key]) == true;
 	}
 
 	public function justReleased(key:String)
 	{
 		var result:Bool = (FlxG.keys.anyJustReleased(keyboardBinds[key]) == true);
 		if(result) controllerMode = false;
-
-		return (result || (_myGamepadJustReleased(gamepadBinds[key]) == true));
+		return result || _myGamepadJustReleased(gamepadBinds[key]) == true;
 	}
 
 	public var controllerMode:Bool = false;

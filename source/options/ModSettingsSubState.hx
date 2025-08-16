@@ -20,10 +20,10 @@ class ModSettingsSubState extends BaseOptionsMenu
 		//title = name;
 		rpcTitle = 'Mod Settings ($name)'; //for Discord Rich Presence
 
-		if(Main.save.data.modSettings == null) Main.save.data.modSettings = new Map<String, Dynamic>();
+		if(ClientPrefs.save.data.modSettings == null) ClientPrefs.save.data.modSettings = new Map<String, Dynamic>();
 		else
 		{
-			var saveMap:Map<String, Dynamic> = Main.save.data.modSettings;
+			var saveMap:Map<String, Dynamic> = ClientPrefs.save.data.modSettings;
 			save = saveMap[folder] != null ? saveMap[folder] : [];
 		}
 
@@ -184,8 +184,8 @@ class ModSettingsSubState extends BaseOptionsMenu
 
 	override public function close()
 	{
-		Main.save.data.modSettings.set(folder, save);
-		Main.save.flush();
+		ClientPrefs.save.data.modSettings.set(folder, save);
+		ClientPrefs.saveSettings();
 		super.close();
 	}
 }

@@ -1,7 +1,6 @@
 package states.editors.content;
 
 import backend.Song;
-import backend.Difficulty;
 
 import flixel.math.FlxMath;
 import flixel.util.FlxSort;

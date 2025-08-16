@@ -43,8 +43,6 @@ class FPSCounter extends TextField
 	// Event Handlers
 	private override function __enterFrame(deltaTime:Float):Void
 	{
-		// prevents the overlay from updating every frame, why would you need to anyways @crowplexus
-		// decided to actually fix the memory leak cus wtf did you do, crow...    - DM
 		if(deltaTimeout > 1000)
 		{
 			deltaTimeout = 0.0;

@@ -22,6 +22,10 @@ typedef DialogueLine = {
 // TO DO: Clean code? Maybe? idk
 class DialogueBoxPsych extends FlxSpriteGroup
 {
+	public var onFinish:Void->Void;
+	public var onNextDialogue:Void->Void = null;
+	public var onSkipDialogue:Void->Void = null;
+
 	public static var DEFAULT_TEXT_X = 175;
 	public static var DEFAULT_TEXT_Y = 460;
 	public static var LONG_TEXT_ADD = 24;
@@ -29,10 +33,6 @@ class DialogueBoxPsych extends FlxSpriteGroup
 
 	var dialogue:TypedAlphabet;
 	var dialogueList:DialogueFile = null;
-
-	public var onFinish:Void->Void;
-	public var onNextDialogue:Void->Void = null;
-	public var onSkipDialogue:Void->Void = null;
 
 	var bgFade:FlxSprite = null;
 	var box:FlxSprite;
@@ -306,7 +306,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
 						leChar.destroy();
 					}
 				}
-				onFinish();
+				if(onFinish != null) onFinish();
 				kill();
 			}
 		}

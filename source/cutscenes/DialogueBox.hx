@@ -5,6 +5,10 @@ import backend.Song;
 
 class DialogueBox extends FlxSpriteGroup
 {
+	public var onFinish:Void->Void;
+	public var onNextDialogue:Void->Void = null;
+	public var onSkipDialogue:Void->Void = null;
+
 	var box:FlxSprite;
 
 	var curCharacter:String = '';
@@ -13,10 +17,6 @@ class DialogueBox extends FlxSpriteGroup
 
 	// SECOND DIALOGUE FOR THE PIXEL SHIT INSTEAD???
 	var swagDialogue:FlxTypeText;
-
-	public var onFinish:Void->Void;
-	public var onNextDialogue:Void->Void = null;
-	public var onSkipDialogue:Void->Void = null;
 
 	var portraitLeft:FlxSprite;
 	var portraitRight:FlxSprite;
@@ -207,7 +207,7 @@ class DialogueBox extends FlxSpriteGroup
 		skipText.visible = false;
 		new FlxTimer().start(1.5, function(tmr:FlxTimer)
 		{
-			onFinish();
+			if(onFinish != null) onFinish();
 			kill();
 		});
 	}

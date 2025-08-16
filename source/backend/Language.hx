@@ -10,13 +10,13 @@ class Language
 	public static function reloadPhrases()
 	{
 		#if TRANSLATIONS_ALLOWED
-		var langFile:String = ClientPrefs.data.language;
-		var loadedText:Array<String> = Mods.mergeAllTextsNamed('data/$langFile.lang');
+		final langFile:String = ClientPrefs.data.language;
+		final loadedText:Array<String> = Mods.mergeAllTextsNamed('data/$langFile.lang');
 		//trace(loadedText);
 
 		phrases.clear();
 		var hasPhrases:Bool = false;
-		for (num => phrase in loadedText)
+		for(num => phrase in loadedText)
 		{
 			phrase = phrase.trim();
 			if(num < 1 && !phrase.contains(':'))
@@ -31,9 +31,8 @@ class Language
 			var n:Int = phrase.indexOf(':');
 			if(n < 0) continue;
 
-			var key:String = phrase.substr(0, n).trim().toLowerCase();
-
-			var value:String = phrase.substr(n);
+			final key:String = phrase.substr(0, n).trim().toLowerCase();
+			final value:String = phrase.substr(n);
 			n = value.indexOf('"');
 			if(n < 0) continue;
 
@@ -64,7 +63,7 @@ class Language
 		#end
 
 		if(str == null) str = key;
-		
+
 		if(values != null)
 			for (num => value in values)
 				str = str.replace('{${num+1}}', value);
@@ -76,12 +75,12 @@ class Language
 	inline public static function getFileTranslation(key:String)
 	{
 		#if TRANSLATIONS_ALLOWED
-		var str:String = phrases.get(key.trim().toLowerCase());
+		final str:String = phrases.get(key.trim().toLowerCase());
 		if(str != null) key = str;
 		#end
 		return key;
 	}
-	
+
 	#if TRANSLATIONS_ALLOWED
 	inline static private function formatKey(key:String)
 	{

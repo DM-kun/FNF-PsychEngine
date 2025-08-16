@@ -1,11 +1,9 @@
 package objects;
 
-import backend.animation.PsychAnimationController;
-
 import shaders.RGBPalette;
 import shaders.RGBPalette.RGBShaderReference;
 
-class StrumNote extends FlxSprite
+class StrumNote extends PsychSprite
 {
 	public var rgbShader:RGBShaderReference;
 	public var resetAnim:Float = 0;
@@ -37,8 +35,6 @@ class StrumNote extends FlxSprite
 	{
 		super(x, y);
 
-		animation = new PsychAnimationController(this);
-
 		direction = 90;
 		antialiasing = ClientPrefs.data.antialiasing;
 
@@ -49,7 +45,7 @@ class StrumNote extends FlxSprite
 		rgbShader = new RGBShaderReference(this, Note.initializeGlobalRGBShader(noteData));
 		rgbShader.enabled = false;
 		if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) useRGBShader = false;
-		
+
 		final arr:Array<FlxColor> = PlayState.isPixelStage ? ClientPrefs.data.arrowRGBPixel[noteData] : ClientPrefs.data.arrowRGB[noteData];
 		if(noteData <= arr.length)
 		{
@@ -80,10 +76,7 @@ class StrumNote extends FlxSprite
 		}
 		else rgbShader.enabled = false;
 
-		var animName:String = null;
-		if(animation.curAnim != null)
-			animName = animation.curAnim.name;
-
+		final animName:String = (!isAnimationNull()) ? getAnimationName() : null;
 		var skinPixel:String = skin;
 		var skinPostfix:String = Note.getNoteSkinPostfix();
 		var customSkin:String = skin + skinPostfix;
@@ -108,6 +101,7 @@ class StrumNote extends FlxSprite
 		{
 			frames = Paths.getSparrowAtlas(skin);
 			loadNoteAnims();
+			antialiasing = ClientPrefs.data.antialiasing;
 		}
 		updateHitbox();
 
@@ -116,28 +110,28 @@ class StrumNote extends FlxSprite
 
 	function loadNoteAnims()
 	{
-		animation.addByPrefix('purple', 'arrowLEFT');
-		animation.addByPrefix('blue', 'arrowDOWN');
-		animation.addByPrefix('green', 'arrowUP');
-		animation.addByPrefix('red', 'arrowRIGHT');
+		addAnim('purple', 'arrowLEFT');
+		addAnim('blue', 'arrowDOWN');
+		addAnim('green', 'arrowUP');
+		addAnim('red', 'arrowRIGHT');
 		switch(Math.abs(noteData) % 4)
 		{
 			case 0:
-				animation.addByPrefix('static', 'arrowLEFT');
-				animation.addByPrefix('pressed', 'left press', 24, false);
-				animation.addByPrefix('confirm', 'left confirm', 24, false);
+				addAnim('static', 'arrowLEFT');
+				addAnim('pressed', 'left press', null, 24, false);
+				addAnim('confirm', 'left confirm', null, 24, false);
 			case 1:
-				animation.addByPrefix('static', 'arrowDOWN');
-				animation.addByPrefix('pressed', 'down press', 24, false);
-				animation.addByPrefix('confirm', 'down confirm', 24, false);
+				addAnim('static', 'arrowDOWN');
+				addAnim('pressed', 'down press', null, 24, false);
+				addAnim('confirm', 'down confirm', null, 24, false);
 			case 2:
-				animation.addByPrefix('static', 'arrowUP');
-				animation.addByPrefix('pressed', 'up press', 24, false);
-				animation.addByPrefix('confirm', 'up confirm', 24, false);
+				addAnim('static', 'arrowUP');
+				addAnim('pressed', 'up press', null, 24, false);
+				addAnim('confirm', 'up confirm', null, 24, false);
 			case 3:
-				animation.addByPrefix('static', 'arrowRIGHT');
-				animation.addByPrefix('pressed', 'right press', 24, false);
-				animation.addByPrefix('confirm', 'right confirm', 24, false);
+				addAnim('static', 'arrowRIGHT');
+				addAnim('pressed', 'right press', null, 24, false);
+				addAnim('confirm', 'right confirm', null, 24, false);
 		}
 		setGraphicSize(Std.int(width * 0.7));
 		updateHitbox();
@@ -145,28 +139,28 @@ class StrumNote extends FlxSprite
 
 	function loadPixelNoteAnims()
 	{
-		animation.add('purple', [4]);
-		animation.add('blue', [5]);
-		animation.add('green', [6]);
-		animation.add('red', [7]);
+		anim.add('purple', [4]);
+		anim.add('blue', [5]);
+		anim.add('green', [6]);
+		anim.add('red', [7]);
 		switch(Math.abs(noteData) % 4)
 		{
 			case 0:
-				animation.add('static', [0]);
-				animation.add('pressed', [4, 8], 12, false);
-				animation.add('confirm', [12, 16], 12, false);
+				anim.add('static', [0]);
+				anim.add('pressed', [4, 8], 12, false);
+				anim.add('confirm', [12, 16], 12, false);
 			case 1:
-				animation.add('static', [1]);
-				animation.add('pressed', [5, 9], 12, false);
-				animation.add('confirm', [13, 17], 12, false);
+				anim.add('static', [1]);
+				anim.add('pressed', [5, 9], 12, false);
+				anim.add('confirm', [13, 17], 12, false);
 			case 2:
-				animation.add('static', [2]);
-				animation.add('pressed', [6, 10], 12, false);
-				animation.add('confirm', [14, 18], 12, false);
+				anim.add('static', [2]);
+				anim.add('pressed', [6, 10], 12, false);
+				anim.add('confirm', [14, 18], 12, false);
 			case 3:
-				animation.add('static', [3]);
-				animation.add('pressed', [7, 11], 12, false);
-				animation.add('confirm', [15, 19], 12, false);
+				anim.add('static', [3]);
+				anim.add('pressed', [7, 11], 12, false);
+				anim.add('confirm', [15, 19], 12, false);
 		}
 		setGraphicSize(Std.int(width * PlayState.daPixelZoom));
 		updateHitbox();
@@ -194,10 +188,11 @@ class StrumNote extends FlxSprite
 		super.update(elapsed);
 	}
 
-	public function playAnim(anim:String, ?force:Bool = false, ?note:Note = null)
+	public override function playAnim(name:String, ?forced:Bool = false, ?reverse:Bool = false, ?startFrame:Int = 0):Void
 	{
-		animation.play(anim, force);
-		if(animation.curAnim != null)
+		super.playAnim(name, forced);
+
+		if(!isAnimationNull())
 		{
 			centerOffsets();
 			centerOrigin();
@@ -205,7 +200,7 @@ class StrumNote extends FlxSprite
 
 		if(useRGBShader)
 		{
-			rgbShader.enabled = (animation.curAnim != null && animation.curAnim.name != 'static');
+			rgbShader.enabled = (!isAnimationNull() && getAnimationName() != 'static');
 			/*if(note != null) rgbShader.copyValues(note.rgbShader.parent);
 			else rgbShader.copyValues(Note.globalRgbShaders[noteData % Note.colArray.length]);*/
 		}

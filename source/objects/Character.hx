@@ -30,11 +30,12 @@ typedef CharacterFile = {
 typedef AnimArray = {
 	var anim:String;
 	var name:String;
-	var fps:Int;
+	var fps:Float;
 	var loop:Bool;
 	var indices:Array<Int>;
 	var offsets:Array<Float>;
-	@:optional var flip_x:Null<Bool>;
+	@:optional var flipX:Bool;
+	@:optional var flipY:Bool;
 }
 
 typedef DeathData = {
@@ -61,8 +62,7 @@ class Character extends PsychSprite
 	public var extraData:Map<String, Dynamic> = new Map<String, Dynamic>();
 	public var debugMode:Bool = false;
 
-	private var _isPlayer:Bool = false;
-	public var isPlayer(get, set):Bool;
+	@:isVar public var isPlayer(get, set):Bool = false;
 	public var curCharacter:String = DEFAULT_CHARACTER;
 
 	public var holdTimer:Float = 0;
@@ -97,11 +97,11 @@ class Character extends PsychSprite
 	public var originalFlipX:Bool = false;
 	public var editorIsPlayer:Null<Bool> = null;
 
-	public function new(x:Float, y:Float, ?character:String = 'bf', ?isPlayer:Bool = false)
+	public function new(x:Float, y:Float, ?character:String = 'bf', ?isPlayer:Bool = false, ?parentFolder:String = 'characters')
 	{
 		super(x, y);
 
-		changeCharacter(character);
+		changeCharacter(character, parentFolder);
 		this.isPlayer = isPlayer;
 
 		anim.onFinish.add(function(animName:String)
@@ -122,18 +122,18 @@ class Character extends PsychSprite
 		}
 	}
 
-	public function changeCharacter(character:String)
+	public function changeCharacter(character:String, ?parentFolder:String = 'characters')
 	{
 		animationsArray = [];
 		animOffsets.clear();
 
 		curCharacter = character;
 
-		final characterPath:String = 'characters/$character.json';
+		final characterPath:String = '$parentFolder/$character.json';
 		var path:String = Paths.getPath(characterPath, TEXT);
 		if(!Paths.fileExists(characterPath))
 		{
-			path = Paths.getSharedPath('characters/$DEFAULT_CHARACTER.json'); //If a character couldn't be found, change him to BF just to prevent a crash
+			path = Paths.getSharedPath('$parentFolder/$DEFAULT_CHARACTER.json'); //If a character couldn't be found, change him to BF just to prevent a crash
 			missingCharacter = true;
 			missingText = new FlxText(0, 0, 300, 'ERROR:\n$character.json', 16);
 			missingText.alignment = CENTER;
@@ -163,9 +163,7 @@ class Character extends PsychSprite
 		scale.set(1, 1);
 		updateHitbox();
 
-		/*final animJson:String = 'images/' + json.image + '/Animation.json';
-		if(Paths.fileExists(animJson)) frames = Paths.getAnimateAtlas(json.image);
-		else*/ frames = Paths.getMultiAtlas(json.image.split(','));
+		frames = Paths.getMultiAtlas(json.image.split(','));
 
 		imageFile = json.image;
 		jsonScale = json.scale;
@@ -200,33 +198,18 @@ class Character extends PsychSprite
 			{
 				if(fAnim.anim == null || fAnim.name == null) continue;
 
-				final animAnim:String = fAnim.anim;
-				final animName:String = fAnim.name;
+				final animName:String = fAnim.anim;
+				final animPrefix:String = fAnim.name;
 				final animIndices:Array<Int> = fAnim.indices;
-				final animFps:Int = fAnim.fps;
+				final animFps:Float = fAnim.fps;
 				final animLoop:Bool = (fAnim.loop == true);
+				final animFlipX:Bool = (fAnim.flipX == true);
+				final animFlipY:Bool = (fAnim.flipY == true);
 				final animOffs:Array<Float> = fAnim.offsets;
-				final animFlip:Bool = (fAnim.flip_x == true);
 
-				try // is there any better way to do this???
-				{
-					if(animIndices != null && animIndices.length > 0)
-						anim.addBySymbolIndices(animAnim, animName, animIndices, animFps, animLoop, animFlip);
-					else
-						anim.addBySymbol(animAnim, animName, animFps, animLoop, animFlip);
-
-					if(!hasAnimation(animAnim)) throw new haxe.Exception('Failed to add Animate Symbol Animation!');
-				}
-				catch(e:Dynamic)
-				{
-					if(animIndices != null && animIndices.length > 0)
-						anim.addByIndices(animAnim, animName, animIndices, "", animFps, animLoop, animFlip);
-					else
-						anim.addByPrefix(animAnim, animName, animFps, animLoop, animFlip);
-				}
-
-				if(animOffs != null && animOffs.length > 1) addOffset(animAnim, animOffs[0], animOffs[1]);
-				else addOffset(animAnim, 0, 0);
+				addAnim(animName, animPrefix, animIndices, animFps, animLoop, animFlipX, animFlipY);
+				if(animOffs != null && animOffs.length > 1) addOffset(animName, animOffs[0], animOffs[1]);
+				else addOffset(animName, 0, 0);
 			}
 
 		//trace('Loaded file to character ' + curCharacter);
@@ -240,14 +223,14 @@ class Character extends PsychSprite
 			return;
 		}
 
-		final fAnim:String = getAnimationName();
+		final name:String = getAnimationName();
 		if(heyTimer > 0)
 		{
 			final rate:Float = (PlayState.instance != null ? PlayState.instance.playbackRate : 1.0);
 			heyTimer -= elapsed * rate;
 			if(heyTimer <= 0)
 			{
-				if(specialAnim && (fAnim == 'hey' || fAnim == 'cheer'))
+				if(specialAnim && (name == 'hey' || name == 'cheer'))
 				{
 					specialAnim = false;
 					dance();
@@ -260,7 +243,7 @@ class Character extends PsychSprite
 			specialAnim = false;
 			dance();
 		}
-		else if(getAnimationName().endsWith('miss') && isAnimationFinished())
+		else if(name.endsWith('miss') && isAnimationFinished())
 		{
 			dance();
 			finishAnimation();
@@ -278,10 +261,10 @@ class Character extends PsychSprite
 					playAnim('shoot' + noteData, true);
 					animationNotes.shift();
 				}
-				if(isAnimationFinished()) playAnim(getAnimationName(), false, false, anim.curAnim.frames.length - 3);
+				if(isAnimationFinished()) playAnim(name, false, false, anim.curAnim.frames.length - 3);
 		}
 
-		if(getAnimationName().startsWith('sing')) holdTimer += elapsed;
+		if(name.startsWith('sing')) holdTimer += elapsed;
 		else if(isPlayer) holdTimer = 0;
 
 		if(!isPlayer && holdTimer >= Conductor.stepCrochet * (0.0011 #if FLX_PITCH / (FlxG.sound.music != null ? FlxG.sound.music.pitch : 1) #end) * singDuration)
@@ -327,7 +310,7 @@ class Character extends PsychSprite
 		settingCharacterUp = false;
 	}
 
-	public override function playAnim(name:String, forced:Bool = false, ?reverse:Bool = false, ?startFrame:Int = 0):Void
+	public override function playAnim(name:String, ?forced:Bool = false, ?reverse:Bool = false, ?startFrame:Int = 0):Void
 	{
 		specialAnim = false;
 
@@ -365,14 +348,16 @@ class Character extends PsychSprite
 		}
 	}
 
+	@:noCompletion
 	private function get_isPlayer():Bool
 	{
-		return _isPlayer;
+		return isPlayer;
 	}
+	@:noCompletion
 	private function set_isPlayer(value:Bool):Bool
 	{
 		flipX = value;
-		return _isPlayer = value;
+		return isPlayer = value;
 	}
 
 	@:noCompletion
@@ -400,6 +385,7 @@ class Character extends PsychSprite
 			color = lastColor;
 			missingText.x = getMidpoint().x - 150;
 			missingText.y = getMidpoint().y - 10;
+			missingText.cameras = cameras;
 			missingText.draw();
 		}
 	}

@@ -11,6 +11,7 @@ import options.OptionsState;
 
 class PauseSubState extends MusicBeatSubstate
 {
+	var camPause:PsychCamera;
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
 	var menuItems:Array<String> = [];
@@ -31,6 +32,12 @@ class PauseSubState extends MusicBeatSubstate
 
 	override function create()
 	{
+		camPause = new PsychCamera();
+		camPause.bgColor.alpha = 0;
+		FlxG.cameras.add(camPause, false);
+
+		cameras = [camPause];
+
 		if(Difficulty.list.length < 2) menuItemsOG.remove('Change Difficulty'); //No need to change difficulty if there is only one!
 		if(PlayState.chartingMode)
 		{
@@ -138,7 +145,6 @@ class PauseSubState extends MusicBeatSubstate
 		add(missingText);
 
 		regenMenu();
-		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 
 		super.create();
 	}
@@ -365,18 +371,14 @@ class PauseSubState extends MusicBeatSubstate
 	function changeSelection(change:Int = 0):Void
 	{
 		curSelected = FlxMath.wrap(curSelected + change, 0, menuItems.length - 1);
-		for (num => item in grpMenuShit.members)
+		for(num => item in grpMenuShit.members)
 		{
 			item.targetY = num - curSelected;
-			item.alpha = 0.6;
-			if (item.targetY == 0)
+			item.alpha = (item.targetY == 0) ? 1 : 0.6;
+			if(item.targetY == 0 && item == skipTimeTracker)
 			{
-				item.alpha = 1;
-				if(item == skipTimeTracker)
-				{
-					curTime = Math.max(0, Conductor.songPosition);
-					updateSkipTimeText();
-				}
+				curTime = Math.max(0, Conductor.songPosition);
+				updateSkipTimeText();
 			}
 		}
 		missingText.visible = false;
@@ -384,8 +386,9 @@ class PauseSubState extends MusicBeatSubstate
 		FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 	}
 
-	function regenMenu():Void {
-		for (i in 0...grpMenuShit.members.length)
+	function regenMenu():Void
+	{
+		for(i in 0...grpMenuShit.members.length)
 		{
 			var obj:Alphabet = grpMenuShit.members[0];
 			obj.kill();
@@ -393,7 +396,8 @@ class PauseSubState extends MusicBeatSubstate
 			obj.destroy();
 		}
 
-		for (num => str in menuItems) {
+		for(num => str in menuItems)
+		{
 			var item = new Alphabet(90, 320, Language.getPhrase('pause_$str', str), true);
 			item.isMenuItem = true;
 			item.targetY = num;

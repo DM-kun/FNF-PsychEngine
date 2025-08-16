@@ -7,7 +7,7 @@ class CoolUtil
 	public static function checkForUpdates(url:String = null):String
 	{
 		if(url == null || url.length == 0)
-			url = "https://raw.githubusercontent.com/ShadowMario/FNF-PsychEngine/main/gitVersion.txt";
+			url = "https://raw.githubusercontent.com/DM-kun/FNF-PsychEngine/main/gitVersion.txt";
 
 		var version:String = states.MainMenuState.psychEngineVersion.trim();
 		if(ClientPrefs.data.checkForUpdates)
@@ -143,8 +143,6 @@ class CoolUtil
 
 	/**
 		Helper Function to Fix Save Files for Flixel 5
-
-		-- EDIT: [November 29, 2023] --
 
 		this function is used to get the save path, period.
 		since newer flixel versions are being enforced anyways.

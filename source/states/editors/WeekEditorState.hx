@@ -636,7 +636,7 @@ class WeekEditorFreeplayState extends MusicBeatState implements PsychUIEventHand
 		if(id == PsychUIInputText.CHANGE_EVENT && (sender is PsychUIInputText))
 		{
 			weekFile.songs[curSelected][1] = iconInputText.text;
-			iconArray[curSelected].char = iconInputText.text;
+			iconArray[curSelected].changeIcon(iconInputText.text);
 		}
 		else if(id == PsychUINumericStepper.CHANGE_EVENT && (sender is PsychUINumericStepper))
 		{

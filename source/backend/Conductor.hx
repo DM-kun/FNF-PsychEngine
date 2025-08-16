@@ -50,6 +50,7 @@ class Conductor
 		{
 			if(time >= change.songTime) lastChange = change;
 		}
+
 		return lastChange;
 	}
 
@@ -66,6 +67,7 @@ class Conductor
 		{
 			if(change.stepTime <= step) lastChange = change;
 		}
+
 		return lastChange;
 	}
 

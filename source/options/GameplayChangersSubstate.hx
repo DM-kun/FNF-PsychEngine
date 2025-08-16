@@ -1,7 +1,7 @@
 package options;
 
 import objects.AttachedText;
-import objects.CheckboxThingie;
+import objects.Checkbox;
 
 import options.Option.OptionType;
 
@@ -11,7 +11,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 	private var optionsArray:Array<Dynamic> = [];
 
 	private var grpOptions:FlxTypedGroup<Alphabet>;
-	private var checkboxGroup:FlxTypedGroup<CheckboxThingie>;
+	private var checkboxGroup:FlxTypedGroup<Checkbox>;
 	private var grpTexts:FlxTypedGroup<AttachedText>;
 
 	private var curOption(get, never):GameplayOption;
@@ -85,7 +85,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 	public function new()
 	{
 		super();
-		
+
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		bg.alpha = 0.6;
 		add(bg);
@@ -97,7 +97,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		grpTexts = new FlxTypedGroup<AttachedText>();
 		add(grpTexts);
 
-		checkboxGroup = new FlxTypedGroup<CheckboxThingie>();
+		checkboxGroup = new FlxTypedGroup<Checkbox>();
 		add(checkboxGroup);
 		
 		getOptions();
@@ -115,7 +115,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 				optionText.x += 60;
 				optionText.startPosition.x += 60;
 				optionText.snapToPosition();
-				var checkbox:CheckboxThingie = new CheckboxThingie(optionText.x - 105, optionText.y, optionsArray[i].getValue() == true);
+				var checkbox:Checkbox = new Checkbox(optionText.x - 105, optionText.y, optionsArray[i].getValue() == true);
 				checkbox.sprTracker = optionText;
 				checkbox.offsetX -= 20;
 				checkbox.offsetY = -52;
@@ -316,9 +316,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 
 	function clearHold()
 	{
-		if(holdTime > 0.5)
-			FlxG.sound.play(Paths.sound('scrollMenu'));
-
+		if(holdTime > 0.5) FlxG.sound.play(Paths.sound('scrollMenu'));
 		holdTime = 0;
 	}
 	
@@ -328,15 +326,11 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		for (num => item in grpOptions.members)
 		{
 			item.targetY = num - curSelected;
-			item.alpha = 0.6;
-			if (item.targetY == 0)
-				item.alpha = 1;
+			item.alpha = (item.targetY == 0) ? 1 : 0.6;
 		}
 		for (text in grpTexts)
 		{
-			text.alpha = 0.6;
-			if(text.ID == curSelected)
-				text.alpha = 1;
+			text.alpha = (text.ID == curSelected) ? 1 : 0.6;
 		}
 		FlxG.sound.play(Paths.sound('scrollMenu'));
 	}

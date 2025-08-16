@@ -351,13 +351,23 @@ class NoteSplashEditorState extends MusicBeatState
         var loadButton:PsychUIButton = new PsychUIButton(180, 155, "Convert TXT", loadTxt);
         ui.add(loadButton);
 
-        var allowRGBCheck:PsychUICheckBox = new PsychUICheckBox(20, 105, "", 1);
-        function check()
+        var antialiasingCheck:PsychUICheckBox = new PsychUICheckBox(20, 65, "", 1);
+        antialiasingCheck.onClick = function()
         {
-            if (config != null)
-                config.allowRGB = allowRGBCheck.checked;
-        }
-        allowRGBCheck.onClick = check;
+            if(config != null) config.antialiasing = antialiasingCheck.checked;
+        };
+        antialiasingCheck.checked = config != null && cast(config.antialiasing, Null<Bool>) != null ? config.antialiasing : false;
+
+        var antialiasingText = new FlxText(antialiasingCheck.x + 20, 0);
+        antialiasingText.text = "Allow RGB?";
+        antialiasingText.y = antialiasingCheck.y + 2.5;
+        ui.add(antialiasingText);
+
+        var allowRGBCheck:PsychUICheckBox = new PsychUICheckBox(20, 105, "", 1);
+        allowRGBCheck.onClick = function()
+        {
+            if (config != null) config.allowRGB = allowRGBCheck.checked;
+        };
         allowRGBCheck.checked = config != null && cast(config.allowRGB, Null<Bool>) != null ? config.allowRGB : false;
 
         var rgbText = new FlxText(allowRGBCheck.x + 20, 0);
@@ -368,12 +378,10 @@ class NoteSplashEditorState extends MusicBeatState
         ui.add(allowRGBCheck);
 
         var allowPixelCheck:PsychUICheckBox = new PsychUICheckBox(allowRGBCheck.x + 110, allowRGBCheck.y, "", 1);
-        function check()
+        allowPixelCheck.onClick = function()
         {
-            if (config != null)
-                config.allowPixel = allowPixelCheck.checked;
-        }
-        allowPixelCheck.onClick = check;
+            if(config != null) config.allowPixel = allowPixelCheck.checked;
+        };
         allowPixelCheck.checked = config != null && cast(config.allowPixel, Null<Bool>) != null ? config.allowPixel : false;
 
         var pixelText = new FlxText(allowPixelCheck.x + 20, 0);

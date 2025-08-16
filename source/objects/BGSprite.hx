@@ -3,24 +3,16 @@ package objects;
 class BGSprite extends PsychSprite
 {
 	private var idleAnim:String;
-	public function new(image:String, x:Float = 0, y:Float = 0, ?scrollX:Float = 1, ?scrollY:Float = 1, ?animArray:Array<String> = null, ?loop:Bool = false, ?fps:Int = 24)
+	public function new(image:String, x:Float = 0, y:Float = 0, ?scrollX:Float = 1, ?scrollY:Float = 1, ?animArray:Array<String> = null, ?fps:Float = 24, ?loop:Bool = false)
 	{
 		super(x, y);
 
 		if(animArray != null)
 		{
-			frames = Paths.getSparrowAtlas(image);
+			frames = Paths.getMultiAtlas(image.split(','));
 			for(fAnim in animArray)
 			{
-				try
-				{
-					anim.addBySymbol(fAnim, fAnim, fps, loop);
-					if(!hasAnimation(fAnim)) throw new haxe.Exception('Failed to add Animate Symbol Animation!');
-				}
-				catch(e:Dynamic)
-				{
-					anim.addByPrefix(fAnim, fAnim, fps, loop);
-				}
+				addAnim(fAnim, fAnim, null, fps, loop);
 				if(idleAnim == null)
 				{
 					idleAnim = fAnim;

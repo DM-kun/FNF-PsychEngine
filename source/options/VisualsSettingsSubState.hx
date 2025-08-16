@@ -19,12 +19,12 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		// for note skins and splash skins
 		notes = new FlxTypedGroup<StrumNote>();
 		splashes = new FlxTypedGroup<NoteSplash>();
-		for (i in 0...Note.colArray.length)
+		for(i in 0...Note.colArray.length)
 		{
 			var note:StrumNote = new StrumNote(370 + (560 / Note.colArray.length) * i, -200, i, 0);
 			changeNoteSkin(note);
 			notes.add(note);
-			
+
 			var splash:NoteSplash = new NoteSplash(0, 0, NoteSplash.defaultNoteSplash + NoteSplash.getSplashSkinPostfix());
 			splash.inEditor = true;
 			splash.babyArrow = note;
@@ -200,11 +200,8 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 	var changedMusic:Bool = false;
 	function onChangePauseMusic()
 	{
-		if(ClientPrefs.data.pauseMusic == 'None')
-			FlxG.sound.music.volume = 0;
-		else
-			FlxG.sound.playMusic(Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic)));
-
+		if(ClientPrefs.data.pauseMusic == 'None') FlxG.sound.music.volume = 0;
+		else FlxG.sound.playMusic(Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic)));
 		changedMusic = true;
 	}
 
@@ -220,7 +217,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 	function changeNoteSkin(note:StrumNote)
 	{
 		var skin:String = Note.defaultNoteSkin;
-		var customSkin:String = skin + Note.getNoteSkinPostfix();
+		final customSkin:String = skin + Note.getNoteSkinPostfix();
 		if(Paths.fileExists('images/$customSkin.png', IMAGE)) skin = customSkin;
 
 		note.texture = skin; //Load texture and anims
@@ -230,53 +227,38 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 
 	function onChangeSplashSkin()
 	{
-		var skin:String = NoteSplash.defaultNoteSplash + NoteSplash.getSplashSkinPostfix();
-		for (splash in splashes)
-			splash.loadSplash(skin);
-
+		final skin:String = NoteSplash.defaultNoteSplash + NoteSplash.getSplashSkinPostfix();
+		for(splash in splashes) splash.loadSplash(skin);
 		playNoteSplashes();
 	}
 
 	function playNoteSplashes()
 	{
 		var rand:Int = 0;
-		if (splashes.members[0] != null && splashes.members[0].maxAnims > 1)
+		if(splashes.members[0] != null && splashes.members[0].maxAnims > 1)
 			rand = FlxG.random.int(0, splashes.members[0].maxAnims - 1); // For playing the same random animation on all 4 splashes
 
-		for (splash in splashes)
+		for(splash in splashes)
 		{
 			splash.revive();
 
 			splash.spawnSplashNote(0, 0, splash.ID, null, false);
-			if (splash.maxAnims > 1)
-				splash.noteData = splash.noteData % Note.colArray.length + (rand * Note.colArray.length);
+			if(splash.maxAnims > 1) splash.noteData = splash.noteData % Note.colArray.length + (rand * Note.colArray.length);
 
-			var anim:String = splash.playDefaultAnim();
-			var conf = splash.config.animations.get(anim);
-			var offsets:Array<Float> = [0, 0];
-
-			var minFps:Int = 22;
-			var maxFps:Int = 26;
-			if (conf != null)
+			final anim:String = splash.playDefaultAnim();
+			final conf = splash.config.animations.get(anim);
+			var minFps:Float = 22;
+			var maxFps:Float = 26;
+			if(conf != null)
 			{
-				offsets = conf.offsets;
-
 				minFps = conf.fps[0];
-				if (minFps < 0) minFps = 0;
+				if(minFps < 0) minFps = 0;
 
 				maxFps = conf.fps[1];
-				if (maxFps < 0) maxFps = 0;
+				if(maxFps < 0) maxFps = 0;
 			}
 
-			splash.offset.set(10, 10);
-			if (offsets != null)
-			{
-				splash.offset.x += offsets[0];
-				splash.offset.y += offsets[1];
-			}
-
-			if (splash.animation.curAnim != null)
-				splash.animation.curAnim.frameRate = FlxG.random.int(minFps, maxFps);
+			if(!splash.isAnimationNull()) splash.anim.curAnim.frameRate = FlxG.random.int(Std.int(minFps), Std.int(maxFps));
 		}
 	}
 

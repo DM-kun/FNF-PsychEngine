@@ -1,6 +1,5 @@
 package objects;
 
-import backend.animation.PsychAnimationController;
 import flixel.util.FlxDestroyUtil;
 
 class HealthIcon extends PsychSprite
@@ -10,17 +9,19 @@ class HealthIcon extends PsychSprite
 
 	private var isAnimated:Bool = false;
 	private var iconOffsets:FlxPoint = FlxPoint.get(0, 0);
-	private var curCharacter:String = null;
 	private var allowGPU:Bool = true;
 
-	public var char(get, set):String;
+	@:isVar public var char(get, set):String = '';
+	@:noCompletion
 	private function get_char():String
-		return curCharacter;
-
+	{
+		return char;
+	}
+	@:noCompletion
 	private function set_char(value:String):String
 	{
-		if(curCharacter != value) changeIcon(value);
-		return curCharacter = value;
+		if(char != value) changeIcon(value);
+		return char = value;
 	}
 
 	public var isPlayer(default, set):Bool = false;
@@ -31,12 +32,11 @@ class HealthIcon extends PsychSprite
 	{
 		super();
 
-		animation = new PsychAnimationController(this);
-		scrollFactor.set();
-
 		this.allowGPU = allowGPU;
 		this.char = char;
 		this.isPlayer = isPlayer;
+
+		scrollFactor.set();
 	}
 
 	public function changeIcon(texture:String = '', ?allowGPU:Null<Bool> = null)
@@ -61,10 +61,10 @@ class HealthIcon extends PsychSprite
 		if(texture.endsWith('-pixel')) antialiasing = false;
 		else antialiasing = ClientPrefs.data.antialiasing;
 
-		curCharacter = texture;
+		char = texture;
 	}
 
-	public override function playAnim(name:String, forced:Bool = false, ?reverse:Bool = false, ?startFrame:Int = 0)
+	public override function playAnim(name:String, ?forced:Bool = false, ?reverse:Bool = false, ?startFrame:Int = 0)
 	{
 		if(isAnimated) super.playAnim(name, forced, reverse, startFrame);
 		else animation.curAnim.curFrame = Std.parseInt(name);
@@ -81,6 +81,7 @@ class HealthIcon extends PsychSprite
 	override function updateHitbox()
 	{
 		super.updateHitbox();
+
 		if(autoAdjustOffset)
 		{
 			offset.x = iconOffsets.x;
@@ -92,5 +93,11 @@ class HealthIcon extends PsychSprite
 	{
 		iconOffsets = FlxDestroyUtil.put(iconOffsets);
 		super.destroy();
+	}
+
+	// simply for compatibility - just use char instead
+	public function getCharacter():String
+	{
+		return char;
 	}
 }

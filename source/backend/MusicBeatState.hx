@@ -28,7 +28,6 @@ class MusicBeatState extends FlxState
 	{
 		var skip:Bool = FlxTransitionableState.skipNextTransOut;
 		#if MODS_ALLOWED Mods.updatedOnState = false; #end
-		FlxG.fixedTimestep = false;
 
 		if(!_psychCameraInitialized) initPsychCamera();
 
@@ -36,6 +35,7 @@ class MusicBeatState extends FlxState
 
 		if(!skip) openSubState(new CustomTransition(0.5, true));
 
+		FlxG.fixedTimestep = false;
 		FlxTransitionableState.skipNextTransOut = false;
 		timePassedOnState = 0;
 	}
@@ -127,37 +127,27 @@ class MusicBeatState extends FlxState
 		curStep = lastChange.stepTime + Math.floor(shit);
 	}
 
-	public static function switchState(nextState:FlxState = null)
+	override function startOutro(onOutroComplete:()->Void):Void
 	{
-		if(nextState == null) nextState = FlxG.state;
-		if(nextState == FlxG.state)
+		if(!FlxTransitionableState.skipNextTransIn)
 		{
-			resetState();
+			FlxG.state.openSubState(new CustomTransition(0.5, false));
+			CustomTransition.onFinish = onOutroComplete;
 			return;
 		}
 
-		if(FlxTransitionableState.skipNextTransIn) FlxG.switchState(nextState);
-		else startTransition(nextState);
 		FlxTransitionableState.skipNextTransIn = false;
+		if(onOutroComplete != null) onOutroComplete();
 	}
 
+	// purely here because my lazy ass doesn't want to edit a few lines
+	public static function switchState(nextState:FlxState = null)
+	{
+		FlxG.switchState(() -> nextState);
+	}
 	public static function resetState()
 	{
-		if(FlxTransitionableState.skipNextTransIn) FlxG.resetState();
-		else startTransition();
-		FlxTransitionableState.skipNextTransIn = false;
-	}
-
-	// Custom made Trans in
-	public static function startTransition(nextState:FlxState = null)
-	{
-		if(nextState == null) nextState = FlxG.state;
-
-		FlxG.state.openSubState(new CustomTransition(0.5, false));
-		if(nextState == FlxG.state)
-			CustomTransition.onFinish = function() FlxG.resetState();
-		else
-			CustomTransition.onFinish = function() FlxG.switchState(nextState);
+		FlxG.resetState();
 	}
 
 	public static function getState():MusicBeatState

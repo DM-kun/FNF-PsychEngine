@@ -28,7 +28,9 @@ class Mods
 		'weeks',
 		'fonts',
 		'scripts',
-		'achievements'
+		'achievements',
+		'pack.png',
+		'pack.json'
 	];
 
 	private static var globalMods:Array<String> = [];
@@ -101,7 +103,7 @@ class Mods
 		// Week folder
 		if(Paths.getCurrentLevel() != null && Paths.getCurrentLevel() != path)
 		{
-			var pth:String = Paths.getFolderPath(fileToFind, Paths.getCurrentLevel());
+			final pth:String = Paths.getFolderPath(fileToFind, Paths.getCurrentLevel());
 			if(!foldersToCheck.contains(pth) && FileSystem.exists(pth))
 				foldersToCheck.push(pth);
 		}
@@ -112,18 +114,18 @@ class Mods
 			// Global mods first
 			for(mod in Mods.getGlobalMods())
 			{
-				var folder:String = Paths.mods(mod + '/' + fileToFind);
+				final folder:String = Paths.mods(mod + '/' + fileToFind);
 				if(FileSystem.exists(folder) && !foldersToCheck.contains(folder)) foldersToCheck.push(folder);
 			}
 
 			// Then "PsychEngine/mods/" main folder
-			var folder:String = Paths.mods(fileToFind);
+			final folder:String = Paths.mods(fileToFind);
 			if(FileSystem.exists(folder) && !foldersToCheck.contains(folder)) foldersToCheck.push(Paths.mods(fileToFind));
 
 			// And lastly, the loaded mod's folder
 			if(Mods.currentModDirectory != null && Mods.currentModDirectory.length > 0)
 			{
-				var folder:String = Paths.mods(Mods.currentModDirectory + '/' + fileToFind);
+				final folder:String = Paths.mods(Mods.currentModDirectory + '/' + fileToFind);
 				if(FileSystem.exists(folder) && !foldersToCheck.contains(folder)) foldersToCheck.push(folder);
 			}
 		}
@@ -136,15 +138,14 @@ class Mods
 		#if MODS_ALLOWED
 		if(folder == null) folder = Mods.currentModDirectory;
 
-		var path = Paths.mods(folder + '/pack.json');
+		final path:String = Paths.mods(folder + '/pack.json');
 		if(FileSystem.exists(path))
 			try
 			{
-				var rawJson:String = #if sys File.getContent(path) #else Assets.getText(path) #end;
+				final rawJson:String = #if sys File.getContent(path) #else Assets.getText(path) #end;
 				if(rawJson != null && rawJson.length > 0) return tjson.TJSON.parse(rawJson);
 			}
 			catch(e:Dynamic) trace(e);
-
 		#end
 		return null;
 	}
@@ -163,7 +164,7 @@ class Mods
 				//trace('Mod: $mod');
 				if(mod.trim().length < 1) continue;
 
-				var dat = mod.split("|");
+				final dat = mod.split("|");
 				list.all.push(dat[0]);
 				if(dat[1] == "1")
 					list.enabled.push(dat[0]);
@@ -186,8 +187,8 @@ class Mods
 		{
 			for(mod in CoolUtil.coolTextFile('modsList.txt'))
 			{
-				var dat:Array<String> = mod.split("|");
-				var folder:String = dat[0];
+				final dat:Array<String> = mod.split("|");
+				final folder:String = dat[0];
 				if(folder.trim().length > 0 && FileSystem.exists(Paths.mods(folder)) && FileSystem.isDirectory(Paths.mods(folder)) && !added.contains(folder))
 				{
 					added.push(folder);

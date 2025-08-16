@@ -83,6 +83,7 @@ class LoadingState extends MusicBeatState
 	#if HSCRIPT_ALLOWED
 	var hscript:HScript;
 	#end
+
 	override function create()
 	{
 		persistentUpdate = true;
@@ -172,11 +173,12 @@ class LoadingState extends MusicBeatState
 		funkay.antialiasing = ClientPrefs.data.antialiasing;
 		funkay.setGraphicSize(0, FlxG.height);
 		funkay.updateHitbox();
+		funkay.screenCenter();
 		addBehindBar(funkay);
 		#end
 		super.create();
 
-		if (stateChangeDelay <= 0 && checkLoaded())
+		if(stateChangeDelay <= 0 && checkLoaded())
 		{
 			dontUpdate = true;
 			onLoad();
@@ -291,6 +293,15 @@ class LoadingState extends MusicBeatState
 			pessy.y = FlxG.height + 500;
 			pessy.velocity.x = 0;
 			FlxTween.tween(pessy, {y: 10}, 0.65, {ease: FlxEase.quadOut});
+		}
+		#else
+		funkay.setGraphicSize(0, FlxMath.lerp(FlxG.height, funkay.height, Math.exp(-elapsed * 9)));
+		funkay.updateHitbox();
+
+		if(controls.ACCEPT)
+		{
+			funkay.setGraphicSize(0, FlxG.height);
+			funkay.updateHitbox();
 		}
 		#end
 	}
@@ -555,12 +566,12 @@ class LoadingState extends MusicBeatState
 			preloadCharacter(player1, prefixVocals);
 			if (!dontPreloadDefaultVoices && prefixVocals != null)
 			{
-				if(Paths.fileExists('$prefixVocals-Player.${Paths.SOUND_EXT}', SOUND, 'songs', false) && Paths.fileExists('$prefixVocals-Opponent.${Paths.SOUND_EXT}', SOUND, 'songs', false))
+				if(Paths.fileExists('$prefixVocals-Player.${Paths.SOUND_EXT}', SOUND, 'songs', true) && Paths.fileExists('$prefixVocals-Opponent.${Paths.SOUND_EXT}', SOUND, 'songs', true))
 				{
 					songsToPrepare.push('$prefixVocals-Player');
 					songsToPrepare.push('$prefixVocals-Opponent');
 				}
-				else if(Paths.fileExists('$prefixVocals.${Paths.SOUND_EXT}', SOUND, 'songs', false))
+				else if(Paths.fileExists('$prefixVocals.${Paths.SOUND_EXT}', SOUND, 'songs', true))
 					songsToPrepare.push(prefixVocals);
 			}
 
@@ -707,38 +718,27 @@ class LoadingState extends MusicBeatState
 			var character:Dynamic = Json.parse(Assets.getText(path));
 			#end
 
-			var isAnimateAtlas:Bool = false;
-			var img:String = character.image;
-			img = img.trim();
-
-			final animToFind:String = Paths.getPath('images/$img/Animation.json', TEXT);
-			if (#if MODS_ALLOWED FileSystem.exists(animToFind) || #end Assets.exists(animToFind))
-				isAnimateAtlas = true;
-
-			if(!isAnimateAtlas)
+			final img:String = character.image.trim();
+			var split:Array<String> = img.split(',');
+			for (file in split)
 			{
-				var split:Array<String> = img.split(',');
-				for (file in split)
-				{
+				if(Paths.fileExists('images/${file.trim()}.png', IMAGE))
 					imagesToPrepare.push(file.trim());
-				}
-			}
-			else
-			{
-				for (i in 0...10)
-				{
-					var st:String = '$i';
-					if(i == 0) st = '';
-	
-					if(Paths.fileExists('images/$img/spritemap$st.png', IMAGE))
-					{
-						//trace('found Sprite PNG');
-						imagesToPrepare.push('$img/spritemap$st');
-						break;
-					}
-				}
 			}
 
+			for (i in 0...10)
+			{
+				var st:String = '$i';
+				if(i == 0) st = '';
+	
+				if(Paths.fileExists('images/$img/spritemap$st.png', IMAGE))
+				{
+					//trace('found Sprite PNG');
+					imagesToPrepare.push('$img/spritemap$st');
+					break;
+				}
+			}
+	
 			if (prefixVocals != null && character.vocals_file != null && character.vocals_file.length > 0)
 			{
 				songsToPrepare.push(prefixVocals + "-" + character.vocals_file);
@@ -783,13 +783,12 @@ class LoadingState extends MusicBeatState
 	// thread safe sound loader
 	static function preloadGraphic(key:String):Null<BitmapData>
 	{
-		try
-		{
+		try {
 			var requestKey:String = 'images/$key';
 			#if TRANSLATIONS_ALLOWED requestKey = Language.getFileTranslation(requestKey); #end
 			if(requestKey.lastIndexOf('.') < 0) requestKey += '.png';
 
-			if(!Paths.currentTrackedAssets.exists(requestKey))
+			if (!Paths.currentTrackedAssets.exists(requestKey))
 			{
 				var file:String = Paths.getPath(requestKey, IMAGE);
 				if (#if sys FileSystem.exists(file) || #end OpenFlAssets.exists(file, IMAGE))

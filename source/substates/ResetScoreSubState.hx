@@ -2,7 +2,6 @@ package substates;
 
 import backend.WeekData;
 
-import flixel.FlxSubState;
 import objects.HealthIcon;
 
 class ResetScoreSubState extends MusicBeatSubstate
@@ -27,10 +26,7 @@ class ResetScoreSubState extends MusicBeatSubstate
 
 		super();
 
-		var name:String = song;
-		if(week > -1) {
-			name = WeekData.weeksLoaded.get(WeekData.weeksList[week]).weekName;
-		}
+		var name:String = (week > -1) ? WeekData.weeksLoaded.get(WeekData.weeksList[week]).weekName : song;
 		name += ' (' + Difficulty.getString(difficulty) + ')?';
 
 		bg = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
@@ -106,10 +102,11 @@ class ResetScoreSubState extends MusicBeatSubstate
 		super.update(elapsed);
 	}
 
-	function updateOptions() {
-		var scales:Array<Float> = [0.75, 1];
-		var alphas:Array<Float> = [0.6, 1.25];
-		var confirmInt:Int = onYes ? 1 : 0;
+	function updateOptions()
+	{
+		final scales:Array<Float> = [0.75, 1];
+		final alphas:Array<Float> = [0.6, 1.25];
+		final confirmInt:Int = onYes ? 1 : 0;
 
 		yesText.alpha = alphas[confirmInt];
 		yesText.scale.set(scales[confirmInt], scales[confirmInt]);

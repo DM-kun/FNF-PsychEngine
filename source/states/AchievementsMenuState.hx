@@ -209,7 +209,6 @@ class AchievementsMenuState extends MusicBeatState
 			MusicBeatState.switchState(new MainMenuState());
 			goingBack = true;
 		}
-
 		super.update(elapsed);
 	}
 
@@ -336,8 +335,7 @@ class ResetAchievementSubstate extends MusicBeatSubstate
 						onUpdate: function(twn:FlxTween) state.progressBar.updateBar()
 					});
 				}
-				Achievements.save();
-				FlxG.save.flush();
+				ClientPrefs.saveSettings();
 
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 			}

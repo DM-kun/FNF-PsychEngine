@@ -56,6 +56,7 @@ class DialogueCharacterEditorState extends MusicBeatState implements PsychUIEven
 	override function create()
 	{
 		persistentUpdate = persistentDraw = true;
+
 		camGame = initPsychCamera();
 		camGame.bgColor = FlxColor.fromHSL(0, 0, 0.5);
 		camHUD = new PsychCamera();

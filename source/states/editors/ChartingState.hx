@@ -25,7 +25,6 @@ import states.editors.content.*;
 
 import backend.Song;
 import backend.StageData;
-import backend.Difficulty;
 
 import objects.Character;
 import objects.HealthIcon;
@@ -2311,7 +2310,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			var icon:HealthIcon = icons[i];
 			//trace('changing iconP${icon.ID}');
 			var iconName:String = Reflect.field(characterData, 'iconP${icon.ID}');
-			icon.char = iconName;
+			icon.changeIcon(iconName);
 		}
 
 		if(icons.length > 1)
@@ -2321,10 +2320,10 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			var mustHitSection:Bool = (curSecData != null && curSecData.mustHitSection == true);
 			if (isGfSection)
 			{
-				if(mustHitSection)
-					iconP1.char = 'gf';
+				if (mustHitSection)
+					iconP1.changeIcon('gf');
 				else
-					iconP2.char = 'gf';
+					iconP2.changeIcon('gf');
 			}
 
 			if(mustHitSection)

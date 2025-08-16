@@ -41,9 +41,16 @@ class InitState extends MusicBeatState
 
 		FlxG.mouse.visible = false;
 
+		if(!FlxG.stage.window.onClose.has(backend.Native.exitGame))
+			FlxG.stage.window.onClose.add(backend.Native.exitGame);
+
 		#if DISCORD_ALLOWED DiscordClient.prepare(); #end
 
 		trace('Init Done!');
-		MusicBeatState.switchState(new TitleState());
+
+		FlxTransitionableState.skipNextTransIn = FlxTransitionableState.skipNextTransOut = true;
+		if(ClientPrefs.save.data.flashing == null && !FlashingState.leftState)
+			MusicBeatState.switchState(new FlashingState());
+		else MusicBeatState.switchState(new TitleState());
 	}
 }

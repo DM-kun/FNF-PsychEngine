@@ -62,13 +62,13 @@ class Alphabet extends FlxSpriteGroup
 	{
 		for(letter in letters)
 		{
-			var newOffset:Float = switch(alignment)
+			final newOffset:Float = switch(alignment)
 			{
 				case CENTERED: letter.rowWidth / 2;
 				case RIGHT: letter.rowWidth;
 				default: 0;
 			};
-	
+
 			letter.offset.x -= letter.alignOffset;
 			letter.alignOffset = newOffset * scale.x;
 			letter.offset.x += letter.alignOffset;
@@ -105,8 +105,8 @@ class Alphabet extends FlxSpriteGroup
 
 	public function setScale(newX:Float, newY:Null<Float> = null)
 	{
-		var lastX:Float = scale.x;
-		var lastY:Float = scale.y;
+		final lastX:Float = scale.x;
+		final lastY:Float = scale.y;
 		if(newY == null) newY = newX;
 		@:bypassAccessor scaleX = newX;
 		@:bypassAccessor scaleY = newY;
@@ -120,7 +120,7 @@ class Alphabet extends FlxSpriteGroup
 	{
 		if(value == scaleX) return value;
 
-		var ratio:Float = value / scale.x;
+		final ratio:Float = value / scale.x;
 		scale.x = value;
 		scaleX = value;
 		softReloadLetters(ratio, 1);
@@ -158,10 +158,11 @@ class Alphabet extends FlxSpriteGroup
 	{
 		if(isMenuItem)
 		{
-			var lerpVal:Float = Math.exp(-elapsed * 9.6);
+			final lerpVal:Float = Math.exp(-elapsed * 9.6);
 			if(changeX) x = FlxMath.lerp((targetY * distancePerItem.x) + startPosition.x, x, lerpVal);
 			if(changeY) y = FlxMath.lerp((targetY * 1.3 * distancePerItem.y) + startPosition.y, y, lerpVal);
 		}
+
 		super.update(elapsed);
 	}
 
@@ -174,11 +175,10 @@ class Alphabet extends FlxSpriteGroup
 
 	public function snapToPosition()
 	{
-		if(isMenuItem)
-		{
-			if(changeX) x = (targetY * distancePerItem.x) + startPosition.x;
-			if(changeY) y = (targetY * 1.3 * distancePerItem.y) + startPosition.y;
-		}
+		if(!isMenuItem) return;
+
+		if(changeX) x = (targetY * distancePerItem.x) + startPosition.x;
+		if(changeY) y = (targetY * 1.3 * distancePerItem.y) + startPosition.y;
 	}
 
 	private static var Y_PER_ROW:Float = 85;
@@ -347,7 +347,7 @@ class AlphaCharacter extends FlxSprite
 			this.scale.x = parent.scaleX;
 			this.scale.y = parent.scaleY;
 		}
-		
+
 		if(character != null)
 		{
 			this.character = character;
@@ -406,20 +406,20 @@ class AlphaCharacter extends FlxSprite
 			return name;
 		}
 
-		var lastAnim:String = null;
-		if(animation != null) lastAnim = animation.name;
+		final lastAnim:String = animation != null ? animation.name : null;
 		image = name;
 		frames = Paths.getSparrowAtlas(name);
 		this.scale.x = parent.scaleX;
 		this.scale.y = parent.scaleY;
 		alignOffset = 0;
-		
+
 		if(lastAnim != null)
 		{
 			animation.addByPrefix(lastAnim, lastAnim, 24);
 			animation.play(lastAnim, true);
 			updateHitbox();
 		}
+
 		return name;
 	}
 

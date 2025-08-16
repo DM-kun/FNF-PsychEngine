@@ -81,9 +81,7 @@ class MenuCharacter extends PsychSprite
 
 		final imageFile:String = json.image;
 		final imageSheets:Array<String> = [for(img in imageFile.split(',')) 'menucharacters/$img'];
-		/*final animJson:String = 'images/' + json.image + '/Animation.json';
-		if(Paths.fileExists(animJson)) frames = Paths.getAnimateAtlas(json.image);
-		else*/ frames = Paths.getMultiAtlas(imageSheets);
+		frames = Paths.getMultiAtlas(imageSheets);
 
 		if(json.scale != 1)
 		{
@@ -104,7 +102,7 @@ class MenuCharacter extends PsychSprite
 				final animAnim:String = fAnim.anim;
 				final animName:String = fAnim.name;
 				final animIndices:Array<Int> = fAnim.indices;
-				final animFps:Int = fAnim.fps;
+				final animFps:Float = fAnim.fps;
 				final animLoop:Bool = (fAnim.loop == true);
 				final animOffs:Array<Float> = fAnim.offsets;
 

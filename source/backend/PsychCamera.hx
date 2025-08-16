@@ -78,5 +78,6 @@ class PsychCamera extends FlxCamera
 		final mult:Float = 1 - Math.exp(-elapsed * followLerp / (1 / 60));
 		scroll.x += (_scrollTarget.x - scroll.x) * mult;
 		scroll.y += (_scrollTarget.y - scroll.y) * mult;
+		//trace('lerp on this frame: $mult');
 	}
 }

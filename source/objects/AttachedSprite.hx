@@ -3,6 +3,7 @@ package objects;
 class AttachedSprite extends FlxSprite
 {
 	public var sprTracker:FlxSprite;
+
 	public var xAdd:Float = 0;
 	public var yAdd:Float = 0;
 	public var angleAdd:Float = 0;

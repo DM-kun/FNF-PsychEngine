@@ -74,7 +74,7 @@ class StageData
 		else if(Song.loadedSongName != null) stage = vanillaSongStage(Paths.formatToSongPath(Song.loadedSongName));
 		else stage = 'stage';
 
-		var stageFile:StageFile = getStageFile(stage);
+		final stageFile:StageFile = getStageFile(stage);
 		forceNextDirectory = (stageFile != null) ? stageFile.directory : ''; //preventing crashes
 	}
 
@@ -162,38 +162,20 @@ class StageData
 					if(data.type != 'square')
 					{
 						if(data.type == 'sprite') spr.loadGraphic(Paths.image(data.image));
-						else
-						{
-							final animJson:String = 'images/' + data.image + '/Animation.json';
-							if(Paths.fileExists(animJson)) spr.frames = Paths.getAnimateAtlas(data.image);
-							else spr.frames = Paths.getAtlas(data.image);
-						}
+						else spr.frames = Paths.getMultiAtlas(data.image.split(','));
 
 						if(data.type == 'animatedSprite' && data.animations != null)
 						{
 							var anims:Array<objects.Character.AnimArray> = cast data.animations;
 							for(anim in anims)
 							{
-								try
-								{
-									if(anim.indices == null || anim.indices.length < 1)
-										spr.anim.addBySymbol(anim.anim, anim.name, anim.fps, anim.loop);
-									else
-										spr.anim.addBySymbolIndices(anim.anim, anim.name, anim.indices, anim.fps, anim.loop);
+								if(anim.anim == null || anim.name == null) continue;
 
-									if(!spr.hasAnimation(anim.anim)) throw new haxe.Exception('Failed to add Animate Symbol Animation!');
-								}
-								catch(e:Dynamic)
-								{
-									if(anim.indices == null || anim.indices.length < 1)
-										spr.anim.addByPrefix(anim.anim, anim.name, anim.fps, anim.loop);
-									else
-										spr.anim.addByIndices(anim.anim, anim.name, anim.indices, '', anim.fps, anim.loop);
-								}
-		
+								spr.addAnim(anim.anim, anim.name, anim.indices, anim.fps, anim.loop);
+
 								if(anim.offsets != null) spr.addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);
 								else spr.addOffset(anim.anim, 0, 0);
-		
+
 								if(spr.isAnimationNull() || data.firstAnimation == anim.anim)
 									spr.playAnim(anim.anim, true);
 							}

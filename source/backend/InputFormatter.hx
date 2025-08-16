@@ -93,19 +93,19 @@ class InputFormatter
 			case NONE:
 				return '---';
 			default:
-				var label:String = Std.string(key);
+				final label:String = Std.string(key);
 				if(label.toLowerCase() == 'null') return '---';
 
 				var arr:Array<String> = label.split('_');
-				for (i in 0...arr.length) arr[i] = CoolUtil.capitalize(arr[i]);
+				for(i in 0...arr.length) arr[i] = CoolUtil.capitalize(arr[i]);
 				return arr.join(' ');
 		}
 	}
 
 	public static function getGamepadName(key:FlxGamepadInputID)
 	{
-		var gamepad:FlxGamepad = FlxG.gamepads.firstActive;
-		var model:FlxGamepadModel = gamepad != null ? gamepad.detectedModel : UNKNOWN;
+		final gamepad:FlxGamepad = FlxG.gamepads.firstActive;
+		final model:FlxGamepadModel = gamepad != null ? gamepad.detectedModel : UNKNOWN;
 
 		switch(key)
 		{
@@ -119,7 +119,7 @@ class InputFormatter
 			case LEFT_STICK_DIGITAL_DOWN:
 				return "Down";
 			case LEFT_STICK_CLICK:
-				switch (model)
+				switch(model)
 				{
 					case PS4: return "L3";
 					case XINPUT: return "LS";
@@ -135,7 +135,7 @@ class InputFormatter
 			case RIGHT_STICK_DIGITAL_DOWN:
 				return "C. Down";
 			case RIGHT_STICK_CLICK:
-				switch (model)
+				switch(model)
 				{
 					case PS4: return "R3";
 					case XINPUT: return "RS";
@@ -230,11 +230,11 @@ class InputFormatter
 				return '---';
 
 			default:
-				var label:String = Std.string(key);
+				final label:String = Std.string(key);
 				if(label.toLowerCase() == 'null') return '---';
 
 				var arr:Array<String> = label.split('_');
-				for (i in 0...arr.length) arr[i] = CoolUtil.capitalize(arr[i]);
+				for(i in 0...arr.length) arr[i] = CoolUtil.capitalize(arr[i]);
 				return arr.join(' ');
 		}
 	}

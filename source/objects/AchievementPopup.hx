@@ -9,8 +9,10 @@ import openfl.Lib;
 class AchievementPopup extends openfl.display.Sprite
 {
 	public var onFinish:Void->Void = null;
+
 	var alphaTween:FlxTween;
 	var lastScale:Float = 1;
+
 	public function new(achieve:String, onFinish:Void->Void)
 	{
 		super();

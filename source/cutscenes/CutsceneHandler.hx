@@ -14,11 +14,10 @@ typedef CutsceneEvent = {
 
 class CutsceneHandler extends FlxBasic
 {
-	public var overallFinish:Void->Void = null;
-	public var onFinish:Void->Void = null;
-	public var onSkip:Void->Void = null;
-
 	public var onStart:Void->Void = null;
+	public var onSkip:Void->Void = null;
+	public var onFinish:Void->Void = null;
+	public var onOverallFinish:Void->Void = null;
 
 	public var timedEvents:Array<CutsceneEvent> = [];
 	public var endTime:Float = 0;
@@ -96,7 +95,7 @@ class CutsceneHandler extends FlxBasic
 			}
 			else if(onFinish != null) onFinish();
 
-			if(overallFinish != null) overallFinish();
+			if(onOverallFinish != null) onOverallFinish();
 
 			for(spr in objects)
 			{

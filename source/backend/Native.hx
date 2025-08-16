@@ -65,12 +65,21 @@ class Native
 	#end
 
 	private static var closedGame:Bool = false;
-	public static function exitGame(?num:Int = 0):Void
+	public static function exitGame():Void
 	{
 		if(closedGame) return;
 		closedGame = true;
 
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
+
 		#if DISCORD_ALLOWED DiscordClient.shutdown(); #end
-		System.exit(num);
+	}
+
+	public static function exitGameError():Void
+	{
+		if(closedGame) return;
+		exitGame();
+		System.exit(1);
 	}
 }

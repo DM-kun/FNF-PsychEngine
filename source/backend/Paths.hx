@@ -12,9 +12,9 @@ import openfl.utils.AssetType;
 import openfl.utils.Assets as OpenFlAssets;
 import openfl.system.System;
 import openfl.geom.Rectangle;
+import openfl.media.Sound;
 
 import lime.utils.Assets;
-import openfl.media.Sound;
 
 import haxe.Json;
 
@@ -89,7 +89,7 @@ class Paths
 		{
 			try
 			{
-				var grp:Array<Dynamic> = Reflect.getProperty(spr, 'members');
+				final grp:Array<Dynamic> = Reflect.getProperty(spr, 'members');
 				if(grp != null)
 				{
 					//trace('is actually a group');
@@ -101,9 +101,12 @@ class Paths
 			//trace('check...');
 			try
 			{
-				var gfx:FlxGraphic = Reflect.getProperty(spr, 'graphic');
-				if(gfx != null) protectedGfx.push(gfx);
-				//trace('gfx added to the list successfully!');
+				final gfx:FlxGraphic = Reflect.getProperty(spr, 'graphic');
+				if(gfx != null)
+				{
+					protectedGfx.push(gfx);
+					//trace('gfx added to the list successfully!');
+				}
 			}
 			//catch(haxe.Exception) {}
 		}
@@ -120,7 +123,7 @@ class Paths
 			// if it is not currently contained within the used local assets
 			if(!dumpExclusions.contains(key))
 			{
-				var graphic:FlxGraphic = currentTrackedAssets.get(key);
+				final graphic:FlxGraphic = currentTrackedAssets.get(key);
 				if(!protectedGfx.contains(graphic))
 				{
 					destroyGraphic(graphic); // get rid of the graphic
@@ -340,7 +343,7 @@ class Paths
 		return (OpenFlAssets.exists(getPath(key, type, parentFolder, false)));
 	}
 
-	public static function fileExistsAbsolute(key:String, ?modsAllowed:Bool = true)
+	public static function fileExistsAbsolute(key:String, ?modsAllowed:Bool = true):Bool
 	{
 		return #if MODS_ALLOWED modsAllowed ? (FileSystem.exists(key)) : #end (OpenFlAssets.exists(key));
 	}

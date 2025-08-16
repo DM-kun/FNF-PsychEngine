@@ -401,23 +401,8 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 				for (num => anim in copiedMeta.animations)
 				{
 					if(anim == null || anim.anim == null) continue;
-
-					try
-					{
-						if(anim.indices == null || anim.indices.length < 1)
-							copiedSpr.anim.addBySymbol(anim.anim, anim.name, anim.fps, anim.loop);
-						else
-							copiedSpr.anim.addBySymbolIndices(anim.anim, anim.name, anim.indices, anim.fps, anim.loop);
-
-						if(!copiedSpr.hasAnimation(anim.anim)) throw new haxe.Exception('Failed to add Animate Symbol Animation!');
-					}
-					catch(e:Dynamic)
-					{
-						if(anim.indices == null || anim.indices.length < 1)
-							copiedSpr.anim.addByPrefix(anim.anim, anim.name, anim.fps, anim.loop);
-						else
-							copiedSpr.anim.addByIndices(anim.anim, anim.name, anim.indices, '', anim.fps, anim.loop);
-					}
+	
+					copiedSpr.addAnim(anim.anim, anim.name, anim.indices, anim.fps, anim.loop, anim.flipX, anim.flipY);
 	
 					if(anim.offsets != null && anim.offsets.length > 1)
 						copiedSpr.addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);
@@ -1434,7 +1419,6 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 			if(focusRadioGroup.checked > -1) focusRadioGroup.checked = -1;
 		}
 
-		var lastZoom = FlxG.camera.zoom;
 		if(FlxG.keys.justPressed.R && !FlxG.keys.pressed.CONTROL)
 			FlxG.camera.zoom = stageJson.defaultZoom;
 		else if (FlxG.keys.pressed.E && FlxG.camera.zoom < maxZoom)
@@ -1887,10 +1871,7 @@ class StageEditorMetaSprite
 				case 'sprite':
 					sprite.loadGraphic(Paths.image(v));
 				case 'animatedSprite':
-					final animToFind:String = Paths.getPath('images/$v/Animation.json', TEXT);
-					if(#if MODS_ALLOWED FileSystem.exists(animToFind) || #end Assets.exists(animToFind))
-						sprite.frames = Paths.getAnimateAtlas(v);
-					else sprite.frames = Paths.getAtlas(v);
+					sprite.frames = Paths.getMultiAtlas(v.split(','));
 			}
 		}
 		catch (e:Dynamic) {}
@@ -2144,22 +2125,7 @@ class StageEditorAnimationSubstate extends MusicBeatSubstate {
 				offsets: lastOffsets
 			};
 
-			try
-			{
-				if(addedAnim.indices == null || addedAnim.indices.length < 1)
-					target.sprite.anim.addBySymbol(addedAnim.anim, addedAnim.name, addedAnim.fps, addedAnim.loop);
-				else
-					target.sprite.anim.addBySymbolIndices(addedAnim.anim, addedAnim.name, addedAnim.indices, addedAnim.fps, addedAnim.loop);
-
-				if(!target.sprite.hasAnimation(addedAnim.anim)) throw new haxe.Exception('Failed to add Animate Symbol Animation!');
-			}
-			catch(e:Dynamic)
-			{
-				if(addedAnim.indices == null || addedAnim.indices.length < 1)
-					target.sprite.anim.addByPrefix(addedAnim.anim, addedAnim.name, addedAnim.fps, addedAnim.loop);
-				else
-					target.sprite.anim.addByIndices(addedAnim.anim, addedAnim.name, addedAnim.indices, '', addedAnim.fps, addedAnim.loop);
-			}
+			target.sprite.addAnim(addedAnim.anim, addedAnim.name, addedAnim.indices, addedAnim.fps, addedAnim.loop, addedAnim.flipX, addedAnim.flipY);
 
 			if(addedAnim.offsets != null && addedAnim.offsets.length > 1) target.sprite.addOffset(addedAnim.anim, addedAnim.offsets[0], addedAnim.offsets[1]);
 			else target.sprite.addOffset(addedAnim.anim, 0, 0);
@@ -2402,10 +2368,10 @@ class StageEditorAnimationSubstate extends MusicBeatSubstate {
 		var camX:Float = 0;
 		var camY:Float = 0;
 		var camMove:Float = elapsed * 500 * shiftMult * ctrlMult;
-		if (FlxG.keys.pressed.J) camX -= camMove;
-		if (FlxG.keys.pressed.K) camY += camMove;
-		if (FlxG.keys.pressed.L) camX += camMove;
-		if (FlxG.keys.pressed.I) camY -= camMove;
+		if(FlxG.keys.pressed.J) camX -= camMove;
+		if(FlxG.keys.pressed.K) camY += camMove;
+		if(FlxG.keys.pressed.L) camX += camMove;
+		if(FlxG.keys.pressed.I) camY -= camMove;
 
 		if(camX != 0 || camY != 0)
 		{
@@ -2413,7 +2379,6 @@ class StageEditorAnimationSubstate extends MusicBeatSubstate {
 			FlxG.camera.scroll.y += camY;
 		}
 
-		var lastZoom = FlxG.camera.zoom;
 		if(FlxG.keys.justPressed.R && !FlxG.keys.pressed.CONTROL)
 			FlxG.camera.zoom = 0.5;
 		else if (FlxG.keys.pressed.E && FlxG.camera.zoom < maxZoom)

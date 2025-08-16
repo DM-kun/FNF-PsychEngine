@@ -22,7 +22,6 @@ import backend.Achievements;
 #end
 
 import backend.ui.*; //Psych-UI
-
 import backend.Paths;
 import backend.Controls;
 import backend.CoolUtil;
@@ -61,6 +60,7 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.group.FlxSpriteGroup;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.system.FlxAssets.FlxShader;
 import flixel.addons.transition.FlxTransitionableState;
 
 using StringTools;

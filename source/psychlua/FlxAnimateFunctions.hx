@@ -17,23 +17,23 @@ class FlxAnimateFunctions
 			}
 
 			var mySprite:PsychSprite = new PsychSprite(x, y);
-			if(loadFolder != null) mySprite.frames = Paths.getAnimateAtlas(loadFolder);
+			if(loadFolder != null) mySprite.frames = Paths.getMultiAtlas(loadFolder.split(','));
 			MusicBeatState.getVariables().set(tag, mySprite);
 			mySprite.active = true;
 		});
 
 		Lua_helper.add_callback(lua, "loadAnimateAtlas", function(tag:String, folder:String) {
-			var spr:FlxAnimate = MusicBeatState.getVariables().get(tag);
-			if(spr != null) spr.frames = Paths.getAnimateAtlas(folder);
+			var spr:PsychSprite = MusicBeatState.getVariables().get(tag);
+			if(spr != null) spr.frames = Paths.getMultiAtlas(folder.split(','));
 		});
-		
+
 		Lua_helper.add_callback(lua, "addAnimationBySymbol", function(tag:String, name:String, symbol:String, ?framerate:Float = 24, ?loop:Bool = false, ?flipX:Bool = false, ?flipY:Bool = false)
 		{
-			var obj:FlxAnimate = cast MusicBeatState.getVariables().get(tag);
+			var obj:PsychSprite = cast MusicBeatState.getVariables().get(tag);
 			if(obj == null) return false;
 
-			obj.anim.addBySymbol(name, symbol, framerate, loop, flipX, flipY);
-			if(obj.anim.curAnim == null)
+			obj.addAnim(name, symbol, null, framerate, loop, flipX, flipY);
+			if(obj.isAnimationNull())
 			{
 				var obj2:PsychSprite = cast (obj, PsychSprite);
 				if(obj2 != null) obj2.playAnim(name, true); //is PsychSprite
@@ -44,7 +44,7 @@ class FlxAnimateFunctions
 
 		Lua_helper.add_callback(lua, "addAnimationBySymbolIndices", function(tag:String, name:String, symbol:String, ?indices:Any = null, ?framerate:Float = 24, ?loop:Bool = false, ?flipX:Bool = false, ?flipY:Bool = false)
 		{
-			var obj:FlxAnimate = cast MusicBeatState.getVariables().get(tag);
+			var obj:PsychSprite = cast MusicBeatState.getVariables().get(tag);
 			if(obj == null) return false;
 
 			if(indices == null) indices = [0];
@@ -58,8 +58,8 @@ class FlxAnimateFunctions
 				indices = myIndices;
 			}
 
-			obj.anim.addBySymbolIndices(name, symbol, indices, framerate, loop, flipX, flipY);
-			if(obj.anim.curAnim == null)
+			obj.addAnim(name, symbol, indices, framerate, loop, flipX, flipY);
+			if(obj.isAnimationNull())
 			{
 				var obj2:PsychSprite = cast (obj, PsychSprite);
 				if(obj2 != null) obj2.playAnim(name, true); //is PsychSprite

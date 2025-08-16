@@ -1,6 +1,5 @@
 package options;
 
-import backend.StageData;
 import objects.Character;
 import objects.Bar;
 import flixel.addons.display.shapes.FlxShapeCircle;
@@ -83,12 +82,7 @@ class NoteOffsetState extends MusicBeatState
 		comboNums.cameras = [camHUD];
 		add(comboNums);
 
-		var seperatedScore:Array<Int> = [];
-		for(i in 0...3)
-		{
-			seperatedScore.push(FlxG.random.int(0, 9));
-		}
-
+		final seperatedScore:Array<Int> = [for(i in 0...3) FlxG.random.int(0, 9)];
 		for(num => i in seperatedScore)
 		{
 			var numScore:FlxSprite = new FlxSprite(43 * num).loadGraphic(Paths.image('num' + i));
@@ -125,7 +119,7 @@ class NoteOffsetState extends MusicBeatState
 		barPercent = ClientPrefs.data.noteOffset;
 		updateNoteDelay();
 		
-		timeBar = new Bar(0, timeTxt.y + (timeTxt.height / 3), 'healthBar', function() return barPercent, delayMin, delayMax);
+		timeBar = new Bar(0, timeTxt.y + (timeTxt.height / 3), 'healthBar', null, function() return barPercent, delayMin, delayMax);
 		timeBar.scrollFactor.set();
 		timeBar.screenCenter(X);
 		timeBar.visible = false;
@@ -193,7 +187,7 @@ class NoteOffsetState extends MusicBeatState
 			// changed to controller mid state
 			if(controls.controllerMode)
 			{
-				var mousePos = FlxG.mouse.getScreenPosition(camHUD);
+				final mousePos = FlxG.mouse.getScreenPosition(camHUD);
 				controllerPointer.x = mousePos.x;
 				controllerPointer.y = mousePos.y;
 			}

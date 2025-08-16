@@ -17,11 +17,11 @@ class NoteTypesConfig
 	{
 		if(noteTypesData.exists(name)) return noteTypesData.get(name);
 
-		var str:String = Paths.getTextFromFile('custom_notetypes/$name.txt');
+		final str:String = Paths.getTextFromFile('custom_notetypes/$name.txt');
 		if(str == null || !str.contains(':') || !str.contains('=')) noteTypesData.set(name, null);
 
 		var parsed:Array<NoteTypeProperty> = [];
-		var lines:Array<String> = CoolUtil.listFromString(str);
+		final lines:Array<String> = CoolUtil.listFromString(str);
 		for(line in lines)
 		{
 			var sep:Int = line.indexOf(':');
@@ -34,7 +34,7 @@ class NoteTypesConfig
 			var arr:Array<String> = line.substr(0, sep).trim().split('.');
 			for(i in 0...arr.length) arr[i] = arr[i].trim();
 
-			var newProp:NoteTypeProperty = {
+			final newProp:NoteTypeProperty = {
 				property: arr,
 				value: _interpretValue(line.substr(sep + 1).trim())
 			}
@@ -47,13 +47,13 @@ class NoteTypesConfig
 
 	public static function applyNoteTypeData(note:Note, name:String)
 	{
-		var data:Array<NoteTypeProperty> = loadNoteTypeData(name);
+		final data:Array<NoteTypeProperty> = loadNoteTypeData(name);
 		if(data == null || data.length < 1) return;
-		
+
 		for(line in data) 
 		{
 			var obj:Dynamic = note;
-			var split:Array<String> = line.property;
+			final split:Array<String> = line.property;
 			try
 			{
 				if(split.length <= 1)
@@ -85,13 +85,13 @@ class NoteTypesConfig
 
 	private static function _propCheckArray(obj:Dynamic, slice:String, setProp:Bool = false, valueToSet:Dynamic = null)
 	{
-		var propArray:Array<String> = slice.split('[');
+		final propArray:Array<String> = slice.split('[');
 		if(propArray.length > 1)
 		{
 			for(i in 0...propArray.length)
 			{
-				var str:Dynamic = propArray[i];
-				var id:Int = Std.parseInt(str.substr(0, str.length-1).trim());
+				final str:Dynamic = propArray[i];
+				final id:Int = Std.parseInt(str.substr(0, str.length-1).trim());
 				if(i < propArray.length-1) obj = obj[id]; //middles
 				else if (setProp) return obj[id] = valueToSet; //last
 			}
@@ -109,12 +109,11 @@ class NoteTypesConfig
 
 	private static function _interpretValue(value:String):Any
 	{
+		// is a string
 		if(value.charAt(0) == "'" || value.charAt(0) == '"')
-		{
-			//is a string
 			return value.substring(1, value.length-1);
-		}
-		
+
+		// is a condition
 		switch(value)
 		{
 			case "true": return true;
@@ -122,6 +121,7 @@ class NoteTypesConfig
 			case "null": return null;
 		}
 
+		// is a number
 		if(value.contains('.')) return Std.parseFloat(value);
 		return Std.parseInt(value);
 	}

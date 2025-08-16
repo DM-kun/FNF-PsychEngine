@@ -28,7 +28,8 @@ enum abstract AchievementOp(String)
 	var ADD = 'add';
 }
 
-class Achievements {
+class Achievements
+{
 	public static function init()
 	{
 		createAchievement('friday_night_play',		{name: "Freaky on a Friday Night", description: "Play on a Friday... Night.", hidden: true});
@@ -109,8 +110,7 @@ class Achievements {
 
 	static function _scoreFunc(name:String, mode:AchievementOp, addOrSet:Float = 1, saveIfNotUnlocked:Bool = true):Float
 	{
-		if(!variables.exists(name))
-			variables.set(name, 0);
+		if(!variables.exists(name)) variables.set(name, 0);
 
 		if(achievements.exists(name))
 		{
@@ -142,7 +142,8 @@ class Achievements {
 	}
 
 	static var _lastUnlock:Int = -999;
-	public static function unlock(name:String, autoStartPopup:Bool = true):String {
+	public static function unlock(name:String, autoStartPopup:Bool = true):String
+	{
 		if(!achievements.exists(name))
 		{
 			FlxG.log.error('Achievement "$name" does not exists!');
@@ -180,7 +181,8 @@ class Achievements {
 	public static function get_showingPopups()
 		return _popups.length > 0;
 
-	public static function startPopup(achieve:String, endFunc:Void->Void = null) {
+	public static function startPopup(achieve:String, endFunc:Void->Void = null)
+	{
 		for (popup in _popups)
 		{
 			if(popup == null) continue;
@@ -234,7 +236,7 @@ class Achievements {
 		{
 			var rawJson:String = File.getContent(path).trim();
 			if(rawJson != null && rawJson.length > 0) retVal = tjson.TJSON.parse(rawJson); //Json.parse('{"achievements": $rawJson}').achievements;
-			
+
 			if(addMods && retVal != null)
 			{
 				for (i in 0...retVal.length)
@@ -278,6 +280,7 @@ class Achievements {
 			#end
 			trace('$errorTitle - $errorMsg');
 		}
+
 		return retVal;
 	}
 	#end

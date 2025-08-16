@@ -63,16 +63,6 @@ class SaveVariables
 	var gameplaySettings:Map<String, Dynamic> = [
 		'scrollspeed' => 1.0,
 		'scrolltype' => 'multiplicative', 
-		// anyone reading this, amod is multiplicative speed mod, cmod is constant speed mod, and xmod is bpm based speed mod.
-		// an amod example would be chartSpeed * multiplier
-		// cmod would just be constantSpeed = chartSpeed
-		// and xmod basically works by basing the speed on the bpm.
-		// iirc (beatsPerSecond * (conductorToNoteDifference / 1000)) * noteSize (110 or something like that depending on it, prolly just use note.height)
-		// bps is calculated by bpm / 60
-		// oh yeah and you'd have to actually convert the difference to seconds which I already do, because this is based on beats and stuff. but it should work
-		// just fine. but I wont implement it because I don't know how you handle sustains and other stuff like that.
-		// oh yeah when you calculate the bps divide it by the songSpeed or rate because it wont scroll correctly when speeds exist.
-		// -kade
 		'songspeed' => 1.0,
 		'healthgain' => 1.0,
 		'healthloss' => 1.0,
@@ -85,6 +75,8 @@ class SaveVariables
 
 class ClientPrefs
 {
+	public static var save:FlxSave;
+
 	public static var data:SaveVariables = {};
 	public static var defaultData:SaveVariables = {};
 
@@ -95,7 +87,7 @@ class ClientPrefs
 		'note_left'		=> [A, LEFT],
 		'note_down'		=> [S, DOWN],
 		'note_right'	=> [D, RIGHT],
-		
+
 		'ui_up'			=> [W, UP],
 		'ui_left'		=> [A, LEFT],
 		'ui_down'		=> [S, DOWN],
@@ -160,21 +152,32 @@ class ClientPrefs
 		defaultButtons = gamepadBinds.copy();
 	}
 
+	public static function createSettings()
+	{
+		if(save != null) return;
+
+		save = new FlxSave();
+		save.bind('options', CoolUtil.getSavePath());
+
+		FlxG.log.add("Settings created!");
+	}
+
 	public static function saveSettings()
 	{
 		for(key in Reflect.fields(data))
-			Reflect.setField(Main.save.data, key, Reflect.field(data, key));
+			Reflect.setField(save.data, key, Reflect.field(data, key));
 
-		Main.save.flush();
+		save.flush();
 		#if ACHIEVEMENTS_ALLOWED Achievements.save(); #end
 		FlxG.save.flush();
 
 		//Placing this in a separate save so that it can be manually deleted without removing your Score and stuff
-		var save:FlxSave = new FlxSave();
-		save.bind('controls_v3', CoolUtil.getSavePath());
-		save.data.keyboard = keyBinds;
-		save.data.gamepad = gamepadBinds;
-		save.flush();
+		var conSave:FlxSave = new FlxSave();
+		conSave.bind('controls_v3', CoolUtil.getSavePath());
+		conSave.data.keyboard = keyBinds;
+		conSave.data.gamepad = gamepadBinds;
+		conSave.flush();
+
 		FlxG.log.add("Settings saved!");
 	}
 
@@ -183,15 +186,15 @@ class ClientPrefs
 		#if ACHIEVEMENTS_ALLOWED Achievements.load(); #end
 
 		for(key in Reflect.fields(data))
-			if(key != 'gameplaySettings' && Reflect.hasField(Main.save.data, key))
-				Reflect.setField(data, key, Reflect.field(Main.save.data, key));
+			if(key != 'gameplaySettings' && Reflect.hasField(save.data, key))
+				Reflect.setField(data, key, Reflect.field(save.data, key));
 
 		if(Main.fpsVar != null) Main.fpsVar.visible = data.showFPS;
 
 		#if (!html5 && !switch)
 		FlxG.autoPause = data.autoPause;
 
-		if(Main.save.data.framerate == null)
+		if(save.data.framerate == null)
 		{
 			final refreshRate:Int = FlxG.stage.application.window.displayMode.refreshRate;
 			data.framerate = Std.int(FlxMath.bound(refreshRate, 30, 360));
@@ -209,10 +212,10 @@ class ClientPrefs
 			FlxG.updateFramerate = data.framerate;
 		}
 
-		if(Main.save.data.gameplaySettings != null)
+		if(save.data.gameplaySettings != null)
 		{
-			var savedMap:Map<String, Dynamic> = Main.save.data.gameplaySettings;
-			for (name => value in savedMap)
+			final savedMap:Map<String, Dynamic> = save.data.gameplaySettings;
+			for(name => value in savedMap)
 				data.gameplaySettings.set(name, value);
 		}
 
@@ -226,20 +229,20 @@ class ClientPrefs
 		#if DISCORD_ALLOWED DiscordClient.check(); #end
 
 		// controls on a separate save file
-		var save:FlxSave = new FlxSave();
-		save.bind('controls_v3', CoolUtil.getSavePath());
-		if(save != null)
+		var conSave:FlxSave = new FlxSave();
+		conSave.bind('controls_v3', CoolUtil.getSavePath());
+		if(conSave != null)
 		{
-			if(save.data.keyboard != null)
+			if(conSave.data.keyboard != null)
 			{
-				var loadedControls:Map<String, Array<FlxKey>> = save.data.keyboard;
-				for (control => keys in loadedControls)
+				var loadedControls:Map<String, Array<FlxKey>> = conSave.data.keyboard;
+				for(control => keys in loadedControls)
 					if(keyBinds.exists(control)) keyBinds.set(control, keys);
 			}
-			if(save.data.gamepad != null)
+			if(conSave.data.gamepad != null)
 			{
-				var loadedControls:Map<String, Array<FlxGamepadInputID>> = save.data.gamepad;
-				for (control => keys in loadedControls)
+				var loadedControls:Map<String, Array<FlxGamepadInputID>> = conSave.data.gamepad;
+				for(control => keys in loadedControls)
 					if(gamepadBinds.exists(control)) gamepadBinds.set(control, keys);
 			}
 			reloadVolumeKeys();

@@ -2,9 +2,10 @@ package objects;
 
 class AttachedText extends Alphabet
 {
+	public var sprTracker:FlxSprite;
+
 	public var offsetX:Float = 0;
 	public var offsetY:Float = 0;
-	public var sprTracker:FlxSprite;
 	public var copyVisible:Bool = true;
 	public var copyAlpha:Bool = false;
 

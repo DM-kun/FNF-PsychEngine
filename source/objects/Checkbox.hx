@@ -1,6 +1,6 @@
 package objects;
 
-class CheckboxThingie extends PsychSprite
+class Checkbox extends PsychSprite
 {
 	public var sprTracker:FlxSprite;
 	public var checked(default, set):Bool;
@@ -18,8 +18,8 @@ class CheckboxThingie extends PsychSprite
 
 		frames = Paths.getSparrowAtlas('checkboxanim');
 
-		for(fAnim in ['unchecked', 'unchecking', 'checking', 'checked'])
-			anim.addByPrefix(fAnim, 'checkbox $fAnim', 24, false);
+		for(name in ['unchecked', 'unchecking', 'checking', 'checked'])
+			addAnim(name, 'checkbox $name', null, 24, false);
 
 		addOffset('unchecked', 0, 2);
 		addOffset('unchecking', 25, 28);
@@ -42,6 +42,7 @@ class CheckboxThingie extends PsychSprite
 			setPosition(sprTracker.x - 130 + offsetX, sprTracker.y + 30 + offsetY);
 			if(copyAlpha) alpha = sprTracker.alpha;
 		}
+
 		super.update(elapsed);
 	}
 

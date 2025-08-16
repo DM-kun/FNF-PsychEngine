@@ -121,9 +121,9 @@ class LuaUtils
 	public static function getModSetting(saveTag:String, ?modName:String = null)
 	{
 		#if MODS_ALLOWED
-		if(Main.save.data.modSettings == null) Main.save.data.modSettings = new Map<String, Dynamic>();
+		if(ClientPrefs.save.data.modSettings == null) ClientPrefs.save.data.modSettings = new Map<String, Dynamic>();
 
-		var settings:Map<String, Dynamic> = Main.save.data.modSettings.get(modName);
+		var settings:Map<String, Dynamic> = ClientPrefs.save.data.modSettings.get(modName);
 		var path:String = Paths.mods('$modName/data/settings.json');
 		if(FileSystem.exists(path))
 		{
@@ -155,7 +155,7 @@ class LuaUtils
 							}
 						}
 					}
-					Main.save.data.modSettings.set(modName, settings);
+					ClientPrefs.save.data.modSettings.set(modName, settings);
 				}
 				catch(e:Dynamic)
 				{
@@ -170,7 +170,7 @@ class LuaUtils
 		}
 		else
 		{
-			Main.save.data.modSettings.remove(modName);
+			ClientPrefs.save.data.modSettings.remove(modName);
 			#if SCRIPTS_ALLOWED
 			PlayState.instance.addTextToDebug('getModSetting: $path could not be found!', FlxColor.RED);
 			#else
@@ -350,6 +350,9 @@ class LuaUtils
 			case 'sparrow', 'sparrowatlas', 'sparrowv2':
 				spr.frames = Paths.getSparrowAtlas(image);
 
+			case 'multi', 'multiatlas':
+				spr.frames = Paths.getMultiAtlas(image.split(','));
+
 			default:
 				spr.frames = Paths.getAtlas(image);
 		}
@@ -505,7 +508,7 @@ class LuaUtils
 		}
 		return NORMAL;
 	}
-	
+
 	public static function typeToString(type:Int):String
 	{
 		#if LUA_ALLOWED

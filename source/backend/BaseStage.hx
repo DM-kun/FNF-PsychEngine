@@ -39,7 +39,7 @@ class BaseStage extends FlxBasic
 	public var gfGroup(get, never):FlxSpriteGroup;
 
 	public var unspawnNotes(get, never):Array<Note>;
-	
+
 	public var camGame(get, never):PsychCamera;
 	public var camHUD(get, never):PsychCamera;
 	public var camOther(get, never):PsychCamera;
@@ -69,6 +69,7 @@ class BaseStage extends FlxBasic
 	public function countdownTick(count:Countdown, num:Int) {}
 	public function startSong() {}
 	public function onPause() {}
+	public function onResume() {}
 
 	// FNF steps, beats and sections
 	public var curBeat:Int = 0;
@@ -99,7 +100,7 @@ class BaseStage extends FlxBasic
 	function add(object:FlxBasic) return FlxG.state.add(object);
 	function remove(object:FlxBasic, splice:Bool = false) return FlxG.state.remove(object, splice);
 	function insert(position:Int, object:FlxBasic) return FlxG.state.insert(position, object);
-	
+
 	public function addBehindGF(obj:FlxBasic) return insert(members.indexOf(game.gfGroup), obj);
 	public function addBehindBF(obj:FlxBasic) return insert(members.indexOf(game.boyfriendGroup), obj);
 	public function addBehindDad(obj:FlxBasic) return insert(members.indexOf(game.dadGroup), obj);
@@ -170,7 +171,7 @@ class BaseStage extends FlxBasic
 	{
 		return cast game.unspawnNotes;
 	}
-	
+
 	inline private function get_camGame():PsychCamera return game.camGame;
 	inline private function get_camHUD():PsychCamera return game.camHUD;
 	inline private function get_camOther():PsychCamera return game.camOther;

@@ -5,7 +5,7 @@ import flixel.input.gamepad.FlxGamepad;
 import flixel.input.gamepad.FlxGamepadInputID;
 import flixel.input.gamepad.FlxGamepadManager;
 
-import objects.CheckboxThingie;
+import objects.Checkbox;
 import objects.AttachedText;
 import options.Option;
 import backend.InputFormatter;
@@ -17,7 +17,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 	private var optionsArray:Array<Option>;
 
 	private var grpOptions:FlxTypedGroup<Alphabet>;
-	private var checkboxGroup:FlxTypedGroup<CheckboxThingie>;
+	private var checkboxGroup:FlxTypedGroup<Checkbox>;
 	private var grpTexts:FlxTypedGroup<AttachedText>;
 
 	private var descBox:FlxSprite;
@@ -51,7 +51,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		grpTexts = new FlxTypedGroup<AttachedText>();
 		add(grpTexts);
 
-		checkboxGroup = new FlxTypedGroup<CheckboxThingie>();
+		checkboxGroup = new FlxTypedGroup<Checkbox>();
 		add(checkboxGroup);
 
 		descBox = new FlxSprite().makeGraphic(1, 1, FlxColor.BLACK);
@@ -69,7 +69,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		descText.borderSize = 2.4;
 		add(descText);
 
-		for (i in 0...optionsArray.length)
+		for(i in 0...optionsArray.length)
 		{
 			var optionText:Alphabet = new Alphabet(220, 260, optionsArray[i].name, false);
 			optionText.isMenuItem = true;
@@ -80,7 +80,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 
 			if(optionsArray[i].type == BOOL)
 			{
-				var checkbox:CheckboxThingie = new CheckboxThingie(optionText.x - 105, optionText.y, Std.string(optionsArray[i].getValue()) == 'true');
+				var checkbox:Checkbox = new Checkbox(optionText.x - 105, optionText.y, Std.string(optionsArray[i].getValue()) == 'true');
 				checkbox.sprTracker = optionText;
 				checkbox.ID = i;
 				checkboxGroup.add(checkbox);
@@ -105,7 +105,8 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		reloadCheckboxes();
 	}
 
-	public function addOption(option:Option) {
+	public function addOption(option:Option)
+	{
 		if(optionsArray == null || optionsArray.length < 1) optionsArray = [];
 		optionsArray.push(option);
 		return option;
@@ -120,6 +121,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 	var bindingBlack:FlxSprite;
 	var bindingText:Alphabet;
 	var bindingText2:Alphabet;
+
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -130,16 +132,11 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			return;
 		}
 
-		if (controls.UI_UP_P)
-		{
-			changeSelection(-1);
-		}
-		if (controls.UI_DOWN_P)
-		{
-			changeSelection(1);
-		}
+		if(controls.UI_UP_P) changeSelection(-1);
+		if(controls.UI_DOWN_P) changeSelection(1);
 
-		if (controls.BACK) {
+		if(controls.BACK)
+		{
 			close();
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 		}
@@ -189,16 +186,13 @@ class BaseOptionsMenu extends MusicBeatSubstate
 						{
 							if(pressed)
 							{
-								var add:Dynamic = null;
-								if(curOption.type != STRING)
-									add = controls.UI_LEFT ? -curOption.changeValue : curOption.changeValue;
-		
 								switch(curOption.type)
 								{
 									case INT, FLOAT, PERCENT:
+										final add:Dynamic = controls.UI_LEFT ? -curOption.changeValue : curOption.changeValue;
 										holdValue = curOption.getValue() + add;
 										if(holdValue < curOption.minValue) holdValue = curOption.minValue;
-										else if (holdValue > curOption.maxValue) holdValue = curOption.maxValue;
+										else if(holdValue > curOption.maxValue) holdValue = curOption.maxValue;
 		
 										if(curOption.type == INT)
 										{
@@ -212,20 +206,13 @@ class BaseOptionsMenu extends MusicBeatSubstate
 										}
 		
 									case STRING:
-										var num:Int = curOption.curOption; //lol
-										if(controls.UI_LEFT_P) --num;
-										else num++;
-		
-										if(num < 0)
-											num = curOption.options.length - 1;
-										else if(num >= curOption.options.length)
-											num = 0;
-		
+										final num:Int = FlxMath.wrap(curOption.curOption + (controls.UI_LEFT_P ? -1 : 1), 0, curOption.options.length - 1);
 										curOption.curOption = num;
 										curOption.setValue(curOption.options[num]);
 										//trace(curOption.options[num]);
 
 									default:
+										// nothing
 								}
 								updateTextFrom(curOption);
 								curOption.change();
@@ -234,9 +221,8 @@ class BaseOptionsMenu extends MusicBeatSubstate
 							else if(curOption.type != STRING)
 							{
 								holdValue += curOption.scrollSpeed * elapsed * (controls.UI_LEFT ? -1 : 1);
-								if(holdValue < curOption.minValue) holdValue = curOption.minValue;
-								else if (holdValue > curOption.maxValue) holdValue = curOption.maxValue;
-		
+								holdValue = FlxMath.bound(holdValue, curOption.minValue, curOption.maxValue);
+
 								switch(curOption.type)
 								{
 									case INT:
@@ -246,14 +232,14 @@ class BaseOptionsMenu extends MusicBeatSubstate
 										curOption.setValue(FlxMath.roundDecimal(holdValue, curOption.decimals));
 
 									default:
+										//nothing
 								}
 								updateTextFrom(curOption);
 								curOption.change();
 							}
 						}
-		
-						if(curOption.type != STRING)
-							holdTime += elapsed;
+
+						if(curOption.type != STRING) holdTime += elapsed;
 					}
 					else if(controls.UI_LEFT_R || controls.UI_RIGHT_R)
 					{
@@ -285,9 +271,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			}
 		}
 
-		if(nextAccept > 0) {
-			nextAccept -= 1;
-		}
+		if(nextAccept > 0) nextAccept -= 1;
 	}
 
 	function bindingKeyUpdate(elapsed:Float)
@@ -401,10 +385,8 @@ class BaseOptionsMenu extends MusicBeatSubstate
 			text = option.getValue();
 			if(text == null) text = 'NONE';
 
-			if(!controls.controllerMode)
-				text = InputFormatter.getKeyName(FlxKey.fromString(text));
-			else
-				text = InputFormatter.getGamepadName(FlxGamepadInputID.fromString(text));
+			if(!controls.controllerMode) text = InputFormatter.getKeyName(FlxKey.fromString(text));
+			else text = InputFormatter.getGamepadName(FlxGamepadInputID.fromString(text));
 		}
 
 		var bind:AttachedText = cast option.child;
@@ -458,7 +440,8 @@ class BaseOptionsMenu extends MusicBeatSubstate
 		ClientPrefs.toggleVolumeKeys(true);
 	}
 
-	function updateTextFrom(option:Option) {
+	function updateTextFrom(option:Option)
+	{
 		if(option.type == KEYBIND)
 		{
 			updateBind(option);

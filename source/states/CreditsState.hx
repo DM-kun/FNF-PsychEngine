@@ -56,7 +56,7 @@ class CreditsState extends MusicBeatState
 		var creditsFile:String = Paths.getSharedPath('data/credits.json');
 		#if TRANSLATIONS_ALLOWED
 		final translatedCredits:String = Paths.getSharedPath('data/credits-${ClientPrefs.data.language}.json');
-		if(Paths.fileExists('data/credits-${ClientPrefs.data.language}.json', TEXT, 'shared', false)) creditsFile = translatedCredits;
+		if(Paths.fileExists('data/credits-${ClientPrefs.data.language}.json', TEXT, 'shared', true)) creditsFile = translatedCredits;
 		#end
 		if(Assets.exists(creditsFile))
 		{
@@ -123,8 +123,8 @@ class CreditsState extends MusicBeatState
 				if(credit[1] != null && credit[1].length > 0)
 				{
 					var fileName = 'credits/' + credit[1];
-					if (Paths.fileExists('images/$fileName.png', IMAGE)) str = fileName;
-					else if (Paths.fileExists('images/$fileName-pixel.png', IMAGE)) str = fileName + '-pixel';
+					if(Paths.fileExists('images/$fileName.png', IMAGE)) str = fileName;
+					else if(Paths.fileExists('images/$fileName-pixel.png', IMAGE)) str = fileName + '-pixel';
 				}
 
 				var icon:AttachedSprite = new AttachedSprite(str);

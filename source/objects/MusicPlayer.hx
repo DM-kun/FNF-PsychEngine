@@ -180,8 +180,7 @@ class MusicPlayer extends FlxGroup
 		if(controls.UI_DOWN || controls.UI_UP)
 		{
 			holdPitchTime += elapsed;
-			if(holdPitchTime > 0.6)
-				playbackRate += 0.05 * (controls.UI_UP ? 1 : -1);
+			if(holdPitchTime > 0.6) playbackRate += 0.05 * (controls.UI_UP ? 1 : -1);
 		}
 	
 		if(controls.RESET)

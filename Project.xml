@@ -4,20 +4,20 @@
 
 	<app title="Friday Night Funkin': Psych Engine" file="PsychEngine" packageName="com.shadowmario.psychengine" package="com.shadowmario.psychengine" main="Main" version="0.2.8" company="ShadowMario" />
 
-	<!--Switch Export with Unique ApplicationID and Icon-->
+	<!-- Switch Export with Unique ApplicationID and Icon -->
 	<set name="APP_ID" value="0x0100f6c013bbc000" />
 
 	<!-- NOTE TO SELF: DISABLE THIS IF ISSUES ARE FOUND -->
 	<haxedef name="LINC_LUA_RELATIVE_DYNAMIC_LIB" /> <!-- stable luas PUT AFTER FIRST LINE WITH APP NAME AND ETC -->
 
-	<!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file
-		or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
+	<!-- The flixel preloader is not accurate in Chrome. You can use it regularly to embed a .swf into a html file
+		 or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal" -->
 	<!-- <app preloader="Preloader" resizable="true" /> -->
 	<app preloader="flixel.system.FlxPreloader" />
 
-	<!--Minimum without FLX_NO_GAMEPAD: 11.8, without FLX_NO_NATIVE_CURSOR: 11.2-->
+	<!-- Minimum without FLX_NO_GAMEPAD: 11.8, without FLX_NO_NATIVE_CURSOR: 11.2 -->
 	<set name="SWF_VERSION" value="11.8" />
-	
+
 	<!-- ______________________ PSYCH ENGINE CUSTOMIZATION ______________________ -->
 
 	<define name="officialBuild" if="release" />
@@ -40,7 +40,7 @@
 	<define name="DISCORD_ALLOWED" if="desktop" />
 	<define name="VIDEOS_ALLOWED" if="desktop || mobile" unless="32bits" />
 
-	<define name="MULTITHREADED_LOADING" /> <!-- UNCOMMENTING THIS LINE WILL ENABLE MULTITHREADED LOADING, WHICH IMPROVES LOADING TIMES, BUT APPARENTLY CAN FREEZE THE GAME ON SONG LOAD IN OLDER PCs? -->
+	<define name="MULTITHREADED_LOADING" /> <!-- COMMENT THIS LINE IN CASE IT CAUSES ISSUES - MOSTLY HAPPENS ON WEAKER DEVICES -->
 	<define name="SHOW_LOADING_SCREEN" />
 	<define name="IRIS_DEBUG" />
 
@@ -48,19 +48,19 @@
 
 	<!-- ____________________________ Window Settings ___________________________ -->
 
-	<!--These window settings apply to all targets-->
+	<!-- These window settings apply to all targets -->
 	<window width="1280" height="720" fps="60" background="#000000" hardware="true" vsync="false" allow-high-dpi="true" />
 
-	<!--HTML5-specific-->
+	<!-- HTML5-specific -->
 	<window if="html5" resizable="true" />
 
-	<!--Desktop-specific-->
+	<!-- Desktop-specific -->
 	<window if="desktop" orientation="landscape" fullscreen="false" resizable="true" vsync="false" />
 
-	<!--Mobile-specific-->
+	<!-- Mobile-specific -->
 	<window if="mobile" orientation="landscape" fullscreen="true" width="0" height="0" resizable="false" />
 
-	<!--Switch-specific-->
+	<!-- Switch-specific -->
 	<window if="switch" orientation="landscape" fullscreen="true" width="0" height="0" resizable="true" />
 
 	<!-- _____________________________ Path Settings ____________________________ -->
@@ -72,27 +72,27 @@
 	<classpath name="source" />
 
 	<!-- __________________________ Game Assets & Etc. __________________________ -->
-	
+
 	<!-- Turn on Crash Handler -->
 	<define name="CRASH_HANDLER" if="desktop" unless="debug" />
 
 	<!-- Assets -->
-	<assets path="art/readme.txt"		rename="do NOT readme.txt" />
+	<assets path="art/readme.txt" rename="do NOT readme.txt" />
 
 	<assets path="assets/fonts" />
 	<assets path="assets/videos" if="VIDEOS_ALLOWED" />
 
 	<section if="web">
-		<assets path="assets/embed"         exclude="*.ogg" embed="true" />
-		<assets path="assets/shared"        exclude="*.ogg" />
-		<assets path="assets/songs"         exclude="*.ogg" />
-		<assets path="assets/week_assets"   rename="assets" exclude="*.ogg" />
+		<assets path="assets/embed" exclude="*.ogg" embed="true" />
+		<assets path="assets/shared" exclude="*.ogg" />
+		<assets path="assets/songs" exclude="*.ogg" />
+		<assets path="assets/week_assets" rename="assets" exclude="*.ogg" />
 	</section>
 	<section unless="web">
-		<assets path="assets/embed"         exclude="*.mp3" embed="true" />
-		<assets path="assets/shared"        exclude="*.mp3"  />
-		<assets path="assets/songs"         exclude="*.mp3"  />
-		<assets path="assets/week_assets"   rename="assets" exclude="*.mp3" />
+		<assets path="assets/embed" exclude="*.mp3" embed="true" />
+		<assets path="assets/shared" exclude="*.mp3" />
+		<assets path="assets/songs" exclude="*.mp3" />
+		<assets path="assets/week_assets" rename="assets" exclude="*.mp3" />
 	</section>
 
 	<section if="TRANSLATIONS_ALLOWED">
@@ -134,7 +134,7 @@
 		<haxelib name="funkin.vis" />
 	</section>
 
-	<!--Psych stuff needed-->
+	<!-- Psych stuff needed -->
 	<haxelib name="linc_luajit" if="LUA_ALLOWED" />
 	<haxelib name="hscript-iris" if="HSCRIPT_ALLOWED" />
 	<haxelib name="hxvlc" if="VIDEOS_ALLOWED" />
@@ -142,40 +142,40 @@
 
 	<!-- Enables a terminal log prompt on debug builds -->
 	<haxelib name="hxcpp-debug-server" if="debug" />
-	
+
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
-	<!--Enable the Flixel core recording system-->
-	<!--<haxedef name="FLX_RECORD" />-->
+	<!-- Enable the Flixel core recording system -->
+	<!-- <haxedef name="FLX_RECORD" /> -->
 
-	<!--Disable the right and middle mouse buttons-->
+	<!-- Disable the right and middle mouse buttons -->
 	<!-- <haxedef name="FLX_NO_MOUSE_ADVANCED" /> -->
 
-	<!--Disable the native cursor API on Flash-->
-	<!--<haxedef name="FLX_NO_NATIVE_CURSOR" />-->
+	<!-- Disable the native cursor API on Flash -->
+	<!-- <haxedef name="FLX_NO_NATIVE_CURSOR" /> -->
 
-	<!--Optimise inputs, be careful you will get null errors if you don't use conditionals in your game-->
+	<!-- Optimise inputs, be careful you will get null errors if you don't use conditionals in your game -->
 	<!-- <haxedef name="FLX_NO_MOUSE" if="mobile" /> -->
 	<!-- <haxedef name="FLX_NO_KEYBOARD" if="mobile" /> -->
 	<!-- <haxedef name="FLX_NO_TOUCH" if="desktop" /> -->
-	<!--<haxedef name="FLX_NO_GAMEPAD" />-->
+	<!-- <haxedef name="FLX_NO_GAMEPAD" /> -->
 
-	<!--Disable the Flixel core sound tray-->
-	<!--<haxedef name="FLX_NO_SOUND_TRAY" />-->
+	<!-- Disable the Flixel core sound tray -->
+	<!-- <haxedef name="FLX_NO_SOUND_TRAY" /> -->
 
-	<!--Disable the Flixel sound management code-->
-	<!--<haxedef name="FLX_NO_SOUND_SYSTEM" />-->
+	<!-- Disable the Flixel sound management code -->
+	<!-- <haxedef name="FLX_NO_SOUND_SYSTEM" /> -->
 
-	<!--Disable the Flixel core focus lost screen-->
+	<!-- Disable the Flixel core focus lost screen -->
 	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
 
-	<!--Disable the Flixel core debugger. Automatically gets set whenever you compile in release mode!-->
+	<!-- Disable the Flixel core debugger. Automatically gets set whenever you compile in release mode! -->
 	<haxedef name="FLX_NO_DEBUG" unless="debug" />
 
-	<!--Enable this for Nape release builds for a serious peformance improvement-->
+	<!-- Enable this for Nape release builds for a serious peformance improvement -->
 	<haxedef name="NAPE_RELEASE_BUILD" unless="debug" />
 
-	<!--Used for the crash handler-->
+	<!-- Used for the crash handler -->
 	<haxedef name="HXCPP_CHECK_POINTER" if="CRASH_HANDLER" />
 	<haxedef name="HXCPP_STACK_LINE" if="CRASH_HANDLER" />
 	<haxedef name="HXCPP_STACK_TRACE" if="CRASH_HANDLER" />
@@ -195,14 +195,14 @@
 	<!-- Iris error debugging -->
 	<haxedef name="hscriptPos" if="HSCRIPT_ALLOWED" />
 
-	<!--Disable deprecated warnings-->
+	<!-- Disable deprecated warnings -->
 	<haxedef name="no-deprecation-warnings" />
 
 	<!-- Haxe 4.3.0+: Enable pretty syntax errors and stuff. -->
 	<!-- pretty (haxeflixel default), indent, classic (haxe compiler default) -->
 	<haxedef name="message.reporting" value="pretty" />
 
-	<!--Macro fixes-->
+	<!-- Macro fixes -->
 	<haxeflag name="--macro" value="allowPackage('flash')" />
 	<haxeflag name="--macro" value="include('my.pack')" />
 

@@ -1,6 +1,5 @@
 package shaders;
 
-import flixel.system.FlxAssets.FlxShader;
 import flixel.addons.display.FlxRuntimeShader;
 import lime.graphics.opengl.GLProgram;
 import lime.app.Application;
@@ -36,13 +35,12 @@ class ErrorHandledShader extends FlxShader implements IErrorHandler
 
 		trace(error);
 
-		#if !debug
 		// Save a crash log on Release builds
-		final dateNow:String = Date.now().toString().replace(" ", "_").replace(":", "'");
-
-		if(!FileSystem.exists('./crash/'))
+		#if !debug
+		if (!FileSystem.exists('./crash/'))
 			FileSystem.createDirectory('./crash/');
 
+		final dateNow:String = Date.now().toString().replace(" ", "_").replace(":", "'");
 		final crashLogPath:String = './crash/shader_${shaderName}_${dateNow}.txt';
 		File.saveContent(crashLogPath, error);
 		Application.current.window.alert('Error log saved at: $crashLogPath', alertTitle);

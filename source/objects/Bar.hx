@@ -28,7 +28,7 @@ class Bar extends FlxSpriteGroup
 		setBounds(boundX, boundY);
 
 		antialiasing = ClientPrefs.data.antialiasing;
-		
+
 		bg = new FlxSprite().loadGraphic(Paths.image(bgImg));
 		bg.antialiasing = ClientPrefs.data.antialiasing;
 		bg.updateHitbox();

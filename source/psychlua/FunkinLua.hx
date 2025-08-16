@@ -249,16 +249,24 @@ class FunkinLua
 			return game.callOnHScript(funcName, args, ignoreStops, excludeScripts, excludeValues);
 		});
 
-		Lua_helper.add_callback(lua, "callScript", function(luaFile:String, funcName:String, ?args:Array<Dynamic> = null) {
+		Lua_helper.add_callback(lua, "callScript", function(scriptFile:String, funcName:String, ?args:Array<Dynamic> = null) {
 			if(args == null){
 				args = [];
 			}
 
-			var luaPath:String = findScript(luaFile);
+			var luaPath:String = findScript(scriptFile);
 			if(luaPath != null)
 				for (luaInstance in game.luaArray)
 					if(luaInstance.scriptName == luaPath)
 						return luaInstance.call(funcName, args);
+
+			#if HSCRIPT_ALLOWED
+			var hscriptPath:String = findScript(scriptFile, '.hx');
+			if(hscriptPath != null)
+				for (hscriptInstance in game.hscriptArray)
+					if(hscriptInstance.origin == hscriptPath)
+						return hscriptInstance.call(funcName, args);
+			#end
 
 			return null;
 		});
@@ -289,6 +297,9 @@ class FunkinLua
 		});
 		Lua_helper.add_callback(lua, "getVar", function(varName:String) {
 			return MusicBeatState.getVariables().get(varName);
+		});
+		Lua_helper.add_callback(lua, "removeVar", function(varName:String) {
+			return MusicBeatState.getVariables().remove(varName);
 		});
 
 		Lua_helper.add_callback(lua, "addLuaScript", function(luaFile:String, ?ignoreAlreadyRunning:Bool = false) {
@@ -375,11 +386,8 @@ class FunkinLua
 		});
 
 		Lua_helper.add_callback(lua, "loadSong", function(?name:String = null, ?difficultyNum:Int = -1) {
-			if(name == null || name.length < 1)
-				name = Song.loadedSongName;
-
-			if (difficultyNum == -1)
-				difficultyNum = PlayState.storyDifficulty;
+			if(name == null || name.length < 1) name = Song.loadedSongName;
+			if(difficultyNum == -1) difficultyNum = PlayState.storyDifficulty;
 
 			var poop = Highscore.formatSong(name, difficultyNum);
 			Song.loadFromJson(poop, name);
@@ -578,7 +586,7 @@ class FunkinLua
 				case 'camother' | 'other': camera = 'camOther';
 				default:
 					var cam:FlxCamera = MusicBeatState.getVariables().get(camera);
-					if (cam == null || !Std.isOfType(cam, FlxCamera)) camera = 'camGame';
+					if(cam == null || !Std.isOfType(cam, FlxCamera)) camera = 'camGame';
 			}
 			return oldTweenFunction(tag, camera, {zoom: value}, duration, ease, 'doTweenZoom');
 		});
@@ -1590,33 +1598,23 @@ class FunkinLua
 				Lua_helper.add_callback(lua, name, func);
 		}
 
-		try{
+		try
+		{
 			var isString:Bool = !FileSystem.exists(scriptName);
 			var result:Dynamic = null;
-			if(!isString)
-				result = LuaL.dofile(lua, scriptName);
-			else
-				result = LuaL.dostring(lua, scriptName);
+			if(!isString) result = LuaL.dofile(lua, scriptName);
+			else result = LuaL.dostring(lua, scriptName);
 
 			var resultStr:String = Lua.tostring(lua, result);
-			if(resultStr != null && result != 0) {
-				trace(resultStr);
-				#if windows
-				lime.app.Application.current.window.alert(resultStr, 'Error on lua script!');
-				#else
-				luaTrace('$scriptName\n$resultStr', true, false, FlxColor.RED);
-				#end
-				lua = null;
-				return;
-			}
-			if(isString) scriptName = 'unknown';
-		} catch(e:Dynamic) {
-			trace(e);
-			return;
-		}
-		trace('lua file loaded succesfully:' + scriptName);
+			if(resultStr != null && result != 0)
+				throw resultStr;
 
-		call('onCreate', []);
+			if(isString) scriptName = 'unknown';
+		}
+		catch(e:Dynamic)
+		{
+			throw e;
+		}
 	}
 
 	//main

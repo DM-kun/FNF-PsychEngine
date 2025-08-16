@@ -1,6 +1,5 @@
 package objects;
 
-import backend.animation.PsychAnimationController;
 import backend.NoteTypesConfig;
 
 import shaders.RGBPalette;
@@ -35,7 +34,7 @@ typedef NoteSplashData = {
  * 
  * If you want to make a custom note type, you should search for: "function set_noteType"
 **/
-class Note extends FlxSprite
+class Note extends PsychSprite
 {
 	//This is needed for the hardcoded note types to appear on the Chart Editor,
 	//It's also used for backwards compatibility with 0.1 - 0.3.2 charts.
@@ -161,7 +160,7 @@ class Note extends FlxSprite
 
 	public function resizeByRatio(ratio:Float) //haha funny twitter shit
 	{
-		if(isSustainNote && animation.curAnim != null && !animation.curAnim.name.endsWith('end'))
+		if(isSustainNote && !isAnimationNull() && !getAnimationName().endsWith('end'))
 		{
 			scale.y *= ratio;
 			updateHitbox();
@@ -229,8 +228,8 @@ class Note extends FlxSprite
 					noAnimation = noMissAnimation = true;
 			}
 
-			if (value != null && value.length > 1) NoteTypesConfig.applyNoteTypeData(this, value);
-			if (hitsound != 'hitsound' && hitsoundVolume > 0) Paths.sound(hitsound); //precache new sound for being idiot-proof
+			if(value != null && value.length > 1) NoteTypesConfig.applyNoteTypeData(this, value);
+			if(hitsound != 'hitsound' && hitsoundVolume > 0) Paths.sound(hitsound); //precache new sound for being idiot-proof
 		}
 		return noteType = value;
 	}
@@ -238,8 +237,6 @@ class Note extends FlxSprite
 	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?inEditor:Bool = false, ?createdFrom:Dynamic = null)
 	{
 		super();
-
-		animation = new PsychAnimationController(this);
 
 		antialiasing = ClientPrefs.data.antialiasing;
 		if(createdFrom == null) createdFrom = PlayState.instance;
@@ -270,7 +267,7 @@ class Note extends FlxSprite
 			{
 				var animToPlay:String = '';
 				animToPlay = colArray[noteData % colArray.length];
-				animation.play(animToPlay + 'Scroll');
+				playAnim(animToPlay + 'Scroll');
 			}
 		}
 
@@ -286,7 +283,7 @@ class Note extends FlxSprite
 			offsetX += width / 2;
 			copyAngle = false;
 
-			animation.play(colArray[noteData % colArray.length] + 'holdend');
+			playAnim(colArray[noteData % colArray.length] + 'holdend');
 
 			updateHitbox();
 
@@ -297,7 +294,7 @@ class Note extends FlxSprite
 			if(prevNote.isSustainNote)
 			{
 				prevNote.isSustainEnd = false;
-				prevNote.animation.play(colArray[prevNote.noteData % colArray.length] + 'hold');
+				prevNote.playAnim(colArray[prevNote.noteData % colArray.length] + 'hold');
 
 				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.05;
 				if(createdFrom != null && createdFrom.songSpeed != null) prevNote.scale.y *= createdFrom.songSpeed;
@@ -331,8 +328,7 @@ class Note extends FlxSprite
 		if(globalRgbShaders[noteData] == null)
 		{
 			var newRGB:RGBPalette = new RGBPalette();
-			var arr:Array<FlxColor> = (!PlayState.isPixelStage) ? ClientPrefs.data.arrowRGB[noteData] : ClientPrefs.data.arrowRGBPixel[noteData];
-			
+			final arr:Array<FlxColor> = (!PlayState.isPixelStage) ? ClientPrefs.data.arrowRGB[noteData] : ClientPrefs.data.arrowRGBPixel[noteData];
 			if (arr != null && noteData > -1 && noteData <= arr.length)
 			{
 				newRGB.r = arr[0];
@@ -345,7 +341,6 @@ class Note extends FlxSprite
 				newRGB.g = 0xFF00FF00;
 				newRGB.b = 0xFF0000FF;
 			}
-			
 			globalRgbShaders[noteData] = newRGB;
 		}
 		return globalRgbShaders[noteData];
@@ -369,9 +364,7 @@ class Note extends FlxSprite
 		}
 		else rgbShader.enabled = false;
 
-		var animName:String = null;
-		if(animation.curAnim != null) animName = animation.curAnim.name;
-
+		final animName:String = (!isAnimationNull()) ? getAnimationName() : null;
 		var skinPixel:String = skin;
 		var lastScaleY:Float = scale.y;
 		var skinPostfix:String = getNoteSkinPostfix();
@@ -412,6 +405,7 @@ class Note extends FlxSprite
 		{
 			frames = Paths.getSparrowAtlas(skin);
 			loadNoteAnims();
+			antialiasing = ClientPrefs.data.antialiasing;
 			if(!isSustainNote)
 			{
 				centerOffsets();
@@ -420,10 +414,9 @@ class Note extends FlxSprite
 		}
 
 		if(isSustainNote) scale.y = lastScaleY;
-
 		updateHitbox();
 
-		if(animName != null) animation.play(animName, true);
+		if(animName != null) playAnim(animName, true);
 	}
 
 	public static function getNoteSkinPostfix()
@@ -441,10 +434,10 @@ class Note extends FlxSprite
 		if(isSustainNote)
 		{
 			attemptToAddAnimationByPrefix('purpleholdend', 'pruple end hold', 24, true); // this fixes some retarded typo from the original note .FLA
-			animation.addByPrefix(colArray[noteData] + 'holdend', colArray[noteData] + ' hold end', 24, true);
-			animation.addByPrefix(colArray[noteData] + 'hold', colArray[noteData] + ' hold piece', 24, true);
+			addAnim(colArray[noteData] + 'holdend', colArray[noteData] + ' hold end', null, 24, true);
+			addAnim(colArray[noteData] + 'hold', colArray[noteData] + ' hold piece', null, 24, true);
 		}
-		else animation.addByPrefix(colArray[noteData] + 'Scroll', colArray[noteData] + '0');
+		else addAnim(colArray[noteData] + 'Scroll', colArray[noteData] + '0');
 
 		setGraphicSize(Std.int(width * 0.7));
 		updateHitbox();
@@ -456,19 +449,19 @@ class Note extends FlxSprite
 
 		if(isSustainNote)
 		{
-			animation.add(colArray[noteData] + 'holdend', [noteData + 4], 24, true);
-			animation.add(colArray[noteData] + 'hold', [noteData], 24, true);
+			anim.add(colArray[noteData] + 'holdend', [noteData + 4], 12, true);
+			anim.add(colArray[noteData] + 'hold', [noteData], 12, true);
 		}
-		else animation.add(colArray[noteData] + 'Scroll', [noteData + 4], 24, true);
+		else anim.add(colArray[noteData] + 'Scroll', [noteData + 4], 12, true);
 	}
 
 	function attemptToAddAnimationByPrefix(name:String, prefix:String, framerate:Float = 24, doLoop:Bool = true)
 	{
 		var animFrames = [];
-		@:privateAccess animation.findByPrefix(animFrames, prefix); // adds valid frames to animFrames
+		@:privateAccess anim.findByPrefix(animFrames, prefix); // adds valid frames to animFrames
 		if(animFrames.length < 1) return;
 
-		animation.addByPrefix(name, prefix, framerate, doLoop);
+		addAnim(name, prefix, null, framerate, doLoop);
 	}
 
 	override function update(elapsed:Float)
@@ -556,7 +549,7 @@ class Note extends FlxSprite
 	@:noCompletion
 	override function set_clipRect(rect:FlxRect):FlxRect
 	{
-		if(frames != null) frame = frames.frames[animation.frameIndex];
+		if(frames != null) frame = frames.frames[anim.frameIndex];
 		return clipRect = rect;
 	}
 }

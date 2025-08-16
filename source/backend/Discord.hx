@@ -30,7 +30,7 @@ class DiscordClient
 		if(!isInitialized && ClientPrefs.data.discordRPC)
 			initialize();
 
-		if(FlxG.stage.window.onClose.has(shutdown))
+		if(!FlxG.stage.window.onClose.has(shutdown))
 			FlxG.stage.window.onClose.add(shutdown);
 	}
 
@@ -262,7 +262,7 @@ private final class DiscordPresence
 	{
 		return __presence.largeImageKey;
 	}
-	
+
 	@:noCompletion inline function set_largeImageKey(value:String):String
 	{
 		return __presence.largeImageKey = value;

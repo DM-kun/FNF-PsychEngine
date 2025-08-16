@@ -20,7 +20,7 @@ typedef TitleData = {
 	var gfy:Float;
 	var backgroundSprite:String;
 	var bpm:Float;
-	
+
 	@:optional var animation:String;
 	@:optional var dance_left:Array<Int>;
 	@:optional var dance_right:Array<Int>;
@@ -30,12 +30,12 @@ typedef TitleData = {
 class TitleState extends MusicBeatState
 {
 	public static var initialized:Bool = false;
+	public static var didStartFlash:Bool = false;
 	public static var musicBPM:Float = 102;
 
 	var credGroup:FlxGroup = new FlxGroup();
 	var textGroup:FlxGroup = new FlxGroup();
 	var blackScreen:FlxSprite;
-	var credTextShit:Alphabet;
 	var ngSpr:FlxSprite;
 	
 	var titleTextColors:Array<FlxColor> = [0xFF33FFFF, 0xFF3333CC];
@@ -53,37 +53,22 @@ class TitleState extends MusicBeatState
 	var easterEggKeysBuffer:String = '';
 	#end
 
-	override public function create():Void
-	{
-		super.create();
-
-		if(!initialized) persistentUpdate = persistentDraw = true;
-
-		curWacky = FlxG.random.getObject(getIntroTextShit());
-
-		FlxG.mouse.visible = false;
-
-		if(Main.save.data.flashing == null && !FlashingState.leftState)
-		{
-			FlxTransitionableState.skipNextTransIn = true;
-			FlxTransitionableState.skipNextTransOut = true;
-			MusicBeatState.switchState(new FlashingState());
-		}
-		else startIntro();
-	}
-
 	var logoBl:FlxSprite;
 	var gfDance:FlxSprite;
 	var danceLeft:Bool = false;
 	var titleText:FlxSprite;
 	var swagShader:ColorSwap = null;
 
-	function startIntro()
+	override public function create():Void
 	{
-		persistentUpdate = true;
+		if(!initialized)
+		{
+			persistentUpdate = persistentDraw = true;
+			if(FlxG.sound.music == null)
+				FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
+		}
 
-		if(!initialized && FlxG.sound.music == null)
-			FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
+		curWacky = FlxG.random.getObject(getIntroTextShit());
 
 		loadJsonData();
 		#if TITLE_SCREEN_EASTER_EGG easterEggData(); #end
@@ -120,7 +105,6 @@ class TitleState extends MusicBeatState
 			gfDance.animation.play('idle');
 		}
 
-
 		var animFrames:Array<FlxFrame> = [];
 		titleText = new FlxSprite(enterPosition.x, enterPosition.y);
 		titleText.frames = Paths.getSparrowAtlas('titleEnter');
@@ -148,10 +132,6 @@ class TitleState extends MusicBeatState
 		blackScreen.updateHitbox();
 		credGroup.add(blackScreen);
 
-		credTextShit = new Alphabet(0, 0, "", true);
-		credTextShit.screenCenter();
-		credTextShit.visible = false;
-
 		ngSpr = new FlxSprite(0, FlxG.height * 0.52).loadGraphic(Paths.image('newgrounds_logo'));
 		ngSpr.visible = false;
 		ngSpr.setGraphicSize(Std.int(ngSpr.width * 0.8));
@@ -165,10 +145,10 @@ class TitleState extends MusicBeatState
 		add(credGroup);
 		add(ngSpr);
 
+		super.create();
+
 		if(initialized) skipIntro();
 		else initialized = true;
-
-		// credGroup.add(credTextShit);
 	}
 
 	// JSON data
@@ -222,8 +202,8 @@ class TitleState extends MusicBeatState
 
 	function easterEggData()
 	{
-		if (Main.save.data.psychDevsEasterEgg == null) Main.save.data.psychDevsEasterEgg = ''; //Crash prevention
-		var easterEgg:String = Main.save.data.psychDevsEasterEgg;
+		if (FlxG.save.data.psychDevsEasterEgg == null) FlxG.save.data.psychDevsEasterEgg = ''; //Crash prevention
+		final easterEgg:String = FlxG.save.data.psychDevsEasterEgg;
 		switch(easterEgg.toUpperCase())
 		{
 			case 'SHADOW':
@@ -292,7 +272,7 @@ class TitleState extends MusicBeatState
 		}
 		#end
 
-		var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
+		final gamepad:FlxGamepad = FlxG.gamepads.lastActive;
 		if(gamepad != null)
 		{
 			if(gamepad.justPressed.START) pressedEnter = true;
@@ -309,16 +289,11 @@ class TitleState extends MusicBeatState
 
 		// EASTER EGG
 
-		if (initialized && !transitioning && skippedIntro)
+		if(initialized && !transitioning && skippedIntro)
 		{
-			if (newTitle && !pressedEnter)
+			if(newTitle && !pressedEnter)
 			{
-				var timer:Float = titleTimer;
-				if (timer >= 1)
-					timer = (-timer) + 2;
-				
-				timer = FlxEase.quadInOut(timer);
-				
+				final timer:Float = FlxEase.quadInOut((titleTimer >= 1) ? (-titleTimer) + 2 : titleTimer);
 				titleText.color = FlxColor.interpolate(titleTextColors[0], titleTextColors[1], timer);
 				titleText.alpha = FlxMath.lerp(titleTextAlphas[0], titleTextAlphas[1], timer);
 			}
@@ -327,7 +302,7 @@ class TitleState extends MusicBeatState
 			{
 				titleText.color = FlxColor.WHITE;
 				titleText.alpha = 1;
-				
+
 				if(titleText != null) titleText.animation.play('press');
 
 				FlxG.camera.flash(ClientPrefs.data.flashing ? FlxColor.WHITE : 0x4CFFFFFF, 1);
@@ -346,24 +321,25 @@ class TitleState extends MusicBeatState
 			#if TITLE_SCREEN_EASTER_EGG
 			else if (FlxG.keys.firstJustPressed() != FlxKey.NONE)
 			{
-				var keyPressed:FlxKey = FlxG.keys.firstJustPressed();
-				var keyName:String = Std.string(keyPressed);
-				if(allowedKeys.contains(keyName)) {
+				final keyPressed:FlxKey = FlxG.keys.firstJustPressed();
+				final keyName:String = Std.string(keyPressed);
+				if(allowedKeys.contains(keyName))
+				{
 					easterEggKeysBuffer += keyName;
 					if(easterEggKeysBuffer.length >= 32) easterEggKeysBuffer = easterEggKeysBuffer.substring(1);
 					//trace('Test! Allowed Key pressed!!! Buffer: ' + easterEggKeysBuffer);
 
-					for (wordRaw in easterEggKeys)
+					for(wordRaw in easterEggKeys)
 					{
 						var word:String = wordRaw.toUpperCase(); //just for being sure you're doing it right
-						if (easterEggKeysBuffer.contains(word))
+						if(easterEggKeysBuffer.contains(word))
 						{
 							//trace('YOOO! ' + word);
-							if (Main.save.data.psychDevsEasterEgg == word)
-								Main.save.data.psychDevsEasterEgg = '';
+							if(FlxG.save.data.psychDevsEasterEgg == word)
+								FlxG.save.data.psychDevsEasterEgg = '';
 							else
-								Main.save.data.psychDevsEasterEgg = word;
-							Main.save.flush();
+								FlxG.save.data.psychDevsEasterEgg = word;
+							FlxG.save.flush();
 
 							FlxG.sound.play(Paths.sound('secret'));
 
@@ -491,7 +467,7 @@ class TitleState extends MusicBeatState
 				case 15:
 					addMoreText('Night');
 				case 16:
-					addMoreText('Funkin'); // credTextShit.text += '\nFunkin';
+					addMoreText("Funkin'");
 
 				case 17:
 					skipIntro();
@@ -509,7 +485,7 @@ class TitleState extends MusicBeatState
 			if(playJingle) //Ignore deez
 			{
 				playJingle = false;
-				var easteregg:String = Main.save.data.psychDevsEasterEgg;
+				var easteregg:String = FlxG.save.data.psychDevsEasterEgg;
 				if(easteregg == null) easteregg = '';
 				easteregg = easteregg.toUpperCase();
 
@@ -523,7 +499,7 @@ class TitleState extends MusicBeatState
 					default: //Go back to normal ugly ass boring GF
 						remove(ngSpr);
 						remove(credGroup);
-						FlxG.camera.flash(FlxColor.WHITE, 2);
+						FlxG.camera.flash(ClientPrefs.data.flashing ? FlxColor.WHITE : 0x4CFFFFFF, 2);
 						skippedIntro = true;
 
 						FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
@@ -538,7 +514,7 @@ class TitleState extends MusicBeatState
 					{
 						remove(ngSpr);
 						remove(credGroup);
-						FlxG.camera.flash(FlxColor.WHITE, 0.6);
+						FlxG.camera.flash(ClientPrefs.data.flashing ? FlxColor.WHITE : 0x4CFFFFFF, 0.6);
 						transitioning = false;
 					});
 				}
@@ -546,7 +522,7 @@ class TitleState extends MusicBeatState
 				{
 					remove(ngSpr);
 					remove(credGroup);
-					FlxG.camera.flash(FlxColor.WHITE, 3);
+					FlxG.camera.flash(ClientPrefs.data.flashing ? FlxColor.WHITE : 0x4CFFFFFF, 3);
 					sound.onComplete = function() {
 						FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
 						FlxG.sound.music.fadeIn(4, 0, 0.7);
@@ -561,12 +537,14 @@ class TitleState extends MusicBeatState
 			{
 				remove(ngSpr);
 				remove(credGroup);
-				FlxG.camera.flash(FlxColor.WHITE, 4);
 
-				var easteregg:String = Main.save.data.psychDevsEasterEgg;
+				if(!didStartFlash) FlxG.camera.flash(ClientPrefs.data.flashing ? FlxColor.WHITE : 0x4CFFFFFF, 4);
+				didStartFlash = true;
+
+				#if TITLE_SCREEN_EASTER_EGG
+				var easteregg:String = FlxG.save.data.psychDevsEasterEgg;
 				if(easteregg == null) easteregg = '';
 				easteregg = easteregg.toUpperCase();
-				#if TITLE_SCREEN_EASTER_EGG
 				if(easteregg == 'SHADOW') FlxG.sound.music.fadeOut();
 				#end
 			}

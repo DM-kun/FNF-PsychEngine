@@ -14,7 +14,7 @@ class VideoSprite extends FlxSpriteGroup
 	#if VIDEOS_ALLOWED
 	public static var _videos:Array<VideoSprite> = [];
 
-	public var overallFinish:Void->Void = null;
+	public var onOverallFinish:Void->Void = null;
 	public var onFinish:Void->Void = null;
 	public var onSkip:Void->Void = null;
 
@@ -113,7 +113,7 @@ class VideoSprite extends FlxSpriteGroup
 			onSkip = null;
 		}
 
-		if(overallFinish != null) overallFinish();
+		if(onOverallFinish != null) onOverallFinish();
 
 		trace('Video Destroyed');
 

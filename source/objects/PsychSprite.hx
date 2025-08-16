@@ -61,7 +61,27 @@ class PsychSprite extends FlxAnimate
 		return anim.curAnim.paused = value;
 	}
 
-	public function playAnim(name:String, forced:Bool = false, ?reverse:Bool = false, ?startFrame:Int = 0)
+	public function addAnim(name:String, prefix:String, ?indices:Array<Int> = null, ?fps:Float = 24, ?loop:Bool = false, ?flipX:Bool = false, ?flipY:Bool = false)
+	{
+		try // is there any better way to do this???
+		{
+			if(indices != null && indices.length > 0)
+				anim.addBySymbolIndices(name, prefix, indices, fps, loop, flipX, flipY);
+			else
+				anim.addBySymbol(name, prefix, fps, loop, flipX, flipY);
+
+			if(!hasAnimation(name)) throw new haxe.Exception('Failed to add Animate Symbol Animation!');
+		}
+		catch(e:Dynamic)
+		{
+			if(indices != null && indices.length > 0)
+				anim.addByIndices(name, prefix, indices, "", fps, loop, flipX, flipY);
+			else
+				anim.addByPrefix(name, prefix, fps, loop, flipX, flipY);
+		}
+	}
+
+	public function playAnim(name:String, ?forced:Bool = false, ?reverse:Bool = false, ?startFrame:Int = 0)
 	{
 		if(!hasAnimation(name)) return;
 

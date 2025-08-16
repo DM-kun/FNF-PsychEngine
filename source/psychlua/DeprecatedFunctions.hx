@@ -11,7 +11,7 @@ class DeprecatedFunctions
 	{
 		var lua:State = funk.lua;
 		// DEPRECATED, DONT MESS WITH THESE SHITS, ITS JUST THERE FOR BACKWARD COMPATIBILITY
-		Lua_helper.add_callback(lua, "addAnimationByIndicesLoop", function(obj:String, name:String, prefix:String, indices:String, framerate:Int = 24) {
+		Lua_helper.add_callback(lua, "addAnimationByIndicesLoop", function(obj:String, name:String, prefix:String, indices:String, framerate:Float = 24) {
 			FunkinLua.luaTrace("addAnimationByIndicesLoop is deprecated! Use addAnimationByIndices instead", false, true);
 			return LuaUtils.addAnimByIndices(obj, name, prefix, indices, framerate, true);
 		});
@@ -49,15 +49,15 @@ class DeprecatedFunctions
 			if(MusicBeatState.getVariables().exists(tag))
 				MusicBeatState.getVariables().get(tag).makeGraphic(width, height, CoolUtil.colorFromString(color));
 		});
-		Lua_helper.add_callback(lua, "luaSpriteAddAnimationByPrefix", function(tag:String, name:String, prefix:String, framerate:Int = 24, loop:Bool = true) {
+		Lua_helper.add_callback(lua, "luaSpriteAddAnimationByPrefix", function(tag:String, name:String, prefix:String, framerate:Float = 24, loop:Bool = true) {
 			FunkinLua.luaTrace("luaSpriteAddAnimationByPrefix is deprecated! Use addAnimationByPrefix instead", false, true);
 			if(MusicBeatState.getVariables().exists(tag)) {
 				var cock:PsychSprite = MusicBeatState.getVariables().get(tag);
-				cock.animation.addByPrefix(name, prefix, framerate, loop);
+				cock.addAnim(name, prefix, null, framerate, loop);
 				if(cock.isAnimationNull()) cock.playAnim(name, true);
 			}
 		});
-		Lua_helper.add_callback(lua, "luaSpriteAddAnimationByIndices", function(tag:String, name:String, prefix:String, indices:String, framerate:Int = 24) {
+		Lua_helper.add_callback(lua, "luaSpriteAddAnimationByIndices", function(tag:String, name:String, prefix:String, indices:String, framerate:Float = 24) {
 			FunkinLua.luaTrace("luaSpriteAddAnimationByIndices is deprecated! Use addAnimationByIndices instead", false, true);
 			if(MusicBeatState.getVariables().exists(tag)) {
 				var strIndices:Array<String> = indices.trim().split(',');
@@ -66,7 +66,7 @@ class DeprecatedFunctions
 					die.push(Std.parseInt(strIndices[i]));
 				}
 				var pussy:PsychSprite = MusicBeatState.getVariables().get(tag);
-				pussy.animation.addByIndices(name, prefix, die, '', framerate, false);
+				pussy.addAnim(name, prefix, die, framerate, false);
 				if(pussy.isAnimationNull()) pussy.playAnim(name, true);
 			}
 		});
