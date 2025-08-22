@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project>
+<project xmlns="http://lime.openfl.org/project/1.0.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://lime.openfl.org/project/1.0.4 http://lime.openfl.org/xsd/project-1.0.4.xsd" >
 	<!-- _________________________ Application Settings _________________________ -->
 
 	<app title="Friday Night Funkin': Psych Engine" file="PsychEngine" packageName="com.shadowmario.psychengine" package="com.shadowmario.psychengine" main="Main" version="0.2.8" company="ShadowMario" />
@@ -20,7 +20,7 @@
 
 	<!-- ______________________ PSYCH ENGINE CUSTOMIZATION ______________________ -->
 
-	<define name="officialBuild" if="release" />
+	<define name="officialBuild" />
 
 	<section if="officialBuild">
 		<define name="CHECK_FOR_UPDATES" />
@@ -69,7 +69,7 @@
 	<set name="BUILD_DIR" value="export/release" unless="debug" />
 	<set name="BUILD_DIR" value="export/32bit" if="32bits" />
 
-	<classpath name="source" />
+	<source path="source" />
 
 	<!-- __________________________ Game Assets & Etc. __________________________ -->
 
@@ -128,6 +128,10 @@
 	<haxelib name="flixel-addons" />
 	<haxelib name="flixel-animate" />
 	<haxelib name="tjson" />
+	<haxelib name="flxsvg" />
+
+	<haxelib name="hxvlc" if="VIDEOS_ALLOWED" />
+	<haxelib name="hxdiscord_rpc" if="DISCORD_ALLOWED" />
 
 	<section if="BASE_GAME_FILES">
 		<haxelib name="grig.audio" />
@@ -137,13 +141,14 @@
 	<!-- Psych stuff needed -->
 	<haxelib name="linc_luajit" if="LUA_ALLOWED" />
 	<haxelib name="hscript-iris" if="HSCRIPT_ALLOWED" />
-	<haxelib name="hxvlc" if="VIDEOS_ALLOWED" />
-	<haxelib name="hxdiscord_rpc" if="DISCORD_ALLOWED" />
 
 	<!-- Enables a terminal log prompt on debug builds -->
 	<haxelib name="hxcpp-debug-server" if="debug" />
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
+
+	<!-- Remove the legacy health system -->
+	<haxedef name="FLX_NO_HEALTH" />
 
 	<!-- Enable the Flixel core recording system -->
 	<!-- <haxedef name="FLX_RECORD" /> -->

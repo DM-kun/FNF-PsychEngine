@@ -384,11 +384,7 @@ class NoteSplash extends PsychSprite
 			final key:String = i.name;
 			if(i.prefix.length > 0 && key != null && key.length > 0)
 			{
-				addAnim(key, i.prefix, i.indices, i.fps[1], false);
-
-				if(i.offsets != null && i.offsets.length > 1) addOffset(key, i.offsets[0], i.offsets[1]);
-				else addOffset(key, 0, 0);
-
+				addAnim(key, i.prefix, i.indices, i.fps[1], false, false, false, i.offsets);
 				noteDataMap.set(i.noteData, key);
 			}
 		}

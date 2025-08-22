@@ -89,7 +89,7 @@ class Limo extends BaseStage
 	{
 		if(!ClientPrefs.data.lowQuality) {
 			grpLimoParticles.forEach(function(spr:BGSprite) {
-				if(spr.animation.curAnim.finished) {
+				if(spr.isAnimationFinished()) {
 					spr.kill();
 					grpLimoParticles.remove(spr, true);
 					spr.destroy();

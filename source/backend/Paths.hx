@@ -216,6 +216,12 @@ class Paths
 		return 'assets/$folderKey';
 	}
 
+	inline static public function svg(key:String, ?folder:String, ?modsAllowed:Bool = true)
+	{
+		key = Language.getFileTranslation('images/$key') + '.svg';
+		return getTextFromFile(key, folder, modsAllowed);
+	}
+
 	inline static public function sound(key:String, ?modsAllowed:Bool = true, ?playBeep:Bool = true):Sound
 		return returnSound('sounds/$key', null, modsAllowed, playBeep);
 
@@ -314,9 +320,9 @@ class Paths
 		return graph;
 	}
 
-	inline static public function getTextFromFile(key:String, ?modsAllowed:Bool = true):String
+	inline static public function getTextFromFile(key:String, ?parentFolder:String, ?modsAllowed:Bool = true):String
 	{
-		final path:String = getPath(key, TEXT, modsAllowed);
+		final path:String = getPath(key, TEXT, parentFolder, modsAllowed);
 		#if sys
 		return (FileSystem.exists(path)) ? File.getContent(path) : null;
 		#else

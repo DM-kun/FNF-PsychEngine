@@ -46,6 +46,8 @@ import states.LoadingState;
 
 import animate.*; //flixel-animate
 
+import flxsvg.FlxSvgSprite;
+
 //Flixel
 import flixel.sound.FlxSound;
 import flixel.FlxG;

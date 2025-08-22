@@ -171,13 +171,19 @@ class StageData
 							{
 								if(anim.anim == null || anim.name == null) continue;
 
-								spr.addAnim(anim.anim, anim.name, anim.indices, anim.fps, anim.loop);
+								final animName:String = anim.anim;
+								final animPrefix:String = anim.name;
+								final animIndices:Array<Int> = anim.indices;
+								final animFps:Float = anim.fps;
+								final animLoop:Bool = (anim.loop == true);
+								final animFlipX:Bool = (anim.flipX == true);
+								final animFlipY:Bool = (anim.flipY == true);
+								final animOffs:Array<Float> = anim.offsets;
 
-								if(anim.offsets != null) spr.addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);
-								else spr.addOffset(anim.anim, 0, 0);
+								spr.addAnim(animName, animPrefix, animIndices, animFps, animLoop, animFlipX, animFlipY, animOffs);
 
-								if(spr.isAnimationNull() || data.firstAnimation == anim.anim)
-									spr.playAnim(anim.anim, true);
+								if(spr.isAnimationNull() || data.firstAnimation == animName)
+									spr.playAnim(animName, true);
 							}
 						}
 						for(varName in ['antialiasing', 'flipX', 'flipY'])

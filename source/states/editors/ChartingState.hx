@@ -1180,7 +1180,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 							{
 								selectedNotes.remove(note);
 								note.colorTransform.redMultiplier = note.colorTransform.greenMultiplier = note.colorTransform.blueMultiplier = 1;
-								if(note.animation.curAnim != null) note.animation.curAnim.curFrame = 0;
+								if(!note.isAnimationNull()) note.anim.curAnim.curFrame = 0;
 							}
 							else selectedNotes.push(note);
 							onSelectNote();
@@ -1515,7 +1515,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 						if(selectedNotes.length == 1)
 							susLengthStepper.value = note.sustainLength;
 					}
-					note.animation.update(elapsed); //let selected notes be animated for better visibility
+					note.anim.update(elapsed); //let selected notes be animated for better visibility
 				}
 				note.colorTransform.redMultiplier = note.colorTransform.greenMultiplier = note.colorTransform.blueMultiplier = sineValue;
 			}
@@ -1663,7 +1663,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 			if(note == null || !note.exists) continue;
 
 			note.colorTransform.redMultiplier = note.colorTransform.greenMultiplier = note.colorTransform.blueMultiplier = 1;
-			if(note.animation.curAnim != null) note.animation.curAnim.curFrame = 0;
+			if(!note.isAnimationNull()) note.anim.curAnim.curFrame = 0;
 		}
 		selectedNotes = [];
 		onSelectNote();
@@ -5068,7 +5068,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					if(note.exists)
 					{
 						note.colorTransform.redMultiplier = note.colorTransform.greenMultiplier = note.colorTransform.blueMultiplier = 1;
-						if(note.animation.curAnim != null) note.animation.curAnim.curFrame = 0;
+						if(!note.isAnimationNull()) note.anim.curAnim.curFrame = 0;
 					}
 				}
 
@@ -5086,7 +5086,7 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 					if(event.exists)
 					{
 						event.colorTransform.redMultiplier = event.colorTransform.greenMultiplier = event.colorTransform.blueMultiplier = 1;
-						if(event.animation.curAnim != null) event.animation.curAnim.curFrame = 0;
+						if(!event.isAnimationNull()) event.anim.curAnim.curFrame = 0;
 					}
 				}
 			}

@@ -99,32 +99,16 @@ class MenuCharacter extends PsychSprite
 			{
 				if(fAnim.anim == null || fAnim.name == null) continue;
 
-				final animAnim:String = fAnim.anim;
-				final animName:String = fAnim.name;
+				final animName:String = fAnim.anim;
+				final animPrefix:String = fAnim.name;
 				final animIndices:Array<Int> = fAnim.indices;
 				final animFps:Float = fAnim.fps;
 				final animLoop:Bool = (fAnim.loop == true);
+				final animFlipX:Bool = (fAnim.flipX == true);
+				final animFlipY:Bool = (fAnim.flipY == true);
 				final animOffs:Array<Float> = fAnim.offsets;
 
-				try // is there any better way to do this???
-				{
-					if(animIndices != null && animIndices.length > 0)
-						anim.addBySymbolIndices(animAnim, animName, animIndices, animFps, animLoop);
-					else
-						anim.addBySymbol(animAnim, animName, animFps, animLoop);
-
-					if(!hasAnimation(animAnim)) throw new haxe.Exception('Failed to add Animate Symbol Animation!');
-				}
-				catch(e:Dynamic)
-				{
-					if(animIndices != null && animIndices.length > 0)
-						anim.addByIndices(animAnim, animName, animIndices, "", animFps, animLoop);
-					else
-						anim.addByPrefix(animAnim, animName, animFps, animLoop);
-				}
-
-				if(animOffs != null && animOffs.length > 1) addOffset(animAnim, animOffs[0], animOffs[1]);
-				else addOffset(animAnim, 0, 0);
+				addAnim(animName, animPrefix, animIndices, animFps, animLoop, animFlipX, animFlipY, animOffs);
 			}
 	}
 
@@ -138,8 +122,7 @@ class MenuCharacter extends PsychSprite
 			danced = !danced;
 			playAnim(danced ? 'danceRight' : 'danceLeft');
 		}
-		else if(hasAnimation('idle'))
-			playAnim('idle');
+		else playAnim('idle');
 	}
 
 	public var danceEveryNumBeats:Int = 2;

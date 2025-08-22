@@ -640,8 +640,8 @@ class NotesColorSubState extends MusicBeatSubstate
 		bigNote.shader = Note.globalRgbShaders[curSelectedNote].shader;
 		for (i in 0...Note.colArray.length)
 		{
-			if(!onPixel) bigNote.animation.addByPrefix('note$i', Note.colArray[i] + '0', 24, true);
-			else bigNote.animation.add('note$i', [i + 4], 24, true);
+			if(!onPixel) bigNote.addAnim('note$i', Note.colArray[i] + '0', null, 24, true);
+			else bigNote.anim.add('note$i', [i + 4], 12, true);
 		}
 		insert(members.indexOf(myNotes) + 1, bigNote);
 		_storedColor = getShaderColor();
@@ -655,12 +655,12 @@ class NotesColorSubState extends MusicBeatSubstate
 
 		for (note in myNotes)
 		{
-			var newAnim:String = curSelectedNote == note.ID ? 'confirm' : 'pressed';
+			final newAnim:String = curSelectedNote == note.ID ? 'confirm' : 'pressed';
 			note.alpha = (curSelectedNote == note.ID) ? 1 : 0.6;
-			if(note.animation.curAnim == null || note.animation.curAnim.name != newAnim) note.playAnim(newAnim, true);
-			if(instant) note.animation.curAnim.finish();
+			if(note.isAnimationNull() || note.getAnimationName() != newAnim) note.playAnim(newAnim, true);
+			if(instant) note.finishAnimation();
 		}
-		bigNote.animation.play('note$curSelectedNote', true);
+		bigNote.playAnim('note$curSelectedNote', true);
 		updateColors();
 	}
 
@@ -687,12 +687,9 @@ class NotesColorSubState extends MusicBeatSubstate
 		var strumRGB:RGBShaderReference = myNotes.members[curSelectedNote].rgbShader;
 		switch(curSelectedMode)
 		{
-			case 0:
-				getShader().r = strumRGB.r = color;
-			case 1:
-				getShader().g = strumRGB.g = color;
-			case 2:
-				getShader().b = strumRGB.b = color;
+			case 0: getShader().r = strumRGB.r = color;
+			case 1: getShader().g = strumRGB.g = color;
+			case 2: getShader().b = strumRGB.b = color;
 		}
 	}
 

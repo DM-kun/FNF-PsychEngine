@@ -16,6 +16,7 @@ class MetaNote extends Note
 	public function new(time:Float, data:Int, songData:Array<Dynamic>)
 	{
 		super(time, data, null, false, true);
+
 		this.songData = songData;
 		this.strumTime = time;
 		this.chartNoteData = data;
@@ -27,22 +28,18 @@ class MetaNote extends Note
 		this.songData[1] = v;
 		this.noteData = v % ChartingState.GRID_COLUMNS_PER_PLAYER;
 		this.mustPress = (v < ChartingState.GRID_COLUMNS_PER_PLAYER);
-		
-		if(!PlayState.isPixelStage)
-			loadNoteAnims();
-		else
-			loadPixelNoteAnims();
+
+		if(!PlayState.isPixelStage) loadNoteAnims();
+		else loadPixelNoteAnims();
 
 		if(Note.globalRgbShaders.contains(rgbShader.parent)) //Is using a default shader
 			rgbShader = new RGBShaderReference(this, Note.initializeGlobalRGBShader(noteData));
 
-		animation.play(Note.colArray[this.noteData % Note.colArray.length] + 'Scroll');
+		playAnim(Note.colArray[this.noteData % Note.colArray.length] + 'Scroll');
 		updateHitbox();
-		if(width > height)
-			setGraphicSize(ChartingState.GRID_SIZE);
-		else
-			setGraphicSize(0, ChartingState.GRID_SIZE);
 
+		if(width > height) setGraphicSize(ChartingState.GRID_SIZE);
+		else setGraphicSize(0, ChartingState.GRID_SIZE);
 		updateHitbox();
 	}
 
@@ -117,6 +114,7 @@ class MetaNote extends Note
 			sustainSprite.alpha = this.alpha;
 			sustainSprite.draw();
 		}
+
 		super.draw();
 
 		if(_noteTypeText != null && _noteTypeText.exists && _noteTypeText.visible)
@@ -144,7 +142,7 @@ class EventMetaNote extends MetaNote
 		this.isEvent = true;
 		events = eventData[1];
 		//trace('events: $events');
-		
+
 		loadGraphic(Paths.image('editors/eventIcon'));
 		setGraphicSize(ChartingState.GRID_SIZE);
 		updateHitbox();
@@ -154,7 +152,7 @@ class EventMetaNote extends MetaNote
 		eventText.scrollFactor.x = 0;
 		updateEventText();
 	}
-	
+
 	override function draw()
 	{
 		if(eventText != null && eventText.exists && eventText.visible)
@@ -163,6 +161,7 @@ class EventMetaNote extends MetaNote
 			eventText.alpha = this.alpha;
 			eventText.draw();
 		}
+
 		super.draw();
 	}
 

@@ -640,12 +640,12 @@ class PhillyStreets extends BaseStage
 
 		if(lightsStop)
 		{
-			phillyTraffic.animation.play('greentored');
+			phillyTraffic.playAnim('greentored');
 			changeInterval = 20;
 		}
 		else
 		{
-			phillyTraffic.animation.play('redtogreen');
+			phillyTraffic.playAnim('redtogreen');
 			changeInterval = 30;
 
 			if(carWaiting == true) finishCarLights(phillyCars);
@@ -675,7 +675,7 @@ class PhillyStreets extends BaseStage
 		carInterruptable = false;
 		FlxTween.cancelTweensOf(sprite);
 		var variant:Int = FlxG.random.int(1,4);
-		sprite.animation.play('car' + variant);
+		sprite.playAnim('car' + variant);
 		var extraOffset = [0, 0];
 		var duration:Float = 2;
 
@@ -716,7 +716,7 @@ class PhillyStreets extends BaseStage
 		carInterruptable = false;
 		FlxTween.cancelTweensOf(sprite);
 		var variant:Int = FlxG.random.int(1,4);
-		sprite.animation.play('car' + variant);
+		sprite.playAnim('car' + variant);
 
 		var extraOffset = [0, 0];
 		var duration:Float = 2;
@@ -749,12 +749,12 @@ class PhillyStreets extends BaseStage
 		FlxTween.quadPath(sprite, path, duration, true, {onComplete: function(_) carInterruptable = true});
 	}
 
-	function driveCarBack(sprite:FlxSprite):Void
+	function driveCarBack(sprite:BGSprite):Void
 	{
 		car2Interruptable = false;
 		FlxTween.cancelTweensOf(sprite);
 		var variant:Int = FlxG.random.int(1,4);
-		sprite.animation.play('car' + variant);
+		sprite.playAnim('car' + variant);
 
 		var extraOffset = [0, 0];
 		var duration:Float = 2;
@@ -851,35 +851,34 @@ class PhillyStreets extends BaseStage
 	{
 		if(ClientPrefs.data.lowQuality) return;
 
-		var casing:FlxSprite = new FlxSprite(boyfriend.x + 250, boyfriend.y + 100);
+		var casing:PsychSprite = new PsychSprite(boyfriend.x + 250, boyfriend.y + 100);
 		casing.frames = casingFrames;
-		casing.animation.addByPrefix('pop', 'Pop0', 24, false);
-		casing.animation.addByPrefix('idle', 'Bullet0', 24, true);
-		casing.animation.play('pop', true);
+		casing.addAnim('pop', 'Pop0', null, 24, false);
+		casing.addAnim('idle', 'Bullet0', null, 24, true);
+		casing.playAnim('pop', true);
 		
-		casing.animation.onFrameChange.add(function(name:String, frameNumber:Int, frameIndex:Int)
+		casing.anim.onFrameChange.add(function(name:String, frameNumber:Int, frameIndex:Int)
 		{
 			if (name == 'pop' && frameNumber == 40)
 			{
 				// Get the end position of the bullet dynamically.
 				casing.x = casing.x + casing.frame.offset.x - 1;
 				casing.y = casing.y + casing.frame.offset.y + 1;
-		
+
 				casing.angle = 125.1; // Copied from FLA
-		
+
 				// Okay this is the neat part, we can set the velocity and angular acceleration to make it roll without editing update().
 				var randomFactorA:Float = FlxG.random.float(3, 10);
 				var randomFactorB:Float = FlxG.random.float(1.0, 2.0);
 				casing.velocity.x = 20 * randomFactorB;
 				casing.drag.x = randomFactorA * randomFactorB;
-		
-		
+
 				casing.angularVelocity = 100;
 				// Calculated to ensure angular acceleration is maintained through the whole roll.
 				casing.angularDrag = (casing.drag.x / casing.velocity.x) * 100;
-		
-				casing.animation.play('idle');
-				casing.animation.onFrameChange.removeAll(); // Save performance.
+
+				casing.playAnim('idle');
+				casing.anim.onFrameChange.removeAll(); // Save performance.
 			}
 		});
 		casingGroup.add(casing);

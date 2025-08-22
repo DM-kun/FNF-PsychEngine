@@ -56,7 +56,8 @@ class FunkinLua
 	public var callbacks:Map<String, Dynamic> = new Map<String, Dynamic>();
 	public static var customFunctions:Map<String, Dynamic> = new Map<String, Dynamic>();
 
-	public function new(scriptName:String) {
+	public function new(scriptName:String)
+	{
 		lua = LuaL.newstate();
 		LuaL.openlibs(lua);
 
@@ -67,7 +68,6 @@ class FunkinLua
 
 		this.scriptName = scriptName.trim();
 		var game:PlayState = PlayState.instance;
-		if(game != null) game.luaArray.push(this);
 
 		var myFolder:Array<String> = this.scriptName.split('/');
 		#if MODS_ALLOWED
@@ -250,9 +250,7 @@ class FunkinLua
 		});
 
 		Lua_helper.add_callback(lua, "callScript", function(scriptFile:String, funcName:String, ?args:Array<Dynamic> = null) {
-			if(args == null){
-				args = [];
-			}
+			if(args == null) args = [];
 
 			var luaPath:String = findScript(scriptFile);
 			if(luaPath != null)
@@ -314,7 +312,7 @@ class FunkinLua
 							return;
 						}
 
-				new FunkinLua(luaPath);
+				PlayState.instance.initLuaScript(luaPath);
 				return;
 			}
 			luaTrace("addLuaScript: Script doesn't exist!", false, false, FlxColor.RED);

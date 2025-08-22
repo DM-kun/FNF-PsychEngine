@@ -9,6 +9,7 @@ haxelib install openfl 9.3.3
 haxelib install flixel
 haxelib install flixel-addons
 haxelib install flixel-tools
+haxelib install flxsvg
 haxelib install tjson
 haxelib install hxdiscord_rpc
 haxelib install hxvlc --skip-dependencies

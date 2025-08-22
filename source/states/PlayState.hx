@@ -143,9 +143,7 @@ class PlayState extends MusicBeatState
 	public var vocals:FlxSound;
 	public var opponentVocals:FlxSound;
 
-	public var boyfriendMap:Map<String, Character> = new Map<String, Character>();
-	public var dadMap:Map<String, Character> = new Map<String, Character>();
-	public var gfMap:Map<String, Character> = new Map<String, Character>();
+	public var characterMap:Map<String, Character> = new Map<String, Character>();
 
 	public var boyfriendGroup:FlxSpriteGroup;
 	public var dadGroup:FlxSpriteGroup;
@@ -190,14 +188,16 @@ class PlayState extends MusicBeatState
 	public static var chartingMode:Bool = false;
 
 	//Gameplay settings
+	public var pressMissDamage:Float = 0.05;
 	public var healthGain:Float = 1;
 	public var healthLoss:Float = 1;
 
-	public var guitarHeroSustains:Bool = false;
 	public var instakillOnMiss:Bool = false;
-	public var cpuControlled:Bool = false;
 	public var practiceMode:Bool = false;
-	public var pressMissDamage:Float = 0.05;
+	public var cpuControlled:Bool = false;
+
+	public var guitarHeroSustains:Bool = false;
+	public var ghostTapping:Bool = false;
 
 	public var botplaySine:Float = 0;
 	public var botplayTxt:FlxText;
@@ -306,18 +306,19 @@ class PlayState extends MusicBeatState
 		practiceMode = ClientPrefs.getGameplaySetting('practice');
 		cpuControlled = ClientPrefs.getGameplaySetting('botplay');
 		guitarHeroSustains = ClientPrefs.data.guitarHeroSustains;
+		ghostTapping = ClientPrefs.data.ghostTapping;
 
 		camGame = initPsychCamera();
-		camHUD = new PsychCamera();
-		camOther = new PsychCamera();
-		camHUD.bgColor.alpha = 0;
-		camOther.bgColor.alpha = 0;
 
+		camHUD = new PsychCamera();
+		camHUD.bgColor.alpha = 0;
 		FlxG.cameras.add(camHUD, false);
+
+		camOther = new PsychCamera();
+		camOther.bgColor.alpha = 0;
 		FlxG.cameras.add(camOther, false);
 
-		persistentUpdate = true;
-		persistentDraw = true;
+		persistentUpdate = persistentDraw = true;
 
 		Conductor.mapBPMChanges(SONG);
 		Conductor.bpm = SONG.bpm;
@@ -342,13 +343,13 @@ class PlayState extends MusicBeatState
 
 		curStage = SONG.stage;
 
-		var stageData:StageFile = StageData.getStageFile(curStage);
+		final stageData:StageFile = StageData.getStageFile(curStage);
 		defaultCamZoom = stageData.defaultZoom;
 
 		stageUI = "normal";
-		if (stageData.stageUI != null && stageData.stageUI.trim().length > 0)
+		if(stageData.stageUI != null && stageData.stageUI.trim().length > 0)
 			stageUI = stageData.stageUI;
-		else if (stageData.isPixelStage == true) //Backward compatibility
+		else if(stageData.isPixelStage == true) //Backward compatibility
 			stageUI = "pixel";
 
 		BF_X = stageData.boyfriend[0];
@@ -377,7 +378,7 @@ class PlayState extends MusicBeatState
 		dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
 		gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
 
-		switch (curStage)
+		switch(curStage)
 		{
 			case 'stage': new StageWeek1(); 			//Week 1
 			case 'spooky': new Spooky();				//Week 2
@@ -692,41 +693,22 @@ class PlayState extends MusicBeatState
 			FlxColor.fromRGB(boyfriend.healthColorArray[0], boyfriend.healthColorArray[1], boyfriend.healthColorArray[2]));
 	}
 
-	public function addCharacterToList(newCharacter:String, type:Int)
+	public function addCharacterToList(character:String, type:Int)
 	{
+		if(characterMap.exists(character) || (type == 2 && gf == null)) return;
+
+		var newCharacter:Character = new Character(0, 0, character, type == 0);
+		if(type == 2) newCharacter.scrollFactor.set(0.95, 0.95);
+		characterMap.set(character, newCharacter);
 		switch(type)
 		{
-			case 0:
-				if(boyfriendMap.exists(newCharacter)) return;
-
-				var newBoyfriend:Character = new Character(0, 0, newCharacter, true);
-				boyfriendMap.set(newCharacter, newBoyfriend);
-				boyfriendGroup.add(newBoyfriend);
-				startCharacterPos(newBoyfriend);
-				newBoyfriend.alpha = 0.00001;
-				startCharacterScripts(newBoyfriend.curCharacter);
-
-			case 1:
-				if(dadMap.exists(newCharacter)) return;
-
-				var newDad:Character = new Character(0, 0, newCharacter);
-				dadMap.set(newCharacter, newDad);
-				dadGroup.add(newDad);
-				startCharacterPos(newDad, true);
-				newDad.alpha = 0.00001;
-				startCharacterScripts(newDad.curCharacter);
-
-			case 2:
-				if(gf == null || gfMap.exists(newCharacter)) return;
-
-				var newGf:Character = new Character(0, 0, newCharacter);
-				newGf.scrollFactor.set(0.95, 0.95);
-				gfMap.set(newCharacter, newGf);
-				gfGroup.add(newGf);
-				startCharacterPos(newGf);
-				newGf.alpha = 0.00001;
-				startCharacterScripts(newGf.curCharacter);
+			case 0: boyfriendGroup.add(newCharacter);
+			case 1: dadGroup.add(newCharacter);
+			case 2: gfGroup.add(newCharacter);
 		}
+		startCharacterPos(newCharacter, type == 1);
+		newCharacter.alpha = 0.00001;
+		startCharacterScripts(newCharacter.curCharacter);
 	}
 
 	function startCharacterScripts(name:String)
@@ -755,7 +737,7 @@ class PlayState extends MusicBeatState
 
 		if(doPush)
 		{
-			for (script in luaArray)
+			for(script in luaArray)
 			{
 				if(script.scriptName == luaFile)
 				{
@@ -2203,17 +2185,18 @@ class PlayState extends MusicBeatState
 						if(Math.isNaN(charType)) charType = 0;
 				}
 
+				if(!characterMap.exists(value2)) addCharacterToList(value2, charType);
+
 				switch(charType)
 				{
 					case 0:
 						if(boyfriend.curCharacter != value2)
 						{
-							if(!boyfriendMap.exists(value2)) addCharacterToList(value2, charType);
-
 							final lastAlpha:Float = boyfriend.alpha;
 							final lastShader:FlxShader = boyfriend.shader;
 							boyfriend.alpha = 0.00001;
-							boyfriend = boyfriendMap.get(value2);
+							boyfriend = characterMap.get(value2);
+							boyfriend.isPlayer = true;
 							boyfriend.alpha = lastAlpha;
 							boyfriend.shader = lastShader;
 							iconP1.changeIcon(boyfriend.healthIcon);
@@ -2223,13 +2206,12 @@ class PlayState extends MusicBeatState
 					case 1:
 						if(dad.curCharacter != value2)
 						{
-							if(!dadMap.exists(value2)) addCharacterToList(value2, charType);
-
 							final wasGf:Bool = dad.curCharacter.startsWith('gf-') || dad.curCharacter == 'gf';
 							final lastAlpha:Float = dad.alpha;
 							final lastShader:FlxShader = dad.shader;
 							dad.alpha = 0.00001;
-							dad = dadMap.get(value2);
+							dad = characterMap.get(value2);
+							dad.isPlayer = false;
 							if(!dad.curCharacter.startsWith('gf-') && dad.curCharacter != 'gf')
 							{
 								if(wasGf && gf != null) gf.visible = true;
@@ -2246,12 +2228,11 @@ class PlayState extends MusicBeatState
 
 						if(gf.curCharacter != value2)
 						{
-							if(!gfMap.exists(value2)) addCharacterToList(value2, charType);
-
 							final lastAlpha:Float = gf.alpha;
 							final lastShader:FlxShader = gf.shader;
 							gf.alpha = 0.00001;
-							gf = gfMap.get(value2);
+							gf = characterMap.get(value2);
+							gf.isPlayer = false;
 							gf.alpha = lastAlpha;
 							gf.shader = lastShader;
 						}
@@ -3080,14 +3061,11 @@ class PlayState extends MusicBeatState
 					if(canPlay) char.playAnim(animToPlay, true);
 					char.holdTimer = 0;
 
-					if(note.noteType == 'Hey!')
+					if(note.noteType == 'Hey!' && char.hasAnimation(animCheck))
 					{
-						if(char.hasAnimation(animCheck))
-						{
-							char.playAnim(animCheck, true);
-							char.specialAnim = true;
-							char.heyTimer = 0.6;
-						}
+						char.playAnim(animCheck, true);
+						char.specialAnim = true;
+						char.heyTimer = 0.6;
 					}
 				}
 			}

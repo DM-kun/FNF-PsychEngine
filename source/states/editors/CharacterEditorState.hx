@@ -509,7 +509,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 			addedAnim.flipX = animationFlipXCheckBox.checked;
 			addedAnim.flipY = animationFlipYCheckBox.checked;
 			addedAnim.offsets = lastOffsets;
-			addAnimation(addedAnim.anim, addedAnim.name, addedAnim.indices, addedAnim.fps, addedAnim.loop, addedAnim.flipX, addedAnim.flipY, addedAnim.offsets);
+			character.addAnim(addedAnim.anim, addedAnim.name, addedAnim.indices, addedAnim.fps, addedAnim.loop, addedAnim.flipX, addedAnim.flipY, addedAnim.offsets);
 			character.animationsArray.push(addedAnim);
 
 			reloadAnimList();
@@ -770,8 +770,8 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		{
 			if(anim.anim == null || anim.name == null) continue;
 
-			final animAnim:String = anim.anim;
-			final animName:String = anim.name;
+			final animName:String = anim.anim;
+			final animPrefix:String = anim.name;
 			final animIndices:Array<Int> = anim.indices;
 			final animFps:Float = anim.fps;
 			final animLoop:Bool = (anim.loop == true);
@@ -779,7 +779,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 			final animFlipY:Bool = (anim.flipY == true);
 			final animOffs:Array<Float> = anim.offsets;
 
-			addAnimation(animAnim, animName, animIndices, animFps, animLoop, animFlipX, animFlipY, animOffs);
+			character.addAnim(animName, animPrefix, animIndices, animFps, animLoop, animFlipX, animFlipY, animOffs);
 		}
 
 		if(anims.length > 0)
@@ -980,7 +980,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 				}
 
 				txt = 'Frames: ( $frames / ${length-1} )';
-				//if(character.animation.curAnim.paused) txt += ' - PAUSED';
+				//if(character.animPaused) txt += ' - PAUSED';
 				clr = FlxColor.WHITE;
 			}
 		}
@@ -1129,14 +1129,6 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 	{
 		return (name != 'bf' && !name.startsWith('bf-') && !name.endsWith('-player') && !name.endsWith('-playable') && !name.endsWith('-dead')) ||
 				name.endsWith('-opponent') || name.startsWith('gf-') || name.endsWith('-gf') || name == 'gf';
-	}
-
-	function addAnimation(anim:String, name:String, indices:Array<Int>, fps:Float, loop:Bool, flipX:Bool, flipY:Bool, offsets:Array<Float>)
-	{
-		character.addAnim(anim, name, indices, fps, loop, flipX, flipY);
-
-		if(offsets != null && offsets.length > 1) character.addOffset(anim, offsets[0], offsets[1]);
-		else character.addOffset(anim, 0, 0);
 	}
 
 	inline function newAnim(anim:String, name:String):AnimArray

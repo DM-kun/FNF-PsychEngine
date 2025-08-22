@@ -57,7 +57,7 @@ class Mall extends BaseStage
 					case 'bf' | 'boyfriend' | '0':
 						return;
 				}
-				bottomBoppers.animation.play('hey', true);
+				bottomBoppers.playAnim('hey', true);
 				bottomBoppers.heyTimer = flValue2;
 		}
 	}

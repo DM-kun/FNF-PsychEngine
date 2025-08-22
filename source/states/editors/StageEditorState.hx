@@ -401,13 +401,9 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 				for (num => anim in copiedMeta.animations)
 				{
 					if(anim == null || anim.anim == null) continue;
-	
-					copiedSpr.addAnim(anim.anim, anim.name, anim.indices, anim.fps, anim.loop, anim.flipX, anim.flipY);
-	
-					if(anim.offsets != null && anim.offsets.length > 1)
-						copiedSpr.addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);
-					else copiedSpr.addOffset(anim.anim, 0, 0);
-	
+
+					copiedSpr.addAnim(anim.anim, anim.name, anim.indices, anim.fps, anim.loop, anim.flipX, anim.flipY, anim.offsets);
+
 					if(copiedSpr.isAnimationNull() || copiedMeta.firstAnimation == anim.anim)
 						copiedSpr.playAnim(anim.anim, true);
 				}
@@ -421,7 +417,7 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		buttonDuplicate.normalStyle.bgColor = FlxColor.BLUE;
 		buttonDuplicate.normalStyle.textColor = FlxColor.WHITE;
 		tab_group.add(buttonDuplicate);
-	
+
 		var buttonDelete:PsychUIButton = new PsychUIButton(buttonX, buttonY + 120, 'Delete', function()
 		{
 			var selected:Int = spriteListRadioGroup.checked;
@@ -2112,7 +2108,7 @@ class StageEditorAnimationSubstate extends MusicBeatSubstate {
 				{
 					lastOffsets = anim.offsets;
 					cast (target.sprite, PsychSprite).animOffsets.remove(animationInputText.text);
-					target.sprite.animation.remove(animationInputText.text);
+					target.sprite.anim.remove(animationInputText.text);
 					target.animations.remove(anim);
 				}
 
@@ -2125,10 +2121,7 @@ class StageEditorAnimationSubstate extends MusicBeatSubstate {
 				offsets: lastOffsets
 			};
 
-			target.sprite.addAnim(addedAnim.anim, addedAnim.name, addedAnim.indices, addedAnim.fps, addedAnim.loop, addedAnim.flipX, addedAnim.flipY);
-
-			if(addedAnim.offsets != null && addedAnim.offsets.length > 1) target.sprite.addOffset(addedAnim.anim, addedAnim.offsets[0], addedAnim.offsets[1]);
-			else target.sprite.addOffset(addedAnim.anim, 0, 0);
+			target.sprite.addAnim(addedAnim.anim, addedAnim.name, addedAnim.indices, addedAnim.fps, addedAnim.loop, addedAnim.flipX, addedAnim.flipY, addedAnim.offsets);
 
 			target.animations.push(addedAnim);
 			reloadAnimList();
@@ -2162,7 +2155,7 @@ class StageEditorAnimationSubstate extends MusicBeatSubstate {
 						updateTextColors();
 					}
 					else if(target.animations.length < 1)
-						target.sprite.animation.curAnim = null;
+						target.sprite.anim.curAnim = null;
 
 					trace('Removed animation: ' + animationInputText.text);
 					reloadAnimList();

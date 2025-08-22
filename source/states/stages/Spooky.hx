@@ -40,28 +40,21 @@ class Spooky extends BaseStage
 	var lightningOffset:Int = 8;
 	override function beatHit()
 	{
-		if (FlxG.random.bool(10) && curBeat > lightningStrikeBeat + lightningOffset)
-		{
+		if(FlxG.random.bool(10) && curBeat > lightningStrikeBeat + lightningOffset)
 			lightningStrikeShit();
-		}
 	}
 
 	function lightningStrikeShit():Void
 	{
 		FlxG.sound.play(Paths.soundRandom('thunder_', 1, 2));
-		if(!ClientPrefs.data.lowQuality) halloweenBG.animation.play('halloweem bg lightning strike');
+		if(!ClientPrefs.data.lowQuality) halloweenBG.playAnim('halloweem bg lightning strike');
 
 		lightningStrikeBeat = curBeat;
 		lightningOffset = FlxG.random.int(8, 24);
 
-		if(boyfriend.hasAnimation('scared'))
-			boyfriend.playAnim('scared', true);
-
-		if(dad.hasAnimation('scared'))
-			dad.playAnim('scared', true);
-
-		if(gf != null && gf.hasAnimation('scared'))
-			gf.playAnim('scared', true);
+		boyfriend.playAnim('scared', true);
+		dad.playAnim('scared', true);
+		if(gf != null) gf.playAnim('scared', true);
 
 		if(ClientPrefs.data.camZooms) {
 			FlxG.camera.zoom += 0.015;

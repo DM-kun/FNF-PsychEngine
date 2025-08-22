@@ -51,9 +51,8 @@ class GameOverSubstate extends MusicBeatSubstate
 
 	var charX:Float = 0;
 	var charY:Float = 0;
+	var overlay:PsychSprite;
 
-	var overlay:FlxSprite;
-	var overlayConfirmOffsets:FlxPoint = FlxPoint.get();
 	override function create()
 	{
 		instance = this;
@@ -87,12 +86,12 @@ class GameOverSubstate extends MusicBeatSubstate
 
 		if(characterName == 'pico-dead')
 		{
-			overlay = new FlxSprite(boyfriend.x + 205, boyfriend.y - 80);
+			overlay = new PsychSprite(boyfriend.x + 205, boyfriend.y - 80);
 			overlay.frames = Paths.getSparrowAtlas('Pico_Death_Retry');
-			overlay.animation.addByPrefix('deathLoop', 'Retry Text Loop', 24, true);
-			overlay.animation.addByPrefix('deathConfirm', 'Retry Text Confirm', 24, false);
+			overlay.addAnim('deathLoop', 'Retry Text Loop', null, 24, true);
+			overlay.addAnim('deathConfirm', 'Retry Text Confirm', null, 24, false);
+			overlay.addOffset('deathConfirm', 250, 200);
 			overlay.antialiasing = ClientPrefs.data.antialiasing;
-			overlayConfirmOffsets.set(250, 200);
 			overlay.visible = false;
 			add(overlay);
 
@@ -104,7 +103,7 @@ class GameOverSubstate extends MusicBeatSubstate
 						if(frameNumber >= 36 - 1)
 						{
 							overlay.visible = true;
-							overlay.animation.play('deathLoop');
+							overlay.playAnim('deathLoop');
 							boyfriend.anim.onFrameChange.removeAll();
 						}
 					default:
@@ -141,10 +140,10 @@ class GameOverSubstate extends MusicBeatSubstate
 		if (!boyfriend.isAnimationNull() && boyfriend.getAnimationName() == 'firstDeath' && boyfriend.isAnimationFinished())
 		{
 			boyfriend.playAnim('deathLoop');
-			if(overlay != null && overlay.animation.exists('deathLoop'))
+			if(overlay != null && overlay.hasAnimation('deathLoop'))
 			{
 				overlay.visible = true;
-				overlay.animation.play('deathLoop');
+				overlay.playAnim('deathLoop');
 			}
 			justPlayedLoop = true;
 		}
@@ -217,11 +216,10 @@ class GameOverSubstate extends MusicBeatSubstate
 			else if(boyfriend.hasAnimation('deathLoop'))
 				boyfriend.playAnim('deathLoop', true);
 
-			if(overlay != null && overlay.animation.exists('deathConfirm'))
+			if(overlay != null && overlay.hasAnimation('deathConfirm'))
 			{
 				overlay.visible = true;
-				overlay.animation.play('deathConfirm');
-				overlay.offset.set(overlayConfirmOffsets.x, overlayConfirmOffsets.y);
+				overlay.playAnim('deathConfirm');
 			}
 			FlxG.sound.music.stop();
 			FlxG.sound.play(Paths.music(endSoundName));

@@ -61,7 +61,7 @@ class PsychSprite extends FlxAnimate
 		return anim.curAnim.paused = value;
 	}
 
-	public function addAnim(name:String, prefix:String, ?indices:Array<Int> = null, ?fps:Float = 24, ?loop:Bool = false, ?flipX:Bool = false, ?flipY:Bool = false)
+	public function addAnim(name:String, prefix:String, ?indices:Array<Int> = null, ?fps:Float = 24, ?loop:Bool = false, ?flipX:Bool = false, ?flipY:Bool = false, ?offsets:Array<Float> = null)
 	{
 		try // is there any better way to do this???
 		{
@@ -79,6 +79,9 @@ class PsychSprite extends FlxAnimate
 			else
 				anim.addByPrefix(name, prefix, fps, loop, flipX, flipY);
 		}
+
+		if(offsets != null && offsets.length > 1) addOffset(name, offsets[0], offsets[1]);
+		else addOffset(name, 0, 0);
 	}
 
 	public function playAnim(name:String, ?forced:Bool = false, ?reverse:Bool = false, ?startFrame:Int = 0)

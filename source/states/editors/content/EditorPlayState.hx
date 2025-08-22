@@ -710,7 +710,7 @@ class EditorPlayState extends MusicBeatSubstate
 		Conductor.songPosition = lastTime;
 
 		var spr:StrumNote = playerStrums.members[key];
-		if(spr != null && spr.animation.curAnim.name != 'confirm')
+		if(spr != null && spr.getAnimationName() != 'confirm')
 		{
 			spr.playAnim('pressed');
 			spr.resetAnim = 0;

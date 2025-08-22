@@ -261,7 +261,7 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 			}
 
 			if(FlxG.keys.justPressed.SPACE && characterTypeRadio.checked == 1) {
-				grpWeekCharacters.members[characterTypeRadio.checked].animation.play('confirm', true);
+				grpWeekCharacters.members[characterTypeRadio.checked].playAnim('confirm', true);
 			}
 		}
 		else ClientPrefs.toggleVolumeKeys(false);

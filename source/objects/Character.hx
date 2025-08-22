@@ -107,8 +107,7 @@ class Character extends PsychSprite
 		anim.onFinish.add(function(animName:String)
 		{
 			specialAnim = false;
-			if(hasAnimation('$animName-loop') && !debugMode)
-				playAnim('$animName-loop');
+			if(!debugMode) playAnim('$animName-loop');
 		});
 
 		switch(curCharacter)
@@ -207,9 +206,7 @@ class Character extends PsychSprite
 				final animFlipY:Bool = (fAnim.flipY == true);
 				final animOffs:Array<Float> = fAnim.offsets;
 
-				addAnim(animName, animPrefix, animIndices, animFps, animLoop, animFlipX, animFlipY);
-				if(animOffs != null && animOffs.length > 1) addOffset(animName, animOffs[0], animOffs[1]);
-				else addOffset(animName, 0, 0);
+				addAnim(animName, animPrefix, animIndices, animFps, animLoop, animFlipX, animFlipY, animOffs);
 			}
 
 		//trace('Loaded file to character ' + curCharacter);
@@ -286,8 +283,7 @@ class Character extends PsychSprite
 				danced = !danced;
 				playAnim((danced ? 'danceRight' : 'danceLeft') + idleSuffix);
 			}
-			else if(hasAnimation('idle' + idleSuffix))
-				playAnim('idle' + idleSuffix);
+			else playAnim('idle' + idleSuffix);
 		}
 	}
 
@@ -296,7 +292,7 @@ class Character extends PsychSprite
 	public function recalculateDanceIdle()
 	{
 		final lastDanceIdle:Bool = danceIdle;
-		danceIdle = (hasAnimation('danceLeft' + idleSuffix) && hasAnimation('danceRight' + idleSuffix));
+		danceIdle = (hasAnimation('danceLeft$idleSuffix') && hasAnimation('danceRight$idleSuffix'));
 
 		if(settingCharacterUp) danceEveryNumBeats = (danceIdle ? 1 : 2);
 		else if(lastDanceIdle != danceIdle)
