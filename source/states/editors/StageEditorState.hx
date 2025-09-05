@@ -1864,10 +1864,8 @@ class StageEditorMetaSprite
 		{
 			switch(type)
 			{
-				case 'sprite':
-					sprite.loadGraphic(Paths.image(v));
-				case 'animatedSprite':
-					sprite.frames = Paths.getMultiAtlas(v.split(','));
+				case 'sprite': sprite.loadGraphic(Paths.image(v));
+				case 'animatedSprite': sprite.frames = Paths.getMultiAnimateAtlas(v.split(','));
 			}
 		}
 		catch (e:Dynamic) {}

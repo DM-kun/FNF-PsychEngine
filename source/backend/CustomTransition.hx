@@ -2,12 +2,19 @@ package backend;
 
 import flixel.util.FlxGradient;
 
+#if HSCRIPT_ALLOWED
+import psychlua.HScript;
+import crowplexus.iris.Iris;
+import crowplexus.hscript.Expr.Error as IrisError;
+import crowplexus.hscript.Printer;
+#end
+
 class CustomTransition extends MusicBeatSubstate
 {
 	public static var onFinish:Void->Void;
 	var camTransition:PsychCamera; // so the camera will be on top!
 
-	var finished:Bool = false;
+	public var finished:Bool = false;
 	var transGradient:FlxSprite;
 	var transBlack:FlxSprite;
 
@@ -20,6 +27,10 @@ class CustomTransition extends MusicBeatSubstate
 		super();
 	}
 
+	#if HSCRIPT_ALLOWED
+	var hscript:HScript;
+	#end
+
 	override function create()
 	{
 		camTransition = new PsychCamera();
@@ -27,6 +38,41 @@ class CustomTransition extends MusicBeatSubstate
 		FlxG.cameras.add(camTransition, false);
 
 		cameras = [camTransition];
+
+		#if HSCRIPT_ALLOWED
+		if(Mods.currentModDirectory != null && Mods.currentModDirectory.trim().length > 0)
+		{
+			var scriptPath:String = 'mods/${Mods.currentModDirectory}/data/Transition.hx'; //mods/My-Mod/data/Transition.hx
+			if(!FileSystem.exists(scriptPath)) scriptPath = 'mods/data/Transition.hx';
+			if(FileSystem.exists(scriptPath))
+			{
+				try
+				{
+					hscript = new HScript(null, scriptPath);
+					hscript.set('finished', finished);
+	
+					if(hscript.exists('onCreate'))
+					{
+						hscript.call('onCreate');
+						trace('initialized hscript interp successfully: $scriptPath');
+						return super.create();
+					}
+					else
+					{
+						trace('"$scriptPath" contains no \"onCreate" function, stopping script.');
+					}
+				}
+				catch(e:IrisError)
+				{
+					var pos:HScriptInfos = cast {fileName: scriptPath, showLine: false};
+					Iris.error(Printer.errorToString(e, false), pos);
+					var hscript:HScript = cast (Iris.instances.get(scriptPath), HScript);
+				}
+				if(hscript != null) hscript.destroy();
+				hscript = null;
+			}
+		}
+		#end
 
 		final width:Int = Std.int(FlxG.width / Math.max(camera.zoom, 0.001));
 		final height:Int = Std.int(FlxG.height / Math.max(camera.zoom, 0.001));
@@ -39,6 +85,7 @@ class CustomTransition extends MusicBeatSubstate
 		add(transGradient);
 
 		transBlack = new FlxSprite().makeGraphic(1, 1, FlxColor.BLACK);
+		transBlack.antialiasing = false;
 		transBlack.scale.set(width, height + 400);
 		transBlack.updateHitbox();
 		transBlack.scrollFactor.set();
@@ -56,6 +103,14 @@ class CustomTransition extends MusicBeatSubstate
 		super.update(elapsed);
 
 		if(finished) close();
+		
+		#if HSCRIPT_ALLOWED
+		if(hscript != null)
+		{
+			if(hscript.exists('onUpdate')) hscript.call('onUpdate', [elapsed]);
+			return;
+		}
+		#end
 
 		final height:Float = FlxG.height * Math.max(camera.zoom, 0.001);
 		final targetPos:Float = transGradient.height + 50 * Math.max(camera.zoom, 0.001);
@@ -73,6 +128,13 @@ class CustomTransition extends MusicBeatSubstate
 	override function close():Void
 	{
 		super.close();
+		
+		#if HSCRIPT_ALLOWED
+		if(hscript != null && hscript.exists('onClose'))
+		{
+			hscript.call('onClose');
+		}
+		#end
 
 		if(onFinish != null)
 		{
@@ -80,4 +142,17 @@ class CustomTransition extends MusicBeatSubstate
 			onFinish = null;
 		}
 	}
+
+	#if HSCRIPT_ALLOWED
+	override function destroy()
+	{
+		if(hscript != null)
+		{
+			if(hscript.exists('onDestroy')) hscript.call('onDestroy');
+			hscript.destroy();
+		}
+		hscript = null;
+		super.destroy();
+	}
+	#end
 }

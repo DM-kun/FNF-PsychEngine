@@ -17,14 +17,14 @@ class FlxAnimateFunctions
 			}
 
 			var mySprite:PsychSprite = new PsychSprite(x, y);
-			if(loadFolder != null) mySprite.frames = Paths.getMultiAtlas(loadFolder.split(','));
+			if(loadFolder != null) mySprite.frames = Paths.getMultiAnimateAtlas(loadFolder.split(','));
 			MusicBeatState.getVariables().set(tag, mySprite);
 			mySprite.active = true;
 		});
 
 		Lua_helper.add_callback(lua, "loadAnimateAtlas", function(tag:String, folder:String) {
 			var spr:PsychSprite = MusicBeatState.getVariables().get(tag);
-			if(spr != null) spr.frames = Paths.getMultiAtlas(folder.split(','));
+			if(spr != null) spr.frames = Paths.getMultiAnimateAtlas(folder.split(','));
 		});
 
 		Lua_helper.add_callback(lua, "addAnimationBySymbol", function(tag:String, name:String, symbol:String, ?framerate:Float = 24, ?loop:Bool = false, ?flipX:Bool = false, ?flipY:Bool = false)

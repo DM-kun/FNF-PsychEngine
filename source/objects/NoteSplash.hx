@@ -67,15 +67,15 @@ class NoteSplash extends PsychSprite
 		}
 
 		texture = splash;
-		frames = Paths.getMultiAtlas(texture.split(','));
+		frames = Paths.getMultiAnimateAtlas(texture.split(','));
 		if(frames == null)
 		{
 			texture = defaultNoteSplash + getSplashSkinPostfix();
-			frames = Paths.getMultiAtlas(texture.split(','));
+			frames = Paths.getMultiAnimateAtlas(texture.split(','));
 			if(frames == null)
 			{
 				texture = defaultNoteSplash;
-				frames = Paths.getMultiAtlas(texture.split(','));
+				frames = Paths.getMultiAnimateAtlas(texture.split(','));
 			}
 		}
 

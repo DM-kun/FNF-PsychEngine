@@ -18,8 +18,6 @@ class FPSCounter extends TextField
 	**/
 	public var memoryMegas(get, never):Float;
 
-	@:noCompletion private var times:Array<Float>;
-
 	public function new(x:Float = 10, y:Float = 10, color:Int = 0x000000)
 	{
 		super();
@@ -34,28 +32,30 @@ class FPSCounter extends TextField
 		autoSize = LEFT;
 		multiline = true;
 		text = "FPS: ";
-
-		times = [];
 	}
 
+	private var fps:Int = 0;
+	private var frameTime:Float = 0.0;
 	private var deltaTimeout:Float = 0.0;
 
 	// Event Handlers
 	private override function __enterFrame(deltaTime:Float):Void
 	{
-		if(deltaTimeout > 1000)
+		fps++;
+		frameTime += deltaTime;
+
+		if(frameTime >= 1000)
 		{
-			deltaTimeout = 0.0;
-			return;
+			currentFPS = fps;
+			fps = 0;
+			frameTime = 0;
 		}
 
-		final now:Float = haxe.Timer.stamp() * 1000;
-		times.push(now);
-		while(times[0] < now - 1000) times.shift();
-
-		currentFPS = times.length < FlxG.updateFramerate ? times.length : FlxG.updateFramerate;		
-		updateText();
 		deltaTimeout += deltaTime;
+		if(deltaTimeout < 1000) return;
+
+		updateText();
+		deltaTimeout = 0.0;
 	}
 
 	// dynamic, so people can override it in hscript

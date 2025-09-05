@@ -1,0 +1,17 @@
+{	
+	"title": "logoBumpin",
+	"title_x": -150,
+	"title_y": -100,
+
+	"start": "titleEnter",
+	"start_x": 100,
+	"start_y": 576,
+
+	"gf": "gfDance",
+	"gf_x": 512,
+	"gf_y": 40,
+
+	"background": "",
+	"music": "freakyMenu",
+	"bpm": 102
+}

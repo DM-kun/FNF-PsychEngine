@@ -1815,7 +1815,7 @@ class PlayState extends MusicBeatState
 							// Kill extremely late notes and cause misses
 							if(Conductor.songPosition - daNote.strumTime > noteKillOffset)
 							{
-								if(daNote.mustPress && !cpuControlled && !daNote.ignoreNote && !endingSong && (daNote.tooLate || !daNote.wasGoodHit))
+								if(daNote.mustPress && !cpuControlled && !daNote.ignoreNote && !endingSong && (daNote.tooLate || !daNote.wasGoodHit) && !(daNote.isSustainNote && daNote.isSustainEnd))
 									noteMiss(daNote);
 
 								daNote.active = daNote.visible = false;

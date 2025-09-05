@@ -187,7 +187,7 @@ class MenuCharacterEditorState extends MusicBeatState implements PsychUIEventHan
 		final imageFile:String = 'menucharacters/' + characterFile.image;
 
 		char.alpha = 1;
-		char.frames = Paths.getMultiAtlas(imageFile.split(','));
+		char.frames = Paths.getMultiAnimateAtlas(imageFile.split(','));
 		char.addAnim('idle', characterFile.idle_anim, null, 24);
 		if(characterTypeRadio.checked == 1) char.addAnim('confirm', characterFile.confirm_anim, null, 24, false);
 		char.flipX = (characterFile.flip_x == true);

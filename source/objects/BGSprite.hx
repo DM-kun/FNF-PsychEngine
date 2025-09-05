@@ -9,7 +9,7 @@ class BGSprite extends PsychSprite
 
 		if(animArray != null)
 		{
-			frames = Paths.getMultiAtlas(image.split(','));
+			frames = Paths.getMultiAnimateAtlas(image.split(','));
 			for(fAnim in animArray)
 			{
 				addAnim(fAnim, fAnim, null, fps, loop);

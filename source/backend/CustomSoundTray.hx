@@ -32,7 +32,7 @@ class CustomSoundTray extends FlxSoundTray
 		volumeDownSound = 'down';
 		volumeMaxSound = 'max';
 
-		var bg:Bitmap = new Bitmap(Paths.bitmap(volumeImagePath + 'volumebox'));
+		var bg:Bitmap = new Bitmap(Paths.image(volumeImagePath + 'volumebox', false).bitmap);
 		bg.scaleX = bg.scaleY = 0.3;
 		bg.smoothing = ClientPrefs.data.antialiasing;
 		addChild(bg);
@@ -41,7 +41,7 @@ class CustomSoundTray extends FlxSoundTray
 		y = -height;
 		visible = false;
 
-		var backingBar:Bitmap = new Bitmap(Paths.bitmap(volumeImagePath + 'bars_10'));
+		var backingBar:Bitmap = new Bitmap(Paths.image(volumeImagePath + 'bars_10', false).bitmap);
 		backingBar.x = 9;
 		backingBar.y = 5;
 		backingBar.scaleX = backingBar.scaleY = 0.3;
@@ -51,7 +51,7 @@ class CustomSoundTray extends FlxSoundTray
 
 		for(i in 1...11)
 		{
-			var bar:Bitmap = new Bitmap(Paths.bitmap(volumeImagePath + 'bars_$i' + i));
+			var bar:Bitmap = new Bitmap(Paths.image(volumeImagePath + 'bars_$i', false).bitmap);
 			bar.x = 9;
 			bar.y = 5;
 			bar.scaleX = bar.scaleY = 0.3;

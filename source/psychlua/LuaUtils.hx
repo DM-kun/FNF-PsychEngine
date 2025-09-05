@@ -338,9 +338,6 @@ class LuaUtils
 			//case 'texture_noaa' | 'textureatlas_noaa' | 'tex_noaa':
 				//spr.frames = AtlasFrameMaker.construct(image, null, true);
 
-			case 'animate', 'animateatlas':
-				spr.frames = Paths.getAnimateAtlas(image);
-
 			case 'aseprite', 'ase', 'json', 'jsoni8':
 				spr.frames = Paths.getAsepriteAtlas(image);
 
@@ -350,8 +347,14 @@ class LuaUtils
 			case 'sparrow', 'sparrowatlas', 'sparrowv2':
 				spr.frames = Paths.getSparrowAtlas(image);
 
+			case 'animate', 'animateatlas':
+				spr.frames = Paths.getAnimateAtlas(image);
+
 			case 'multi', 'multiatlas':
 				spr.frames = Paths.getMultiAtlas(image.split(','));
+
+			case 'multianimate', 'multianimateatlas':
+				spr.frames = Paths.getMultiAnimateAtlas(image.split(','));
 
 			default:
 				spr.frames = Paths.getAtlas(image);

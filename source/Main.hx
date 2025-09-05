@@ -7,7 +7,6 @@ import android.content.Context;
 import debug.FPSCounter;
 
 import flixel.FlxGame;
-import flixel.util.FlxSave;
 
 import haxe.io.Path;
 import lime.app.Application;
@@ -43,18 +42,17 @@ import openfl.events.UncaughtErrorEvent;
 class Main extends Sprite
 {
 	public static final game = {
-		width: 1280, // GAME width
-		height: 720, // GAME height
-		initialState: states.InitState, // initial game state
-		framerate: 60, // default framerate
-		skipSplash: true, // if the default flixel splash screen should be skipped
-		startFullscreen: false // if the game should start at fullscreen mode
+		width: 1280,					// GAME width
+		height: 720,					// GAME height
+		initialState: states.InitState,	// initial game state
+		framerate: 60,					// default framerate
+		skipSplash: true,				// if the default flixel splash screen should be skipped
+		startFullscreen: false			// if the game should start at fullscreen mode
 	};
 
 	public static var fpsVar:FPSCounter;
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
-
 	public static function main():Void
 	{
 		Lib.current.addChild(new Main());
@@ -120,7 +118,7 @@ class Main extends Sprite
 		#if LUA_ALLOWED Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(psychlua.CallbackHandler.call)); #end
 
 		var funkin:FlxGame = new FlxGame(game.width, game.height, game.initialState, game.framerate, game.framerate, game.skipSplash, game.startFullscreen);
-		// @:privateAccess funkin._customSoundTray = backend.CustomSoundTray;
+		@:privateAccess funkin._customSoundTray = backend.CustomSoundTray;
 		addChild(funkin);
 
 		#if !mobile

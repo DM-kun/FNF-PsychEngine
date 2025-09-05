@@ -764,7 +764,14 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 		character.color = FlxColor.WHITE;
 		character.alpha = 1;
 
-		character.frames = Paths.getMultiAtlas(character.imageFile.split(','));
+		var charImages:Array<String> = character.imageFile.split(',');
+		for(anim in anims)
+		{
+			if(anim.image == null || anim.image.length < 1) continue;
+			charImages.push(anim.image);
+		}
+
+		character.frames = Paths.getMultiAnimateAtlas(charImages);
 
 		for(anim in anims)
 		{

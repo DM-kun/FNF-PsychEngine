@@ -18,9 +18,11 @@ class ChartingGridSprite extends FlxSprite
 	public function new(columns:Int, ?color1:FlxColor = 0xFFE6E6E6, ?color2:FlxColor = 0xFFD8D8D8)
 	{
 		super();
+
 		this.columns = columns;
 		scrollFactor.x = 0;
 		active = false;
+		antialiasing = false;
 
 		scale.set(ChartingState.GRID_SIZE, ChartingState.GRID_SIZE);
 		loadGrid(color1, color2);
@@ -28,12 +30,14 @@ class ChartingGridSprite extends FlxSprite
 		recalcHeight();
 
 		vortexLine = new FlxSprite().makeGraphic(1, 1, FlxColor.WHITE);
+		vortexLine.antialiasing = false;
 		vortexLine.scale.x = this.width;
 		vortexLine.scrollFactor.x = 0;
 		vortexLine.color = 0xFF660000;
 		vortexLine.updateHitbox();
 
 		stripe = new FlxSprite().makeGraphic(1, 1, FlxColor.WHITE);
+		stripe.antialiasing = false;
 		stripe.scrollFactor.x = 0;
 		stripe.color = FlxColor.BLACK;
 		updateStripes();
@@ -97,10 +101,8 @@ class ChartingGridSprite extends FlxSprite
 	{
 		for (i => column in stripes)
 		{
-			if(column == 0)
-				stripe.x = this.x;
-			else 
-				stripe.x = this.x + ChartingState.GRID_SIZE * column - stripe.width/2;
+			if(column == 0) stripe.x = this.x;
+			else stripe.x = this.x + ChartingState.GRID_SIZE * column - stripe.width/2;
 			stripe.draw();
 		}
 	}

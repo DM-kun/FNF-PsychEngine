@@ -1,22 +1,16 @@
 package backend;
 
-import flixel.graphics.frames.FlxFrame.FlxFrameAngle;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.graphics.FlxGraphic;
-import flixel.math.FlxRect;
 import flixel.system.FlxAssets;
 
 import openfl.display.BitmapData;
-import openfl.display3D.textures.RectangleTexture;
 import openfl.utils.AssetType;
 import openfl.utils.Assets as OpenFlAssets;
 import openfl.system.System;
-import openfl.geom.Rectangle;
 import openfl.media.Sound;
 
 import lime.utils.Assets;
-
-import haxe.Json;
 
 #if MODS_ALLOWED
 import backend.Mods;
@@ -259,25 +253,6 @@ class Paths
 		return cacheBitmap(key, parentFolder, null, allowGPU);
 	}
 
-	static public function bitmap(key:String, ?parentFolder:String = null, ?allowGPU:Bool = true):BitmapData
-	{
-		key = Language.getFileTranslation('images/$key') + '.png';
-		var bitmap:BitmapData = null;
-		final file:String = getPath(key, IMAGE, parentFolder, true);
-		#if MODS_ALLOWED
-		if (FileSystem.exists(file))
-			bitmap = BitmapData.fromFile(file);
-		else #end if (OpenFlAssets.exists(file, IMAGE))
-			bitmap = OpenFlAssets.getBitmapData(file);
-
-		if(bitmap == null)
-		{
-			trace('Bitmap not found: $file | key: $key');
-			return null;
-		}
-		return bitmap;
-	}
-
 	public static function cacheBitmap(key:String, ?parentFolder:String = null, ?bitmap:BitmapData, ?allowGPU:Bool = true):FlxGraphic
 	{
 		if(bitmap == null)
@@ -373,6 +348,23 @@ class Paths
 			for(i in 1...keys.length)
 			{
 				final extraFrames:FlxAtlasFrames = Paths.getAtlas(keys[i].trim(), parentFolder, allowGPU);
+				if(extraFrames != null) parentFrames.addAtlas(extraFrames, true);
+			}
+		}
+		return parentFrames;
+	}
+
+	static public function getMultiAnimateAtlas(keys:Array<String>, ?parentFolder:String = null, ?allowGPU:Bool = true):FlxAnimateFrames
+	{
+		var parentFrames:FlxAnimateFrames = cast Paths.getAtlas(keys[0].trim());
+		if(keys.length > 1)
+		{
+			final original:FlxAnimateFrames = parentFrames;
+			parentFrames = new FlxAnimateFrames(parentFrames.parent);
+			parentFrames.addAtlas(original, true);
+			for(i in 1...keys.length)
+			{
+				final extraFrames:Dynamic = Paths.getAtlas(keys[i].trim(), parentFolder, allowGPU);
 				if(extraFrames != null) parentFrames.addAtlas(extraFrames, true);
 			}
 		}

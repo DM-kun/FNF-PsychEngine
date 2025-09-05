@@ -28,6 +28,7 @@ typedef CharacterFile = {
 }
 
 typedef AnimArray = {
+	@:optional var image:String;
 	var anim:String;
 	var name:String;
 	var fps:Float;
@@ -128,11 +129,10 @@ class Character extends PsychSprite
 
 		curCharacter = character;
 
-		final characterPath:String = '$parentFolder/$character.json';
-		var path:String = Paths.getPath(characterPath, TEXT);
-		if(!Paths.fileExists(characterPath))
+		var path:String = '$parentFolder/$character.json';
+		if(!Paths.fileExists(path))
 		{
-			path = Paths.getSharedPath('$parentFolder/$DEFAULT_CHARACTER.json'); //If a character couldn't be found, change him to BF just to prevent a crash
+			path = 'characters/$DEFAULT_CHARACTER.json'; //If a character couldn't be found, change him to BF just to prevent a crash
 			missingCharacter = true;
 			missingText = new FlxText(0, 0, 300, 'ERROR:\n$character.json', 16);
 			missingText.alignment = CENTER;
@@ -140,11 +140,7 @@ class Character extends PsychSprite
 
 		try
 		{
-			#if MODS_ALLOWED
-			loadCharacterFile(Json.parse(File.getContent(path)));
-			#else
-			loadCharacterFile(Json.parse(Assets.getText(path)));
-			#end
+			loadCharacterFile(Json.parse(Paths.getTextFromFile(path)));
 		}
 		catch(e:Dynamic)
 		{
@@ -162,7 +158,17 @@ class Character extends PsychSprite
 		scale.set(1, 1);
 		updateHitbox();
 
-		frames = Paths.getMultiAtlas(json.image.split(','));
+		animationsArray = json.animations;
+
+		var images:Array<String> = json.image.split(',');
+		if(animationsArray != null && animationsArray.length > 0)
+			for(fAnim in animationsArray)
+			{
+				if(fAnim.image == null || fAnim.image.length < 1) continue;
+				images.push(fAnim.image);
+			}
+
+		frames = Paths.getMultiAnimateAtlas(images);
 
 		imageFile = json.image;
 		jsonScale = json.scale;
@@ -191,7 +197,6 @@ class Character extends PsychSprite
 		antialiasing = ClientPrefs.data.antialiasing ? !noAntialiasing : false;
 
 		// animations
-		animationsArray = json.animations;
 		if(animationsArray != null && animationsArray.length > 0)
 			for(fAnim in animationsArray)
 			{

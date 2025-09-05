@@ -81,7 +81,7 @@ class MenuCharacter extends PsychSprite
 
 		final imageFile:String = json.image;
 		final imageSheets:Array<String> = [for(img in imageFile.split(',')) 'menucharacters/$img'];
-		frames = Paths.getMultiAtlas(imageSheets);
+		frames = Paths.getMultiAnimateAtlas(imageSheets);
 
 		if(json.scale != 1)
 		{
